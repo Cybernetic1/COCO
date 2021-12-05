@@ -10,7 +10,6 @@ Main features:
 
 ![](COCO-poster.png) 
 
-
 (The China version uses real names and no cryptocurrency, to conform to Chinese regulations.)
 
 Coco's name comes from "co-operative co-evolution", a kind of evolutionary algorithm for machine learning (This is merely an inspiration, Coco does not actually use this algorithm).
@@ -34,40 +33,39 @@ Also, Coco will be developed as a project inside Coco itself.
 
 Requirements:
 
-* 让每个使用者 注册／登陆 平台
-* 每人可以创建一个项目（一首诗）
-* 让有兴趣的参加者 续写一句诗句
-* 记录每人的贡献在 Git 倉庫里  
-  (Git 仓库可以是本地服务器，不需放上 Github)
-* 诗成后，用投票方式 决定各人的贡献／得分
-* 用简单的 HTML 滑动尺 投票（已有代码）
+* Let members register/log into Coco
+* Members can create projects (poems)
+* Other interested members can add a line to the poem
+* Record each member's contributions in a Git repository   
+  (the repository may be local, not necessarily Github)
+* When poem finished, let members vote on each other's contributions / scores
+* Use a simple HTML slide-rule for voting (already has code for this)
 
 ## v0.2 -- Draw diagrams collaboratively
 
-* SVG 格式 图形
-* GUI 可以 画线、圆、方、上色、文字、等
-* 可以输入 外在绘图软件制成的 SVG
+* Draw diagrams or pictures in SVG format
+* GUI allows to draw lines, arrows, circles, rectangles, colors, texts, etc.
+* Allow to import externally-created SVG files
 
 ## v0.3 -- Write code collaboratively
 
-* 建立文件在 Git 仓库  
- （此部分基本上已在前两个版本完成）
-* 容许 分支 (branching)
+* Create documents in a Git repository  
+ (this part is essentially completed by the previous 2 versions)
+* Allow branching of projects
 
 ## v0.4 -- Experiment on voting / bidding
 
-* 试验 投票 (voting) 和 竞投 (bidding) 方式
-* 成品的使用者 也可以投票（例如 诗的读者）
+* Experiment on voting and bidding schemes
+* End-product users may also vote (eg. the readers of poems)
 
 ## v0.5 -- Visualization of "contributions tree"
 
-* 可以查阅每个成员的贡献
-* 观察各个分支
+* Allows to visually examine each member's contributions
+* Visualize a project (with branches) as a tree
 
 ## Other matters
 
-* 找律师写 专用开源软件协议 
-* 为 Coco 平台众筹  
-  （其实 Coco 本身也是一个众筹平台）
-* 落实 Coco 没有触犯 国内 众筹 法例
+* Find lawyer to draft an open-source for-profit license for Coco projects (similar to License Zero)
+* Start a crowd-funding campaign for the Coco platform  
+ (actually Coco itself is a crowd-funding platform)
 * Business promotion / advertising
