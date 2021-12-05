@@ -4,19 +4,24 @@
 
 ## Introduction
 
-Coco is a decentralized, autonomous, anonymous or named, open-source, for-profit, platform for online collaborative projects, using virtual credits to 
+Coco is a decentralized, autonomous, anonymous or named, open-source, for-profit, platform for online collaborative projects based on virtual shares. 
+
+Main features:
+
+![](COCO-poster.png) 
+
 
 (The China version uses real names and no cryptocurrency, to conform to Chinese regulations.)
 
 Coco's name comes from "co-operative co-evolution", a kind of evolutionary algorithm for machine learning (This is merely an inspiration, Coco does not actually use this algorithm).
 
-This is Coco's [white paper draft](COCO-white-paper-en.pdf).  The draft is for reference only;  it contains not-yet finalized ideas and other loose ends.  In fact, the problem that Coco tries to solve is known as "corporate governance" which is a big subject in its own right.  It is unlikely to have a simple unique answer.  In other words, Coco is an open experiment.
+This is Coco's [white paper draft](COCO-white-paper-en.pdf).  The draft is not finalized;  it contains tentative ideas and other loose ends.  In fact, the problem that Coco tries to solve is known as "corporate governance" which is a big subject in its own right.  It is unlikely to have a simple unique answer.  In other words, Coco is an open experiment.
 
 ## Development plan
 
-We will use the "agile" development methodology, adding features continually, but we won't provide a "final" list of features, as Coco is very complex and the features have to be evolved through experimentation.
+We will use the "agile" development methodology, adding features continually.  We won't provide a "final" list of features, as Coco is very complex and the features have to be evolved through users' experimentation.
 
-Also, Coco is itself developed as a project inside Coco.
+Also, Coco will be developed as a project inside Coco itself.
 
 * v0.1 -- "Let's write poems together"
 * v0.2 -- Draw diagrams collaboratively
