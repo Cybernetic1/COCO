@@ -45,7 +45,8 @@ function redraw() {
 			},
 		// initialCypher: "MATCH p=(:Char)-[:Smaller]->(:Char) RETURN p"
 		// initialCypher: "Match (n)-[r]->(m) Return n,r,m"
-		initialCypher: "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r"
+		initialCypher: "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r",
+		serverDatabase: "SnowCrossing",
 		}
 
 	viz = new NeoVis.default(config);
