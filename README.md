@@ -1,4 +1,4 @@
-![](COCO-logo.png) 
+![](images/COCO-logo.png) 
 
 # COCO collaborative platform (world-wide version)
 
@@ -8,13 +8,21 @@ Coco is a decentralized, autonomous, anonymous or named, open-source, for-profit
 
 Main features:
 
-![](COCO-poster.png) 
+![](images/COCO-poster.png) 
 
 (The China version uses real names and no cryptocurrency, to conform to Chinese regulations.)
 
 Coco's name comes from "co-operative co-evolution", a kind of evolutionary algorithm for machine learning (This is merely an inspiration, Coco does not actually use this algorithm).
 
-This is Coco's [white paper draft](COCO-white-paper-en.pdf).  The draft is not finalized;  it contains tentative ideas and other loose ends.  In fact, the problem that Coco tries to solve is known as "corporate governance" which is a big subject in its own right.  It is unlikely to have a simple unique answer.  In other words, Coco is an open experiment.
+![](images/DAO-working-example-EN.png) 
+
+Update: The new [technical white paper](technical-white-paper-EN.html) is in HTML form and contains demos of UI's that you can play with.
+
+We have created a DAO blockchain (based on Ethereum) using the Aragon platform.  Our DAO will utilize this blockchain to store credits of members.
+
+The project has also been renamed "Snow Crossing", from a children's story by Japanese writer Miyazawa.  (I will explain this later.)
+
+This is Coco's [white paper draft](docs/COCO-white-paper-en.pdf).  The draft is not finalized;  it contains tentative ideas and other loose ends.  In fact, the problem that Coco tries to solve is known as "corporate governance" which is a big subject in its own right.  It is unlikely to have a simple unique answer.  In other words, Coco is an open experiment.
 
 ## Development plan
 
