@@ -1,0 +1,71 @@
+:root {
+  --bg: #C9F9FF;
+  /* These colors are picked to match NeoViz nodes */
+  --node: #97c2fc;
+  --nodeBorder: #2b7ce9;
+}
+
+#viz {
+	width: 700px;
+	height: 700px;
+	background-color: var(--bg);
+	}
+
+#viz-buttons {
+	vertical-align: top;
+    }
+
+#viz-buttons div {
+	display: inline-block;
+	color: white;
+	text-align: center;
+	/* padding: 5px; */
+    }
+
+#viz-buttons small {
+	font-size: 12px;
+	}
+
+#viz-buttons button {
+	/* width: 70px; */
+	/* height: 40px; */
+	background-color: var(--bg);
+	font-size: 30px;
+	border-radius: 10px;
+	border:2px solid Black;
+	}
+
+#viz-buttons p {
+	font-size: 30px;
+	}
+
+#viz-buttons span {
+	font-size: 20px;
+	}
+
+#NodeAB {
+	background-color: var(--bg);
+	border-radius: 10px;
+	padding: 20px;
+	color: Black;
+	font-size: 30px;
+	}
+
+#NodeAB div {
+	display: inline-block;
+	}
+
+#NodeAB span {
+	width: 90px;
+	height: 30px;
+	background-color: var(--node);
+	color: Black;
+	font-size: 20px;
+	border:2px solid var(--nodeBorder);
+	border-radius: 10px;
+	padding: 10px;
+	}
+
+#new-task-data {
+	font-size: 20px;
+}

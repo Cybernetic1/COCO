@@ -1,0 +1,12 @@
+body {
+	background-color: White;
+	font-size: 130%;
+}
+
+h1, h2, h3, a {
+	color: Blue;
+}
+
+p, li, label {
+	color: Black;
+}

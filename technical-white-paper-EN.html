@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Snow Crossing -- technical white paper</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
+	<link rel="stylesheet" type="text/css" href="css/file-map.css">
+	<link rel="stylesheet" type="text/css" href="css/tasks-graph.css">
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="js/neovis.js"></script>
+	<script src="js/neo4j-web.min.js"></script>
+</head>
+
+<body onload="redraw()">
+
+<img src="images/crossing-the-snow-3.jpg" style='width: 500px; object-fit: contain'>
+
+<h1>Snow Crossing &mdash; Technical White Paper</h1>
+
+<h3>Table of Contents</h3>
+
+<ul style="list-style-type:disc">
+	<li><a href="#Aragon-interface">DAO (Aragon) Interface</a></li>
+	<li><a href="#Git-interface">Repository (Git) Interface</a></li>
+	<li><a href="#Discord-interface">Chatroom (IRC) Interface</a></li>
+</ul>
+
+<hr>
+
+<h2 id="Aragon-interface">DAO (Aragon) Interface</h2>
+
+<p>Aragon manages tokens, but is not responsible for "content"-related things.</p>
+
+<ul style="list-style-type:disc">
+	<li>Voting</li>
+	<li>Assign tokens</li>
+</ul>
+
+<p>This is the Voting demo, it automatically adjusts the total to 100:</p>
+<div class="slidecontainer">
+	<p class="name">Claris</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="0">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Abeer</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="1">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Pete</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="2">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Eric</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="3">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">YKY</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="4">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Roger</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="5">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Total</p>
+	<pre class="score" id="total">0</pre>
+</div>
+
+<hr>
+
+<h2 id="Git-interface">Repository (Git) Interface</h2>
+
+<p>On Git side, we need a way to "visualize" each member's contributions,
+so other members can conveniently estimate their worth.</p>
+
+<p>Note:  We're using Git's API to access repository data, this can be
+done independently of GitHub.</p>
+
+<p>We want to support the visualization of several file formats, especially
+those with well-established standards:</p>
+<ol>
+	<li>(Natural language) text files</li>
+	<li>Code</li>
+	<li>SVG files</li>
+	<li>HTML</li>
+</ol>
+<p>Other file types, since they cannot be visualized, cannot be examined for
+<i>partial</i> contributions, so they must be treated as single units.</p>
+
+<p>The following is a demo of "visualizing" Git repository files:
+(demo data is randomly generated)</p>
+<div style="display: inline-block">
+	<center>
+	<p id="PersonStats">Name: <b>Claris</b><br>
+	Tokens: 10,000</p>
+	<img id="PersonPic" src="images/Claris.png" style='height: 120px; object-fit: contain'>
+	</center>
+</div>
+<div style="display: inline-block; width: 110px;">
+	<p class="PersonChooser" align="center">
+		<label><input type="radio" name="person" value=0><span>Claris</span></label>
+		<label><input type="radio" name="person" value=1><span>Abeer</span></label>
+		<label><input type="radio" name="person" value=2><span>Pete</span></label>
+		<label><input type="radio" name="person" value=3><span>Eric</span></label>
+	</p>
+</div>
+<div style="display: inline-block">
+	<p><strong>Files</strong></p>
+	<div id="Files">
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">README.md</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">main.py</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">model.py</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">introduction.html</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">docs/</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">AI-modern-approach.pdf</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">diagram.svg</label class="FileName">
+		</div>
+	</div>
+</div>
+<hr>
+
+<p>Similarly, we can click into a document: (demo not yet ready)</p>
+<div style="display: inline-block; vertical-align: top;">
+	<center>
+	<p id="PersonStats2">Name: <b>Claris</b><br>
+	Tokens: 10,000</p>
+	<img id="PersonPic2" src="images/Abeer.png" style='height: 120px; object-fit: contain'>
+	</center>
+</div>
+<div style="display: inline-block; vertical-align: top; width: 110px;">
+	<p class="PersonChooser" align="center">
+		<label><input type="radio" name="person2" value=0><span>Claris</span></label>
+		<label><input type="radio" name="person2" value=1 checked="checked"><span>Abeer</span></label>
+		<label><input type="radio" name="person2" value=2><span>Pete</span></label>
+		<label><input type="radio" name="person2" value=3><span>Eric</span></label>
+	</p>
+</div>
+<div style="display: inline-block">
+	<img src="images/Git-visualization-2.png" style='width: 650px;'>
+</div>
+
+<hr>
+
+<h2 id="Discord-interface">Chatroom (IRC) Interface</h2>
+
+<p>The purpose of IRC / Discord is to provide "chatrooms".  Each cluster
+has its own chatroom, they can pass messages to each other:</p>
+<img src="images/clusters.png" style='width: 400px; object-fit: contain'>
+
+<ol>
+	<li>Transfer Chinese WeChat logs to IRC / Discord</li>
+	<li>Allow users to create new clusters</li>
+	<li>Allow users to send messages from cluster to cluster</li>
+</ol>
+
+<hr>
+
+<h2>Project Tree</h2>
+
+<p>(Links in this Project Graph are not too important, since any cluster
+can send messages to any other cluster, if such needs arise.)</p>
+
+<p>Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to
+link them.</p>
+
+<p>Create / Update Nodes:  Fill out information, then choose node ①,
+and click button.</p>
+
+<div id="viz-buttons" style="display:inline">
+	<div>
+		<button type="button" onclick="redraw()">⟳<br>
+		<small>Redraw</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="addNode()">+③⇢①<br>
+		<small>Add Node</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="delNode()">-①<br>
+		<small>Delete Node</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="editNode()">✎①<br>
+		<small>Edit Node</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="linkNodes()">②⇢①<br>
+		<small>Link Nodes</small></button>
+	</div>
+</div>
+<div id="NodeAB" style="display:inline-block; vertical-align: center;">
+② <span id="NodeB">none</span>
+⇢ ① <span id="NodeA">none</span>
+</div><br><br>
+
+<div id="new-task-data" style="display: inline-block; vertical-align: top;">
+	<p><span style="font-size:30px">③</span>= New Task:</p>
+	<label for="taskname">Task name</label><br>
+	<input type="text" id="TaskName" name="TaskName"><br>
+	<label for="expTokens" disabled>Expected tokens</label><br>
+	<input type="number" id="ExpTokens" name="ExpTokens" disabled><br>
+	<label for="expTime" disabled>Expected time</label><br>
+	<input type="number" id="ExpTime" name="ExpTime" disabled><br>
+	<label for="expTokens" disabled>Expected #workers</label><br>
+	<input type="number" id="ExpWorkers" name="ExpWorkers" disabled><br>
+	<label for="Details" disabled>Details</label><br>
+	<textarea rows = "10" cols = "30" name = "Details" disabled>Enter details here...
+	</textarea><br>
+	<label for="gitRefs" disabled>Git references</label><br>
+	<textarea rows = "5" cols = "30" name = "gitRefs" disabled>
+	</textarea>
+</div>
+<div id="viz" style="display: inline-block"></div>
+
+<script src="js/vote-slider.js"></script>
+<script src="js/file-map.js"></script>
+<script src="js/tasks-graph.js"></script>
+</body>
+</html>
