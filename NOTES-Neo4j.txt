@@ -1,0 +1,70 @@
+Install and Start Neo4j
+=======================
+
+Download Neo4j Desktop version AppImage from Neo4j website.
+	chmod a+x neo4j-desktop-1.5.0-x86_64.AppImage
+Execute the AppImage.  Wait for it to initialize.
+
+Add a new DBMS instance.  Use default the name, set a password.
+Then click button to 'Start' the DBMS.  Wait for it to start.
+
+On left menu, go to "Graph Apps" then fire up "Neo4j Browser".
+If all goes well you'd see notice saying you're connected as user 'neo4j'
+	with connection: bolt://localhost:7687
+
+ (Alternatively, Neo4j Browser can be opened in local browser via this URL:
+	http://localhost:7474/browser/
+ Then within the browser, log into
+	neo4j://localhost:7687
+ using the new password you entered for the DBMS. )
+
+ (From older versions, there is a first-time password: neo4j / neo4j.
+ Seems no longer needed. )
+
+Now you're ready to use the Neo4j graph DB server.
+
+Useful Cyphers
+==============
+
+Delete all nodes and relationships:
+	MATCH (n:Type) DETACH DELETE n
+
+Delete all relationships:
+	match ()-[r]->() delete r;
+
+Return all relationships:
+	Match (n)-[r]->(m) Return n,r,m
+
+Return all nodes and relationships, including singleton nodes:
+	MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r;
+
+Create relationship:
+	MATCH (a:Char), (b:Char) WHERE ID(a) - ID(b) = 1
+	CREATE (a)-[r:Smaller]->(b)
+
+Set properties:
+	MATCH (n:Node) WHERE ID(n)=$id
+	SET n.name = $NewName
+
+Create new node with relationship to old node:
+	MATCH (old:Node {id:'1'})
+	CREATE (old) -[:RELATED_TO]-> (new:Node {id:'2'})
+
+Create our "Tasks" graph with Python
+====================================
+
+The Python script 'build-tasks-graph.py' creates a simple graph for our project.
+In order to use Python to access Neo4j, you need to install
+	pip3 install neo4j
+You may run this after Neo4j server is running:
+	python build-tasks-graph.py
+In Neo4j Browser, left menu "Database Information",
+	click on "node" to see a sample of the created graph.
+
+Try NeoVis visualization
+========================
+
+Assume you have a non-empty graph DB running in Neo4j server.
+Open in the browser, eg:
+	chromium-browser technical-white-paper.html
+Go to the last part of the web page.  You should see a NeoVis demo.
