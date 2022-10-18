@@ -70,7 +70,7 @@ function redraw() {
 // **** Access Neo4j database
 
 const driver = neo4j.driver("neo4j://localhost", neo4j.auth.basic("neo4j", "l0wsecurity"));
-const session = driver.session();
+const session = driver.session({ database : "SnowCrossing"});
 
 async function addNode() {
 	const taskname = document.getElementById("TaskName").value;
