@@ -28,7 +28,12 @@ def create_node(tx, name):
 	tx.run( "CREATE (a :Node {name: $name})",
 			name=name)
 
-with driver.session() as session:
+with driver.session(database = "SnowCrossing") as session:
+
+	# print(dir(session))
+	# print(session._config)
+	print("Using Database:", session._config['database'])
+
 	session.write_transaction(create_node, "Root")
 	session.write_transaction(create_node, "Business plan")
 	session.write_transaction(create_node, "Technical white paper")
@@ -40,13 +45,13 @@ with driver.session() as session:
 
 	# Link all nodes as children of 'root'
 	session.write_transaction( lambda tx: tx.run(
-		"MATCH (a:Node), (b:Node) WHERE b.name = 'root'"
+		"MATCH (a:Node), (b:Node) WHERE b.name = 'Root'"
 		"CREATE (a)-[r:SubTask]->(b)"
 		) )
 
 	# Remove self-loop
 	session.write_transaction( lambda tx: tx.run(
-		"MATCH (n:Node)-[r]->(n) WHERE n.name = 'root' DELETE r"
+		"MATCH (n:Node)-[r]->(n) WHERE n.name = 'Root' DELETE r"
 		) )
 
 driver.close()
