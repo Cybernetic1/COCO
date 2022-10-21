@@ -7,13 +7,8 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
 	<link rel="stylesheet" type="text/css" href="css/file-map.css">
-	<link rel="stylesheet" type="text/css" href="css/tasks-graph.css">
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-	<script src="js/neovis.js"></script>
-	<script src="js/neo4j-web.min.js"></script>
 </head>
-
-<body onload="redraw()">
 
 <img src="images/crossing-the-snow-3.jpg" style='width: 500px; object-fit: contain'>
 
@@ -191,63 +186,25 @@ has its own chatroom, they can pass messages to each other:</p>
 
 <h2>Project Tree</h2>
 
-<p>(Links in this Project Graph are not too important, since any cluster
-can send messages to any other cluster, if such needs arise.)</p>
+<p>Links in this Project Graph are not too important, since any cluster
+can send messages to any other cluster, if such needs arise.</p>
 
-<p>Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to
-link them.</p>
+<p>If ProjectGraph does not display, please start the server via:<br>
+<pre style="margin-left: 40px;">cd python<br>
+python start-ProjectGraph-server.py</pre></p>
 
-<p>Create / Update Nodes:  Fill out information, then choose node ①,
+<p>But you also need to install VisDCC first:<br>
+<pre style="margin-left: 40px;">pip install visdcc<br>
+pip install dash==2.3.0</pre></p>
+
+<p>Buttons:<br>Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to
+link them.<br>
+Create / Update Nodes:  Fill out information, then choose node ①,
 and click button.</p>
 
-<div id="viz-buttons" style="display:inline">
-	<div>
-		<button type="button" onclick="redraw()">⟳<br>
-		<small>Redraw</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="addNode()">+③⇢①<br>
-		<small>Add Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="delNode()">-①<br>
-		<small>Delete Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="editNode()">✎①<br>
-		<small>Edit Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="linkNodes()">②⇢①<br>
-		<small>Link Nodes</small></button>
-	</div>
-</div>
-<div id="NodeAB" style="display:inline-block; vertical-align: center;">
-② <span id="NodeB">none</span>
-⇢ ① <span id="NodeA">none</span>
-</div><br><br>
-
-<div id="new-task-data" style="display: inline-block; vertical-align: top;">
-	<p><span style="font-size:30px">③</span>= New Task:</p>
-	<label for="taskname">Task name</label><br>
-	<input type="text" id="TaskName" name="TaskName"><br>
-	<label for="expTokens" disabled>Expected tokens</label><br>
-	<input type="number" id="ExpTokens" name="ExpTokens" disabled><br>
-	<label for="expTime" disabled>Expected time</label><br>
-	<input type="number" id="ExpTime" name="ExpTime" disabled><br>
-	<label for="expTokens" disabled>Expected #workers</label><br>
-	<input type="number" id="ExpWorkers" name="ExpWorkers" disabled><br>
-	<label for="Details" disabled>Details</label><br>
-	<textarea rows = "10" cols = "30" name = "Details" disabled>Enter details here...
-	</textarea><br>
-	<label for="gitRefs" disabled>Git references</label><br>
-	<textarea rows = "5" cols = "30" name = "gitRefs" disabled>
-	</textarea>
-</div>
-<div id="viz" style="display: inline-block"></div>
+<iframe id="viz" src="http://127.0.0.1:8050" style="height:1000px; width:100%; border: none;"></iframe>
 
 <script src="js/vote-slider.js"></script>
 <script src="js/file-map.js"></script>
-<script src="js/tasks-graph.js"></script>
 </body>
 </html>
