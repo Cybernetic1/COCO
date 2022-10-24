@@ -1,0 +1,6 @@
+ID: 1
+Name: Business plan
+Status: Done
+Details: 
+In-coming edges: ['14-1']
+Out-going edges: ['1-0']

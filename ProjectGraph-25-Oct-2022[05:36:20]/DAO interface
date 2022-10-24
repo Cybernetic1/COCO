@@ -1,0 +1,6 @@
+ID: 7
+Name: DAO interface
+Status: Done
+Details: 
+In-coming edges: ['11-7', '12-7']
+Out-going edges: ['7-0']

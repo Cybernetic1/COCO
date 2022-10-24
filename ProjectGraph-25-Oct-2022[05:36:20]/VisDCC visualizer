@@ -1,0 +1,10 @@
+ID: 18
+Name: VisDCC visualizer
+Status: Done
+Details: 基本上已经可以使用了。
+
+各人可以储存自己的 json 档案，自行试验一下。 
+
+这部分有个 to-do 工作未完成： 查看成员的贡献值。 所以我开了一个 sub-task 在它的子叶。
+In-coming edges: ['19-18', '12-18']
+Out-going edges: ['18-5']

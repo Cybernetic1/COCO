@@ -1,0 +1,6 @@
+ID: 12
+Name: voting UI
+Status: Done
+Details: 
+In-coming edges: ['13-12']
+Out-going edges: ['12-7', '12-18']
