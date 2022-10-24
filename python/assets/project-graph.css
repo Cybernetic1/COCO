@@ -1,9 +1,19 @@
+/* This CSS file must be put in "assets/" directory, required by Dash */
+
 :root {
   --bg: #C9F9FF;
   /* These colors are picked to match NeoViz nodes */
   --node: #97c2fc;
   --nodeBorder: #2b7ce9;
 }
+
+button:active {
+	background-color: var(--node);
+	box-shadow: box-shadow:
+	  7px 6px 28px 1px rgba(0, 0, 0, 0.5);
+	transform: translateY(4px);
+	/* Moving button 4px to y-axis */
+	}
 
 /* Buttons –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .button, button, input[type="submit"], input[type="reset"], input[type="button"] {
@@ -76,7 +86,8 @@ input[type="text"] {
 textarea {
 	font-size: 16px;
 	margin: 5px;
-	height': 730px;
+	height: 730px;
+	width: 300px;
 	/*height: 38px;
 	  padding: 6px 10px;
 	  background-color: #fff;

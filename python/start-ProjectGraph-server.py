@@ -1,4 +1,8 @@
 # TO-DO:
+# * list authors for each task
+# * first author self-claim # of credits for task
+# * needs others' vote to support
+# * final result = # of tokens for every author of task
 
 # DONE:
 # * radio buttons for Done (pink) vs In-progress
@@ -16,6 +20,9 @@ from dash import dcc, html, callback_context
 from dash.dependencies import Input, Output, State
 # from dash import Dash, Input, Output, State, dcc, html, callback_context
 import json
+
+# Local modules:
+import write_ProjectGraph_to_dir
 
 app = dash.Dash(__name__)
 app.config.suppress_callback_exceptions = True
@@ -56,6 +63,9 @@ app.layout = html.Div(style={'font-size':'20px'}, children=[
 			placeholder = 'Task details...',
 			style = {'height': 730},
 			value = '' ),
+		html.Br(),
+		html.Label("Authors:", id='authors_label'),
+		html.Br(),
 		], style = {'display':'inline-block', 'vertical-align':'top'}),
 	html.Div([
 		visdcc.Network(id = 'net',
@@ -74,6 +84,7 @@ app.layout = html.Div(style={'font-size':'20px'}, children=[
 	html.Br(),
 	html.Button('Save ProjectGraph.json', id='saveGraph'),
 	html.Button('Load ProjectGraph.json', id='loadGraph'),
+	html.Button('Write ProjectGraph to directory', id='writeGraph2Dir'),
 ])
 
 selected_node_1 = None
@@ -101,8 +112,8 @@ def ordinal(a, b):
 
 # ===== Create initial Project Graph =====
 
-init_nodes = ["Root", "商业计划书", "技术白皮书", "网站", "Git 界面", "Neo4j 界面",
-	"聊天室 界面", "DAO 界面"]
+init_nodes = ["Root", "business proposal", "technical white paper", "web site", "Git interface", "Neo4j interface",
+	"chatroom interface", "DAO interface"]
 
 net = { 'nodes': [], 'edges': []}
 node_index = 0
@@ -119,7 +130,7 @@ for n in init_nodes[1:]:
 	net['edges'].append({'id': ordinal(node_index, 0), 'from': node_index, 'to': 0, 'arrows': 'to'})
 	node_index += 1
 
-# When new network is loaded, need to set index > all other nodes
+# When new network is loaded, need to set index > all other indices
 def set_node_index():
 	global node_index
 	node_index = 0
@@ -129,7 +140,7 @@ def set_node_index():
 	node_index += 1
 	return
 
-# ===== Process callback events =====
+# ===== Handle callback events =====
 
 @app.callback(								# select Node / Edge in graph
 	Output('selectedNode', 'children'),
@@ -222,9 +233,10 @@ def myfun(val):
 	dash.dependencies.Input('linkNodes', 'n_clicks'),
 	dash.dependencies.Input('renewNode', 'n_clicks'),
 	dash.dependencies.Input('saveGraph', 'n_clicks'),
-	dash.dependencies.Input('loadGraph', 'n_clicks')
+	dash.dependencies.Input('loadGraph', 'n_clicks'),
+	dash.dependencies.Input('writeGraph2Dir', 'n_clicks')
 	)
-def myfun(btn1, btn2, btn3, btn4, btn5, btn6):
+def myfun(btn1, btn2, btn3, btn4, btn5, btn6, btn7):
 	global net, node_index, task_name, task_status, task_details, selected_node_1, selected_node_2
 	print("node_index =", node_index)
 	print("task_name =", task_name)
@@ -238,6 +250,7 @@ def myfun(btn1, btn2, btn3, btn4, btn5, btn6):
 		net['edges'].append({'id': ordinal(node_index, selected_node_1),
 			'from': node_index, 'to': selected_node_1, 'arrows': 'to'})
 		node_index += 1
+		print(chr(7))
 		return net
 
 	if button_id[:15] == 'delNode_or_Edge':
@@ -262,6 +275,7 @@ def myfun(btn1, btn2, btn3, btn4, btn5, btn6):
 		for e in collection:
 			net['edges'].remove(e)
 		# print("result =", net)
+		print(chr(7))
 		return net
 
 	if button_id[:9] == 'linkNodes':
@@ -277,6 +291,7 @@ def myfun(btn1, btn2, btn3, btn4, btn5, btn6):
 				n['color'] = task_status
 				n['details'] = task_details
 				# etc ...
+		print(chr(7))
 		return net
 
 	if button_id[:9] == 'saveGraph':
@@ -285,6 +300,7 @@ def myfun(btn1, btn2, btn3, btn4, btn5, btn6):
 		print("To save: ", json_str)
 		with open("ProjectGraph.json", "w+") as outfile:
 			outfile.write(json_str)
+		print(chr(7))
 		return net
 
 	if button_id[:9] == 'loadGraph':
@@ -293,6 +309,12 @@ def myfun(btn1, btn2, btn3, btn4, btn5, btn6):
 		net = json.loads(json_str)
 		# print("Net = ", net)
 		set_node_index()
+		print(chr(7))
+		return net
+
+	if button_id[:14] == 'writeGraph2Dir':
+		write_ProjectGraph_to_dir.write_ProjectGraph_to_dir()
+		print(chr(7))
 		return net
 
 	return net

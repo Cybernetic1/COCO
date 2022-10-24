@@ -1,0 +1,5 @@
+ID: 8
+Name: Discord
+Status: In progress
+In-coming edges: ['9-8']
+Out-going edges: ['8-6']

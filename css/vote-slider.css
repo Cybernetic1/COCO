@@ -1,6 +1,21 @@
-.slidecontainer {
+.name, .name2 {
+	font-size: 20px;
+	display:inline-block;margin-right:5px; width:10%;
+}
+
+.score, .score2 {
+	font-size: 20px;
+	display:inline-block;margin-right:5px; width:10%;
+}
+
+.slidecontainer, .slidecontainer2 {
     width: 100%; /* Width of the outside container */
     height: 35px;
+}
+
+.slider2 {
+	width: 70%;
+	display:inline-block;
 }
 
 /* The slider itself */
@@ -16,16 +31,6 @@
     transition: opacity .2s;
 	/* added by YKY */
     display:inline-block; width:75%;
-}
-
-.name {
-	font-size: 20px;
-	display:inline-block;margin-right:5px; width:10%;
-}
-
-.score {
-	font-size: 20px;
-	display:inline-block;margin-right:5px; width:5%;
 }
 
 /* Mouse-over effects */

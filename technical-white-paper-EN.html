@@ -7,6 +7,8 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
 	<link rel="stylesheet" type="text/css" href="css/file-map.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/TeX-MML-AM_CHTML.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 
@@ -33,7 +35,7 @@
 	<li>Assign tokens</li>
 </ul>
 
-<p>This is the Voting demo, it automatically adjusts the total to 100:</p>
+<p>This is the Voting demo, it automatically adjusts the total to 100: (<b>integers</b> version)</p>
 <div class="slidecontainer">
 	<p class="name">Claris</p>
 	<pre class="score">0</pre>
@@ -74,6 +76,65 @@
 	<p class="name">Total</p>
 	<pre class="score" id="total">0</pre>
 </div>
+<br>
+
+<p>But I find the <b>non-integer</b> version better to use:</p>
+
+<div class="slidecontainer2">
+	<p class="name">Claris</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="0">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Abeer</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="1">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Pete</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="2">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Eric</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="3">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">YKY</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="4">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Roger</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="5">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Total</p>
+	<pre class="score2" id="total2">0</pre>
+</div>
+<br>
+
+<hr>
+
+<h2>Per-Task Scoring</h2>
+
+<p>Supposed the task is completed by \(N\) authors.  Using the above voting UI, the authors mutually vote on each other, on the percentages of everyone's contributions.  These percentages add up to 100%: \( p_1, p_2, ... p_n \).</p>
+
+<p>All these percentages are <b>weighted-averaged</b>.  To be valid, the number of voters has to reach quorum.</p>
+
+<p>The total tokens worth \( T \) for this task is also voted and weighted-averaged by authors.</p>
+
+<p>Non-authors may also vote on this task: either by altering the percentages \( p_i \) or by altering total value \( T \), but it seems dubious that outsiders could influence the percentages, so let's not allow this option.</p>
+
+<p>Exceptions could be raised to seek external advice / resolution.</p>
 
 <hr>
 
