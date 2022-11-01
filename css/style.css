@@ -10,3 +10,12 @@ h1, h2, h3, a {
 p, li, label {
 	color: Black;
 }
+
+b, i {
+	color: Blue;
+}
+
+to-do::before {
+	color: Red;
+	content: "TO-DO: ";
+}
