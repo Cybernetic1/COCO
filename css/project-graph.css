@@ -1,0 +1,77 @@
+:root {
+  --bg: #C9F9FF;
+  --node: #CDF;
+  --nodeBorder: #27E;
+}
+
+#viz {
+	width: 70%;
+	height: 900px;
+	background-color: White;
+	}
+
+#viz-buttons {
+	vertical-align: top;
+    }
+
+#viz-buttons div {
+	display: inline-block;
+	color: white;
+	text-align: center;
+	/* padding: 5px; */
+    }
+
+#viz-buttons small {
+	font-size: 12px;
+	}
+
+#viz-buttons button {
+	/* width: 70px; */
+	/* height: 40px; */
+	background-color: var(--bg);
+	font-size: 30px;
+	border-radius: 10px;
+	border:2px solid Black;
+	}
+
+#viz-buttons p {
+	font-size: 30px;
+	}
+
+#viz-buttons span {
+	font-size: 20px;
+	}
+
+#Node12, #Edge {
+	background-color: var(--bg);
+	border-radius: 10px;
+	padding: 20px;
+	color: Black;
+	font-size: 30px;
+	}
+
+#Node12 span {
+	width: 90px;
+	height: 30px;
+	background-color: var(--node);
+	color: Black;
+	font-size: 20px;
+	border:2px solid var(--nodeBorder);
+	border-radius: 10px;
+	padding: 10px;
+	}
+
+#Edge span {
+	width: 90px;
+	height: 30px;
+	background-color: White;
+	color: Black;
+	font-size: 20px;
+	border:2px solid Black;
+	border-radius: 10px;
+	padding: 10px;
+	}
+
+#new-task-data, input, textarea {
+	font-size: 20px;
+}
