@@ -5,11 +5,6 @@
 	<meta charset="UTF-8">
 	<title>Crossing the Snow -- technical white paper</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
-	<link rel="stylesheet" type="text/css" href="css/file-map.css">
-	<link rel="stylesheet" type="text/css" href="css/project-graph.css">
-	<script src="https://unpkg.com/vis-data@latest/peer/umd/vis-data.min.js"></script>
-	<script src="https://unpkg.com/vis-network@latest/peer/umd/vis-network.min.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/TeX-MML-AM_CHTML.js"></script>
@@ -38,91 +33,8 @@
 	<li>Assign tokens</li>
 </ul>
 
-<p>这是 投票 demo，它会自动将总数调至 100： (这是<b>整数</b>版本)</p>
-<div class="slidecontainer">
-	<p class="name">Claris</p>
-	<pre class="score">0</pre>
-	<input type="range" min="0" max="100" value="0" class="slider" id="0">
-</div>
-
-<div class="slidecontainer">
-	<p class="name">Abeer</p>
-	<pre class="score">0</pre>
-	<input type="range" min="0" max="100" value="0" class="slider" id="1">
-</div>
-
-<div class="slidecontainer">
-	<p class="name">Pete</p>
-	<pre class="score">0</pre>
-	<input type="range" min="0" max="100" value="0" class="slider" id="2">
-</div>
-
-<div class="slidecontainer">
-	<p class="name">Eric</p>
-	<pre class="score">0</pre>
-	<input type="range" min="0" max="100" value="0" class="slider" id="3">
-</div>
-
-<div class="slidecontainer">
-	<p class="name">YKY</p>
-	<pre class="score">0</pre>
-	<input type="range" min="0" max="100" value="0" class="slider" id="4">
-</div>
-
-<div class="slidecontainer">
-	<p class="name">Roger</p>
-	<pre class="score">0</pre>
-	<input type="range" min="0" max="100" value="0" class="slider" id="5">
-</div>
-
-<div class="slidecontainer">
-	<p class="name">Total</p>
-	<pre class="score" id="total">0</pre>
-</div>
-<br>
-
-<p>我发觉 <b>非整数</b>版本 比较好用：</p>
-
-<div class="slidecontainer2">
-	<p class="name">Claris</p>
-	<pre class="score2">0</pre>
-	<input type="range" min="0" max="1000" value="0" class="slider2" id="0">
-</div>
-
-<div class="slidecontainer2">
-	<p class="name">Abeer</p>
-	<pre class="score2">0</pre>
-	<input type="range" min="0" max="1000" value="0" class="slider2" id="1">
-</div>
-
-<div class="slidecontainer2">
-	<p class="name">Pete</p>
-	<pre class="score2">0</pre>
-	<input type="range" min="0" max="1000" value="0" class="slider2" id="2">
-</div>
-
-<div class="slidecontainer2">
-	<p class="name">Eric</p>
-	<pre class="score2">0</pre>
-	<input type="range" min="0" max="1000" value="0" class="slider2" id="3">
-</div>
-
-<div class="slidecontainer2">
-	<p class="name">YKY</p>
-	<pre class="score2">0</pre>
-	<input type="range" min="0" max="1000" value="0" class="slider2" id="4">
-</div>
-
-<div class="slidecontainer2">
-	<p class="name">Roger</p>
-	<pre class="score2">0</pre>
-	<input type="range" min="0" max="1000" value="0" class="slider2" id="5">
-</div>
-
-<div class="slidecontainer2">
-	<p class="name">Total</p>
-	<pre class="score2" id="total2">0</pre>
-</div>
+<p>这是 投票 demo，它会自动将总数调至 100%：</p>
+<iframe src="vote-slider.html" style="width:100%; height:300px; border:none;"></iframe>
 <br>
 
 <hr>
@@ -156,75 +68,12 @@
 <p>其他格式的文件，由于没有可视化，那就不能观察到每个人的<i>局部贡献</i>，只能当成一个整体 unit.</p>
 
 <p>可视化的意思是，可以查看每一成员的贡献：（示范数据是随机产生的）</p>
-<div style="display: inline-block">
-	<center>
-	<p id="PersonStats">Name: <b>Claris</b><br>
-	Tokens: 10,000</p>
-	<img id="PersonPic" src="images/Claris.png" style='height: 120px; object-fit: contain'>
-	</center>
-</div>
-<div style="display: inline-block; width: 110px;">
-	<p class="PersonChooser" align="center">
-		<label><input type="radio" name="person" value=0><span>Claris</span></label>
-		<label><input type="radio" name="person" value=1><span>Abeer</span></label>
-		<label><input type="radio" name="person" value=2><span>Pete</span></label>
-		<label><input type="radio" name="person" value=3><span>Eric</span></label>
-	</p>
-</div>
-<div style="display: inline-block">
-	<p><strong>Files</strong></p>
-	<div id="Files">
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">README.md</label class="FileName">
-		</div><br>
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">main.py</label class="FileName">
-		</div><br>
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">model.py</label class="FileName">
-		</div><br>
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">introduction.html</label class="FileName">
-		</div><br>
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">docs/</label class="FileName">
-		</div><br>
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">AI-modern-approach.pdf</label class="FileName">
-		</div><br>
-		<div class="File">
-			<canvas class="FileMap">Unsupported</canvas>
-			<label class="FileName">diagram.svg</label class="FileName">
-		</div>
-	</div>
-</div>
+<iframe src="file-map.html" style="width:100%; height:400px; border:none;"></iframe>
+
 <hr>
 
 <p>类似地，可以再点击进文件内：（demo 暂时未完成）</p>
-<div style="display: inline-block; vertical-align: top;">
-	<center>
-	<p id="PersonStats2">Name: <b>Claris</b><br>
-	Tokens: 10,000</p>
-	<img id="PersonPic2" src="images/Abeer.png" style='height: 120px; object-fit: contain'>
-	</center>
-</div>
-<div style="display: inline-block; vertical-align: top; width: 110px;">
-	<p class="PersonChooser" align="center">
-		<label><input type="radio" name="person2" value=0><span>Claris</span></label>
-		<label><input type="radio" name="person2" value=1 checked="checked"><span>Abeer</span></label>
-		<label><input type="radio" name="person2" value=2><span>Pete</span></label>
-		<label><input type="radio" name="person2" value=3><span>Eric</span></label>
-	</p>
-</div>
-<div style="display: inline-block">
-	<img src="images/Git-visualization-2.png" style='width: 650px;'>
-</div>
+<iframe src="document-map.html" style="width:100%; height:1000px; border:none;"></iframe>
 
 <hr>
 
@@ -244,67 +93,7 @@
 <h2>任务表</h2>
 
 <p>任务表中的链接并不太重要，因为任何小组都可以发讯息到其他小组，如有需要即可。</p>
+<iframe src="project-graph.html" style="width:100%; height:1200px; border:none;"></iframe>
 
-<p>按钮：<br>Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。<br>
-Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</p>
-
-<div id="viz-buttons" style="display:inline">
-	<!--div>
-		<button type="button" onclick="redraw()">⟳<br>
-		<small>Redraw</small></button>
-	</div-->
-	<div>
-		<button type="button" onclick="addNode()">+③⇢①<br>
-		<small>Add Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="editNode()">✎①<br>
-		<small>Edit Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="linkNodes()">②⇢①<br>
-		<small>Link Nodes</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="delNode()">-①<br>
-		<small>Delete Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="delEdge()">-⤸<br>
-		<small>Delete Edge</small></button>
-	</div>
-</div>
-<div id="Node12" style="display:inline-block; vertical-align: center;">
-② <span id="Node2">none</span>
-⇢ ① <span id="Node1">none</span>
-</div>
-<div id="Edge" style="display:none; vertical-align: center;">
-<span id="Edge1">none</span>
-</div><br><br>
-
-<div id="new-task-data" style="display: inline-block; vertical-align: top;">
-	<p><span style="font-size:30px">③</span>= New Task:</p>
-	<label for="taskname">Task name</label><br>
-	<input type="text" id="TaskName" name="TaskName"><br>
-	<label for="expTokens" disabled>Expected tokens</label><br>
-	<input type="number" id="ExpTokens" name="ExpTokens" disabled><br>
-	<label for="expTime" disabled>Expected time</label><br>
-	<input type="number" id="ExpTime" name="ExpTime" disabled><br>
-	<label for="expTokens" disabled>Expected #workers</label><br>
-	<input type="number" id="ExpWorkers" name="ExpWorkers" disabled><br>
-	<label for="Details">Details</label><br>
-	<textarea rows="15" width="25%" id="Details">Enter details here...
-	</textarea><br>
-	<label for="gitRefs" disabled>Git references</label><br>
-	<textarea rows="5" width="25%" name = "gitRefs" disabled>
-	</textarea>
-</div>
-<div id="viz" style="display:inline-block; margin-left:20px; border:1px solid Black;"></div>
-
-<script src="js/vote-slider.js"></script>
-<script src="js/vote-slider-(integer).js"></script>
-<script src="js/file-map.js" defer></script>
-<script src="js/ProjectGraph.js"></script>
-<script src="js/project-graph.js" defer></script>
 </body>
 </html>

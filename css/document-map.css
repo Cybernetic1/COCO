@@ -1,0 +1,29 @@
+/* Document Map */
+
+/* TO-DO */
+
+/* PersonChooser is a set of radio buttons */
+
+.PersonChooser input[type="radio"] + span:hover {
+	background-color: PowderBlue;
+	color: black;
+}
+
+.PersonChooser input[type="radio"] {
+	display: none;
+}
+
+.PersonChooser span {
+	display: inline-block;
+	width: 80px;
+	padding: 5px;
+	border: 2px solid Black;
+	border-radius: 3px;
+	margin-bottom: 15px;
+}
+
+.PersonChooser input[type="radio"]:checked + span {
+  background-color: Cyan;
+  color: black;
+  font-weight: bold;
+}
