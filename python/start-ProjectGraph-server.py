@@ -1,4 +1,6 @@
 # TO-DO:
+# * Communicate with external server (to handle HTML, Javascript, etc)
+# * Allow bi-lingual texts (label, details)
 # * list authors for each task
 # * first author self-claim # of credits for task
 # * needs others' vote to support
