@@ -24,7 +24,7 @@ with open("ProjectGraph.json", "r") as infile:
 net = json.loads(json_str)
 print("Net = ", net)
 
-with open("ProjectGraph.js", "w+") as outfile:
+with open("../js/ProjectGraph-data.js", "w+") as outfile:
 
 	outfile.write("var nodes = new vis.DataSet([\n")
 	for n in net['nodes']:
