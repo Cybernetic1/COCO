@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Crossing the Snow -- technical white paper</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
+	<link rel="stylesheet" type="text/css" href="css/file-map.css">
+	<link rel="stylesheet" type="text/css" href="css/project-graph.css">
+	<script src="https://unpkg.com/vis-data@latest/peer/umd/vis-data.min.js"></script>
+	<script src="https://unpkg.com/vis-network@latest/peer/umd/vis-network.min.js"></script>
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/TeX-MML-AM_CHTML.js"></script>
+</head>
+
+<img src="images/crossing-the-snow-3.jpg" style='width: 500px; object-fit: contain'>
+
+<h1>渡过雪原 &mdash; Technical White Paper</h1>
+
+<h3>目录</h3>
+
+<ul style="list-style-type:disc">
+	<li><a href="#Aragon-interface">DAO (Aragon) 界面</a></li>
+	<li><a href="#Git-interface">资料库 (Git) 界面</a></li>
+	<li><a href="#Discord-interface">聊天室 (Discord) 界面</a></li>
+</ul>
+
+<hr>
+
+<h2 id="Aragon-interface">DAO (Aragon) 界面</h2>
+
+<p>Aragon 负责的是 tokens，它不管「内容」方面的东西。</p>
+
+<ul style="list-style-type:disc">
+	<li>Voting</li>
+	<li>Assign tokens</li>
+</ul>
+
+<p>这是 投票 demo，它会自动将总数调至 100： (这是<b>整数</b>版本)</p>
+<div class="slidecontainer">
+	<p class="name">Claris</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="0">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Abeer</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="1">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Pete</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="2">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Eric</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="3">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">YKY</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="4">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Roger</p>
+	<pre class="score">0</pre>
+	<input type="range" min="0" max="100" value="0" class="slider" id="5">
+</div>
+
+<div class="slidecontainer">
+	<p class="name">Total</p>
+	<pre class="score" id="total">0</pre>
+</div>
+<br>
+
+<p>我发觉 <b>非整数</b>版本 比较好用：</p>
+
+<div class="slidecontainer2">
+	<p class="name">Claris</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="0">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Abeer</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="1">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Pete</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="2">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Eric</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="3">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">YKY</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="4">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Roger</p>
+	<pre class="score2">0</pre>
+	<input type="range" min="0" max="1000" value="0" class="slider2" id="5">
+</div>
+
+<div class="slidecontainer2">
+	<p class="name">Total</p>
+	<pre class="score2" id="total2">0</pre>
+</div>
+<br>
+
+<hr>
+
+<h3>单一件工作的计分方法</h3>
+
+<p>假设这件工作由 \(N\) 个作者 完成.  用上面的 UI, 每个成员自行提出他(和其他作者)在这件工作里所占的百分比 (%): \( p_1, p_2, ... p_n \)</p>
+
+<p>对所有作者 提交的百分比 做<b>加权平均</b>。 To be valid, # of voters have to reach quorum.</p>
+
+<p>The total tokens worth \( T \) for this task is also voted and weighted-averaged by authors.</p>
+
+<p>Non-authors may also vote on this task: either by altering the percentages \( p_i \) or by altering total value \( T \), but it seems dubious that outsiders could influence the percentages, so let's not allow this option.</p>
+
+<p>Exceptions could be raised to seek external advice / resolution.</p>
+
+<hr>
+
+<h2 id="Git-interface">资料库 (Git) 界面</h2>
+
+<p>Git 这边需要的是 将每个成员的贡献「可视化」出来，以方便其他人 判断他的贡献价值。</p>
+
+<p>注意 我们是用 Git 的 API 读取 repository 资料，这并不依赖 GitHub 提供资料。</p>
+
+<p>我们打算支缓这几种文件的可视化，因为它们的格式是很标准的：</p>
+<ol>
+	<li>Text 档案 可视化</li>
+	<li>SVG 可视化</li>
+	<li>网页 可视化</li>
+</ol>
+<p>其他格式的文件，由于没有可视化，那就不能观察到每个人的<i>局部贡献</i>，只能当成一个整体 unit.</p>
+
+<p>可视化的意思是，可以查看每一成员的贡献：（示范数据是随机产生的）</p>
+<div style="display: inline-block">
+	<center>
+	<p id="PersonStats">Name: <b>Claris</b><br>
+	Tokens: 10,000</p>
+	<img id="PersonPic" src="images/Claris.png" style='height: 120px; object-fit: contain'>
+	</center>
+</div>
+<div style="display: inline-block; width: 110px;">
+	<p class="PersonChooser" align="center">
+		<label><input type="radio" name="person" value=0><span>Claris</span></label>
+		<label><input type="radio" name="person" value=1><span>Abeer</span></label>
+		<label><input type="radio" name="person" value=2><span>Pete</span></label>
+		<label><input type="radio" name="person" value=3><span>Eric</span></label>
+	</p>
+</div>
+<div style="display: inline-block">
+	<p><strong>Files</strong></p>
+	<div id="Files">
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">README.md</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">main.py</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">model.py</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">introduction.html</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">docs/</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">AI-modern-approach.pdf</label class="FileName">
+		</div><br>
+		<div class="File">
+			<canvas class="FileMap">Unsupported</canvas>
+			<label class="FileName">diagram.svg</label class="FileName">
+		</div>
+	</div>
+</div>
+<hr>
+
+<p>类似地，可以再点击进文件内：（demo 暂时未完成）</p>
+<div style="display: inline-block; vertical-align: top;">
+	<center>
+	<p id="PersonStats2">Name: <b>Claris</b><br>
+	Tokens: 10,000</p>
+	<img id="PersonPic2" src="images/Abeer.png" style='height: 120px; object-fit: contain'>
+	</center>
+</div>
+<div style="display: inline-block; vertical-align: top; width: 110px;">
+	<p class="PersonChooser" align="center">
+		<label><input type="radio" name="person2" value=0><span>Claris</span></label>
+		<label><input type="radio" name="person2" value=1 checked="checked"><span>Abeer</span></label>
+		<label><input type="radio" name="person2" value=2><span>Pete</span></label>
+		<label><input type="radio" name="person2" value=3><span>Eric</span></label>
+	</p>
+</div>
+<div style="display: inline-block">
+	<img src="images/Git-visualization-2.png" style='width: 650px;'>
+</div>
+
+<hr>
+
+<h2 id="Discord-interface">聊天室 (Discord) 界面</h2>
+
+<p>Discord 的目的是 管理「聊天室」，每个 cluster 有独立的聊天室，互相之间可以传递讯息：</p>
+<img src="images/clusters.png" style='width: 400px; object-fit: contain'>
+
+<ol>
+	<li>将 Discord 的聊天内容搬到 微信 / QQ群组</li>
+	<li>Allow users to create new clusters</li>
+	<li>Allow users to send messages from cluster to cluster</li>
+</ol>
+
+<hr>
+
+<h2>任务表</h2>
+
+<p>任务表中的链接并不太重要，因为任何小组都可以发讯息到其他小组，如有需要即可。</p>
+
+<p>按钮：<br>Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。<br>
+Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</p>
+
+<div id="viz-buttons" style="display:inline">
+	<!--div>
+		<button type="button" onclick="redraw()">⟳<br>
+		<small>Redraw</small></button>
+	</div-->
+	<div>
+		<button type="button" onclick="addNode()">+③⇢①<br>
+		<small>Add Node</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="editNode()">✎①<br>
+		<small>Edit Node</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="linkNodes()">②⇢①<br>
+		<small>Link Nodes</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="delNode()">-①<br>
+		<small>Delete Node</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="delEdge()">-⤸<br>
+		<small>Delete Edge</small></button>
+	</div>
+</div>
+<div id="Node12" style="display:inline-block; vertical-align: center;">
+② <span id="Node2">none</span>
+⇢ ① <span id="Node1">none</span>
+</div>
+<div id="Edge" style="display:none; vertical-align: center;">
+<span id="Edge1">none</span>
+</div><br><br>
+
+<div id="new-task-data" style="display: inline-block; vertical-align: top;">
+	<p><span style="font-size:30px">③</span>= New Task:</p>
+	<label for="taskname">Task name</label><br>
+	<input type="text" id="TaskName" name="TaskName"><br>
+	<label for="expTokens" disabled>Expected tokens</label><br>
+	<input type="number" id="ExpTokens" name="ExpTokens" disabled><br>
+	<label for="expTime" disabled>Expected time</label><br>
+	<input type="number" id="ExpTime" name="ExpTime" disabled><br>
+	<label for="expTokens" disabled>Expected #workers</label><br>
+	<input type="number" id="ExpWorkers" name="ExpWorkers" disabled><br>
+	<label for="Details">Details</label><br>
+	<textarea rows="15" width="25%" id="Details">Enter details here...
+	</textarea><br>
+	<label for="gitRefs" disabled>Git references</label><br>
+	<textarea rows="5" width="25%" name = "gitRefs" disabled>
+	</textarea>
+</div>
+<div id="viz" style="display:inline-block; margin-left:20px; border:1px solid Black;"></div>
+
+<script src="js/vote-slider.js"></script>
+<script src="js/vote-slider-(integer).js"></script>
+<script src="js/file-map.js" defer></script>
+<script src="js/ProjectGraph.js"></script>
+<script src="js/project-graph.js" defer></script>
+</body>
+</html>

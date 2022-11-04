@@ -1,12 +1,30 @@
-# TO-DO:
-# * Communicate with external server (to handle HTML, Javascript, etc)
+# Installation
+# ============
+# In order to run the Project Graph server you need to install VisDCC by Jimmy Wu:
+#    http://github.com/jummybow/visdcc
+# Installing:
+#    pip install visdcc
+#    pip install dash==2.3.0
+# Start server:
+#    python start-ProjectGraph-server.py
+# If you get this error:
+#	ImportError: cannot import name 'get_current_traceback' from 'werkzeug.debug.tbtools'
+# You may need to:
+#	pip install -U dash
+# And perhaps downgrade Werkzeug to:
+#	pip install werkzeug==2.0.3
+
+# TO-DO
+# =====
+# * Migrate this code to Vis.js
 # * Allow bi-lingual texts (label, details)
 # * list authors for each task
 # * first author self-claim # of credits for task
 # * needs others' vote to support
 # * final result = # of tokens for every author of task
 
-# DONE:
+# DONE
+# ====
 # * radio buttons for Done (pink) vs In-progress
 # * link nodes
 # * color node bug (fixed: set global variable)
