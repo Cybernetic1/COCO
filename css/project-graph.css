@@ -1,29 +1,38 @@
 :root {
   --bg: #C9F9FF;
   --node: #CDF;
+  --node2: #EFF;
   --nodeBorder: #27E;
 }
+
+.viz-buttons button:active {
+	background-color: var(--node2);
+	box-shadow: box-shadow:
+	  7px 6px 28px 1px rgba(0, 0, 0, 0.5);
+	transform: translateY(4px);
+	/* Moving button 4px to y-axis */
+	}
 
 #viz {
 	background-color: White;
 	}
 
-#viz-buttons {
+.viz-buttons {
 	vertical-align: top;
     }
 
-#viz-buttons div {
+.viz-buttons div {
 	display: inline-block;
 	color: white;
 	text-align: center;
 	/* padding: 5px; */
     }
 
-#viz-buttons small {
+.viz-buttons small {
 	font-size: 12px;
 	}
 
-#viz-buttons button {
+.viz-buttons button {
 	/* width: 70px; */
 	/* height: 40px; */
 	background-color: var(--bg);
@@ -32,11 +41,11 @@
 	border:2px solid Black;
 	}
 
-#viz-buttons p {
+.viz-buttons p {
 	font-size: 30px;
 	}
 
-#viz-buttons span {
+.viz-buttons span {
 	font-size: 20px;
 	}
 

@@ -1,3 +1,10 @@
+// TO-DO:
+// * Task status: in progress, done, paused
+// * Load / save graph as JSON
+// * Save graph as directory files
+
+const techClick = new Audio('sounds/tech-click.wav');
+const techClick2 = new Audio('sounds/tech-click2.wav');
 
 // create a network
 var container = document.getElementById("viz");
@@ -61,8 +68,8 @@ var node1 = document.getElementById("Node1");
 var node2 = document.getElementById("Node2");
 
 network.on("click", function (params) {
-	// console.log("selectNode Event:", params);
-	// console.log("Selected node=", params['nodes'][0]);
+	console.log("selectNode Event:", params);
+	console.log("Selected node=", params['nodes'][0]);
 	
 	if (params['nodes'].length > 0) {			// a node is clicked
 		// shift node (1) to (2)
@@ -85,6 +92,7 @@ network.on("click", function (params) {
 			document.getElementById("Details").value = "";
 		document.getElementById("Edge").style.display = "none";
 		document.getElementById("Node12").style.display = "inline-block";
+		techClick.play();
 		}
 	else if (params['edges'].length > 0) {		// an edge is clicked
 		// console.log("Selected edge=", params);
@@ -93,6 +101,7 @@ network.on("click", function (params) {
 		document.getElementById("Node12").style.display = "none";
 		document.getElementById("Edge").style.display = "inline-block";
 		document.getElementById("Edge1").innerText = "Edge " + edge.from.toString() + "-" + edge.to.toString();
+		techClick.play();
 		}
 	else {										// clicked on white space
 		clicked_edge = -1;
@@ -113,16 +122,19 @@ async function addNode() {
 	data.edges.add({from: node_index, to: clicked_id_1});
 	node_index += 1;
 	console.log("Added node", taskname, "to node #", clicked_id_1);
+	techClick2.play();
 	}
 
 async function delNode() {
 	data.nodes.remove({id: clicked_id_1});
 	console.log("Deleted node #", clicked_id_1);
+	techClick2.play();
 	}
 
 async function delEdge() {
 	data.edges.remove({id: clicked_edge});
 	console.log("Deleted edge #", clicked_edge);
+	techClick2.play();
 	}
 
 async function editNode() {
@@ -135,9 +147,48 @@ async function editNode() {
 	if (details != "")
 		node.details = details;
 	console.log("Updated node #", clicked_id_1);
+	network.redraw();
+	techClick2.play();
 	}
 
 async function linkNodes() {
 	data.edges.add({from: clicked_id_2, to: clicked_id_1});
 	console.log("Linked node #", clicked_id_2, "as SubTask to node #", clicked_id_1);
+	techClick2.play();
+	}
+
+var str = "";
+
+async function saveJSON() {
+	// For all nodes:
+	str = "{\"nodes\":[";
+	var ns = nodes._data;
+	ns.forEach(function(n) {
+		str += JSON.stringify(n);
+		str += ",";
+		});
+	str = str.slice(0,-1) + "],";
+
+	// For all edges:
+	str += "\"edges\":[";
+	var es = edges._data;
+	es.forEach(function(e) {
+		delete e['id'];
+		str += JSON.stringify(e);
+		str += ",";
+		});
+	str = str.slice(0,-1) + "]}";
+	console.log(str);
+	techClick2.play();
+	}
+
+async function loadJSON() {
+	network.destroy();
+	var data0 = JSON.parse(str);
+	nodes = new vis.DataSet(data0.nodes);
+	edges = new vis.DataSet(data0.edges);
+	data.nodes = nodes;
+	data.edges = edges;
+	network = new vis.Network(container, data, options);
+	techClick2.play();
 	}

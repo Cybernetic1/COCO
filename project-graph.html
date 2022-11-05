@@ -14,12 +14,20 @@
 <p>按钮：<br>Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。<br>
 Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</p>
 
-<div id="viz-buttons" style="display:inline">
+<div class="viz-buttons" style="display:inline; margin-right:30px;">
 	<!--div>
 		<button type="button" onclick="redraw()">⟳<br>
 		<small>Redraw</small></button>
 	</div-->
 	<div>
+		<button type="button" onclick="saveJSON()">→🖹<br>
+		<small>Save JSON</small></button>
+	</div>
+	<div>
+		<button type="button" onclick="loadJSON()">🖹→<br>
+		<small>Load JSON</small></button>
+	</div>
+	<div style="margin-left:30px;">
 		<button type="button" onclick="addNode()">+③⇢①<br>
 		<small>Add Node</small></button>
 	</div>
@@ -65,6 +73,11 @@ Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</
 	<textarea rows="5" width="25%" name = "gitRefs" disabled>
 	</textarea>
 </div>
+
 <div id="viz" style="display:inline-block; width:70%; height:900px; margin-left:20px; border:1px solid Black;"></div>
+
+<div class="viz-buttons">
+</div>
+
 </body>
 </html>
