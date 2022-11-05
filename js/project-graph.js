@@ -1,7 +1,10 @@
 // TO-DO:
+// * Save JSON to server-side
 // * Task status: in progress, done, paused
+// * Save graph as directory files (not urgent?)
+
+// DONE:
 // * Load / save graph as JSON
-// * Save graph as directory files
 
 const techClick = new Audio('sounds/tech-click.wav');
 const techClick2 = new Audio('sounds/tech-click2.wav');
@@ -67,7 +70,7 @@ var clicked_edge = -1;
 var node1 = document.getElementById("Node1");
 var node2 = document.getElementById("Node2");
 
-network.on("click", function (params) {
+function onClick(params) {
 	console.log("selectNode Event:", params);
 	console.log("Selected node=", params['nodes'][0]);
 	
@@ -108,7 +111,9 @@ network.on("click", function (params) {
 		document.getElementById("Edge").style.display = "none";
 		document.getElementById("Node12").style.display = "inline-block";
 		}
-});
+	}
+
+network.on("click", onClick);
 
 /*
 network.on("hoverNode", function (params) {
@@ -190,5 +195,6 @@ async function loadJSON() {
 	data.nodes = nodes;
 	data.edges = edges;
 	network = new vis.Network(container, data, options);
+	network.on("click", onClick);
 	techClick2.play();
 	}
