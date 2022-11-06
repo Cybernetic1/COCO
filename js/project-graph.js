@@ -184,17 +184,34 @@ async function saveJSON() {
 		});
 	str = str.slice(0,-1) + "]}";
 	console.log(str);
+
+	console.log($.ajax({
+		method: "POST",
+		url: "/saveJSON/" + "ProjectGraph.json",
+		data: str,
+		success: function(resp) {}
+	}));
+
 	techClick2.play();
 	}
 
 async function loadJSON() {
-	network.destroy();
-	var data0 = JSON.parse(str);
-	nodes = new vis.DataSet(data0.nodes);
-	edges = new vis.DataSet(data0.edges);
-	data.nodes = nodes;
-	data.edges = edges;
-	network = new vis.Network(container, data, options);
-	network.on("click", onClick);
-	techClick2.play();
+	$.ajax({
+			method: "GET",
+			url: "/loadJSON/" + "ProjectGraph.json",
+			cache: false,
+			success: function(data0) {
+
+		network.destroy();
+		// data0 seems already parsed as JSON by the server
+		// No need to do:  var data1 = JSON.parse(data0);
+		// console.log(data0);
+		nodes = new vis.DataSet(data0.nodes);
+		edges = new vis.DataSet(data0.edges);
+		data.nodes = nodes;
+		data.edges = edges;
+		network = new vis.Network(container, data, options);
+		network.on("click", onClick);
+		techClick2.play();
+		} });
 	}
