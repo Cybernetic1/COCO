@@ -13,12 +13,16 @@
 </head>
 
 <body>
-<p>按钮：<br>Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。<br>
+<p lang="zh">按钮：<br>Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。<br>
 Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</p>
+<p lang="en">Buttons:<br>Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to
+link them.<br>
+Create / Update Nodes:  Fill out information, then choose node ①,
+and click button.</p>
 
 <div class="viz-buttons" style="display:inline-block; margin-right:30px;">
 	<div style="margin-right:20px;">
-		<button type="button" id="lang" value="CN" onclick="switchLang()" style="font-size:17px;">
+		<button type="button" id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
 		English<br><small>Language</small></button>
 	</div>
 	<div>
@@ -62,8 +66,10 @@ Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</
 <div id="new-task-data" style="display: inline-block; vertical-align: top;">
 	<span style="font-size:30px">③</span>= New Node:<br>
 
+	<div lang="zh">
 	<label for="taskname">工作名称</label><br>
-	<input type="text" id="TaskNameCN"><br>
+	<input type="text" id="TaskNameZH"><br>
+	</div>
 
 	<label for="taskname">Task name</label><br>
 	<input type="text" id="TaskNameEN"><br>
