@@ -16,11 +16,11 @@
 <p>按钮：<br>Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。<br>
 Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</p>
 
-<div class="viz-buttons" style="display:inline; margin-right:30px;">
-	<!--div>
-		<button type="button" onclick="redraw()">⟳<br>
-		<small>Redraw</small></button>
-	</div-->
+<div class="viz-buttons" style="display:inline-block; margin-right:30px;">
+	<div style="margin-right:20px;">
+		<button type="button" id="lang" value="CN" onclick="switchLang()" style="font-size:17px;">
+		English<br><small>Language</small></button>
+	</div>
 	<div>
 		<button type="button" onclick="saveJSON()">→🖹<br>
 		<small>Save JSON</small></button>
@@ -50,29 +50,37 @@ Create / Update Nodes：先填写好资料，选择 node ①，然后按钮。</
 		<small>Delete Edge</small></button>
 	</div>
 </div>
-<div id="Node12" style="display:inline-block; vertical-align: center;">
+<div style="display:inline-block; vertical-align: bottom;" id="Node12">
 ② <span id="Node2">none</span>
 ⇢ ① <span id="Node1">none</span>
 </div>
-<div id="Edge" style="display:none; vertical-align: center;">
+<div id="Edge" style="display:none; vertical-align: bottom;">
 <span id="Edge1">none</span>
-</div><br><br>
+</div>
+<br><br>
 
 <div id="new-task-data" style="display: inline-block; vertical-align: top;">
 	<span style="font-size:30px">③</span>= New Node:<br>
+
+	<label for="taskname">工作名称</label><br>
+	<input type="text" id="TaskNameCN"><br>
+
 	<label for="taskname">Task name</label><br>
-	<input type="text" id="TaskName" name="TaskName"><br>
+	<input type="text" id="TaskNameEN"><br>
+
 	<label for="expTokens" disabled>Expected tokens</label><br>
-	<input type="number" id="ExpTokens" name="ExpTokens" disabled><br>
+	<input type="number" id="ExpTokens" disabled><br>
 	<label for="expTime" disabled>Expected time</label><br>
-	<input type="number" id="ExpTime" name="ExpTime" disabled><br>
+	<input type="number" id="ExpTime" disabled><br>
 	<label for="expTokens" disabled>Expected #workers</label><br>
-	<input type="number" id="ExpWorkers" name="ExpWorkers" disabled><br>
+	<input type="number" id="ExpWorkers" disabled><br>
+
 	<label for="Details">Details</label><br>
 	<textarea rows="15" width="25%" id="Details">Enter details here...
 	</textarea><br>
+
 	<label for="gitRefs" disabled>Git references</label><br>
-	<textarea rows="5" width="25%" name = "gitRefs" disabled>
+	<textarea rows="5" width="25%" id="gitRefs" disabled>
 	</textarea>
 </div>
 
