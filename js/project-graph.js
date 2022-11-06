@@ -1,4 +1,5 @@
 // TO-DO:
+// * Allow saving different graphs with filenames
 // * Task status: in progress, done, paused
 // * Per-Task Voting:
 // 		- list authors for each task
@@ -198,6 +199,35 @@ async function linkNodes() {
 	techClick2.play();
 	}
 
+async function clearGraph() {
+	network.destroy();
+	nodes = new vis.DataSet([ {id: 0, label: "ROOT", color: "cyan"} ]);
+	edges = new vis.DataSet([]);
+	data.nodes = nodes;
+	data.edges = edges;
+	network = new vis.Network(container, data, options);
+	update_node_index();
+	network.on("click", onClick);
+	techClick2.play();
+	}
+
+// Prepare modal window for user to input filenames etc
+var modal = document.getElementById("modalWindow");
+
+// Clicking "X" or "Cancel" closes the modal
+document.getElementsByClassName("close")[0].onclick =
+document.getElementById("modalCancel").onclick =
+	function() {
+		modal.style.display = "none";
+		};
+
+// When user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+	if (event.target == modal) {
+		modal.style.display = "none";
+		}
+	};
+
 async function saveJSON() {
 	// For all nodes:
 	var str = "{\"nodes\":[";
@@ -218,37 +248,54 @@ async function saveJSON() {
 		});
 	str = str.slice(0,-1) + "]}";
 	console.log(str);
-
-	console.log($.ajax({
-		method: "POST",
-		url: "/saveJSON/" + "ProjectGraph.json",
-		data: str,
-		success: function(resp) {}
-	}));
-
 	techClick2.play();
+
+	// Open modal window and ask for filename
+	document.getElementById("modalLabel").innerText = "Please enter JSON filename: ";
+	var input = document.getElementById("modalInput");
+	input.defaultValue = "ProjectGraph.json";
+	modal.style.display = "block";
+	document.getElementById("modalOK").onclick = function() {
+		console.log($.ajax({
+			method: "POST",
+			url: "/saveJSON/" + input.value,
+			data: str,
+			success: function(resp) {}
+			}));
+		modal.style.display = "none";
+		techClick2.play();
+		};
 	}
 
 async function loadJSON() {
-	$.ajax({
-			method: "GET",
-			url: "/loadJSON/" + "ProjectGraph.json",
-			cache: false,
-			success: function(data0) {
+	// Open modal window and ask for filename
+	document.getElementById("modalLabel").innerText = "Please enter JSON filename: ";
+	var input = document.getElementById("modalInput");
+	input.defaultValue = "ProjectGraph.json";
+	modal.style.display = "block";
+	techClick2.play();
+	document.getElementById("modalOK").onclick = function() {
 
-		network.destroy();
-		// data0 seems already parsed as JSON by the server
-		// No need to do:  var data1 = JSON.parse(data0);
-		// console.log(data0);
-		nodes = new vis.DataSet(data0.nodes);
-		edges = new vis.DataSet(data0.edges);
-		data.nodes = nodes;
-		data.edges = edges;
-		network = new vis.Network(container, data, options);
-		update_node_index();
-		network.on("click", onClick);
-		techClick2.play();
-		} });
+		$.ajax({
+				method: "GET",
+				url: "/loadJSON/" + input.value,
+				cache: false,
+				success: function(data0) {
+
+			network.destroy();
+			// data0 seems already parsed as JSON by the server
+			// No need to do:  var data1 = JSON.parse(data0);
+			// console.log(data0);
+			nodes = new vis.DataSet(data0.nodes);
+			edges = new vis.DataSet(data0.edges);
+			data.nodes = nodes;
+			data.edges = edges;
+			network = new vis.Network(container, data, options);
+			update_node_index();
+			network.on("click", onClick);
+			techClick2.play();
+			} });
+		}
 	}
 
 async function switchLang() {

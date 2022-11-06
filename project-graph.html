@@ -33,7 +33,11 @@ and click button.</p>
 		<button type="button" onclick="loadJSON()">🖹→<br>
 		<small>Load JSON</small></button>
 	</div>
-	<div style="margin-left:10px;">
+	<div>
+		<button type="button" onclick="clearGraph()">🗑<br>
+		<small>Clear</small></button>
+	</div>
+	<div>
 		<button type="button" onclick="addNode()">+③⇢①<br>
 		<small>Add Node</small></button>
 	</div>
@@ -99,6 +103,19 @@ and click button.</p>
 </div>
 
 <div id="viz" style="display:inline-block; width:70%; height:900px; margin-left:20px; border:1px solid Black;"></div>
+
+<!-- Modal Window for inputting file names etc -->
+<div id="modalWindow" class="modal">
+	<div class="modal-content">
+	<span class="close">&times;</span>
+	<label id="modalLabel"></label>
+	<br>
+	<input type="text" id="modalInput" style="width:90%;">
+	<br>
+	<button id="modalOK">OK</button>
+	<button id="modalCancel">Cancel</button>
+	</div>
+</div>
 
 </body>
 </html>

@@ -13,7 +13,7 @@ var nodes = new vis.DataSet([
 { id:11, labelEN: "connect Aragon", },
 { id:12, labelEN: "voting UI", color: "#f77", },
 { id:13, labelEN: "bug: total votes >100", color: "#f77", details: `Solved by continuous slider`, },
-{ id:14, labelEN: "tell Snow-Crossing story", labelZH: "讲《渡过雪原》故事", },
+{ id:14, labelEN: "tell 'Crossing the Snow' story", labelZH: "讲《渡过雪原》故事", },
 { id:15, labelEN: "read Git repo", },
 { id:16, labelEN: "extract authors", },
 { id:17, labelEN: "Neo4j", color: "#999", },
