@@ -36,7 +36,14 @@ nodes: nodes,
 edges: edges
 };
 
-var node_index = nodes.length;
+var node_index = 0;
+function update_node_index() {
+	nodes.forEach((n) => {
+		if (n.id > node_index)
+			node_index = n.id;
+		})
+	}
+update_node_index();
 
 var options = {
 	nodes: {
@@ -71,8 +78,8 @@ var node1 = document.getElementById("Node1");
 var node2 = document.getElementById("Node2");
 
 function onClick(params) {
-	console.log("selectNode Event:", params);
-	console.log("Selected node=", params['nodes'][0]);
+	// console.log("selectNode Event:", params);
+	// console.log("Selected node=", params['nodes'][0]);
 	
 	if (params['nodes'].length > 0) {			// a node is clicked
 		// shift node (1) to (2)
@@ -209,6 +216,7 @@ async function loadJSON() {
 		data.nodes = nodes;
 		data.edges = edges;
 		network = new vis.Network(container, data, options);
+		update_node_index();
 		network.on("click", onClick);
 		techClick2.play();
 		} });
