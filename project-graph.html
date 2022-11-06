@@ -20,8 +20,8 @@ link them.<br>
 Create / Update Nodes:  Fill out information, then choose node ①,
 and click button.</p>
 
-<div class="viz-buttons" style="display:inline-block; margin-right:30px;">
-	<div style="margin-right:20px;">
+<div class="viz-buttons" style="display:inline-block; margin-right:10px;">
+	<div style="margin-right:10px;">
 		<button type="button" id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
 		English<br><small>Language</small></button>
 	</div>
@@ -33,7 +33,7 @@ and click button.</p>
 		<button type="button" onclick="loadJSON()">🖹→<br>
 		<small>Load JSON</small></button>
 	</div>
-	<div style="margin-left:30px;">
+	<div style="margin-left:10px;">
 		<button type="button" onclick="addNode()">+③⇢①<br>
 		<small>Add Node</small></button>
 	</div>
@@ -67,25 +67,33 @@ and click button.</p>
 	<span style="font-size:30px">③</span>= New Node:<br>
 
 	<div lang="zh">
-	<label for="taskname">工作名称</label><br>
+	<label>工作名称：</label><br>
 	<input type="text" id="TaskNameZH"><br>
 	</div>
 
-	<label for="taskname">Task name</label><br>
+	<label>Task name:</label><br>
 	<input type="text" id="TaskNameEN"><br>
 
-	<label for="expTokens" disabled>Expected tokens</label><br>
-	<input type="number" id="ExpTokens" disabled><br>
-	<label for="expTime" disabled>Expected time</label><br>
-	<input type="number" id="ExpTime" disabled><br>
-	<label for="expTokens" disabled>Expected #workers</label><br>
-	<input type="number" id="ExpWorkers" disabled><br>
+	<label>Status:</label><br>
+	<input type="radio" id="in-progress" name="status" value="in-progress">
+	<label for="in-progress">in progress</label><br>
+	<input type="radio" id="finished" name="status" value="finished">
+	<label for="finished">finished</label><br>
+	<input type="radio" id="paused" name="status" value="paused">
+	<label for="pause">paused</label><br>
 
-	<label for="Details">Details</label><br>
+	<label disabled>Expected tokens</label>
+	<input type="number" id="ExpTokens" style="width:7em;" disabled><br>
+	<label disabled>Expected days</label>
+	<input type="number" id="ExpTime" style="width:4em;" disabled><br>
+	<label disabled>Expected # workers</label>
+	<input type="number" id="ExpWorkers" style="width:4em;" disabled><br>
+
+	<label>Details:</label><br>
 	<textarea rows="15" width="25%" id="Details">Enter details here...
 	</textarea><br>
 
-	<label for="gitRefs" disabled>Git references</label><br>
+	<label disabled>Git references:</label><br>
 	<textarea rows="5" width="25%" id="gitRefs" disabled>
 	</textarea>
 </div>

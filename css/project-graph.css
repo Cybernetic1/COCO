@@ -9,6 +9,11 @@
 	background-color: White;
 	}
 
+
+label[disabled] {
+	color: Gray;
+}
+
 .viz-buttons button:active {
 	background-color: var(--node2);
 	transform: translateY(4px);		/* Moving button 4px y-axis */
@@ -66,4 +71,8 @@
 
 #new-task-data, input, textarea {
 	font-size: 20px;
+}
+
+#number, input[type='number'] {
+	width: 4em;
 }
