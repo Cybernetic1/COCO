@@ -1,0 +1,27 @@
+{
+  "name": "snow-crossing",
+  "version": "1.0.0",
+  "description": "DAO collaborative project platform",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cybernetic1/COCO.git"
+  },
+  "keywords": [
+    "DAO",
+    "collaboration",
+    "projects"
+  ],
+  "author": "Snow Crossing Team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cybernetic1/COCO/issues"
+  },
+  "homepage": "https://github.com/Cybernetic1/COCO#readme"
+}

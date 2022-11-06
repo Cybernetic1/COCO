@@ -1,16 +1,19 @@
 // TO-DO:
 // * Task status: in progress, done, paused
-// * Allow bi-lingual texts (label, details)
 // * Per-Task Voting:
 // 		- list authors for each task
 //		- first author self-claim # of credits for task
 //		- needs others' vote to support
 //		- final result = # of tokens for every author of task
-// * Save graph as directory files (not urgent?)
+
+// NOT URGENT:
+// * Save graph as directory files
+// * Allow bi-lingual task details
 
 // DONE:
 // * Load / save graph as JSON
 // * Save JSON to server-side
+// * Allow bi-lingual labels
 
 // For our Project Graph, (* = required)
 // each Node may contain attributes:  *id, label, label-EN, status, details, authors[], votes[]
@@ -41,13 +44,14 @@ nodes: nodes,
 edges: edges
 };
 
-var lang = document.getElementById("lang").value;		// Current language ("CN" or "EN")
+var lang = document.getElementById("lang").value;		// Current language ("ZH" or "EN")
 nodes.forEach((n) => {
-	if (n.hasOwnProperty("labelCN"))
-		n.label = n.labelCN;	// copy Chinese label to be default label
+	if (n.hasOwnProperty("labelZH"))
+		n.label = n.labelZH;	// copy Chinese label to be default label
 	else
 		n.label = n.labelEN;
 	});
+$('[lang="en"]').hide();
 
 var node_index = 0;
 function update_node_index() {
@@ -85,15 +89,22 @@ var network = new vis.Network(container, data, options);
 
 var clicked_id_1 = -1;
 var clicked_id_2 = -1;
-var clicked_name_1 = "none";
-var clicked_name_2 = "none";
+var clicked_name_1 = "";
+var clicked_name_2 = "";
 var clicked_edge = -1;
 var node1 = document.getElementById("Node1");
 var node2 = document.getElementById("Node2");
 
 // Sound files
 const techClick = new Audio('sounds/tech-click.wav');
-const techClick2 = new Audio('sounds/tech-click3.wav');
+const techClick2 = new Audio('sounds/tech-click2.wav');
+
+function get_label_in_lang(node) {
+	if (lang == "ZH")
+		return node.hasOwnProperty('labelZH') ? node.labelZH : node.labelEN;
+	else
+		return node.hasOwnProperty('labelEN') ? node.labelEN : node.labelZH;
+	}
 
 function onClick(params) {
 	// console.log("selectNode Event:", params);
@@ -107,13 +118,13 @@ function onClick(params) {
 		clicked_edge = -1;
 		console.log("node ID =", clicked_id_1);
 		var node = data.nodes.get(clicked_id_1);
-		clicked_name_1 = node.label;
-		// console.log("node name =", clicked_name_1);
+		clicked_name_1 = get_label_in_lang(node);
 		node1.innerText = clicked_name_1;
 		node2.innerText = clicked_name_2;
 
 		// display details of node (1)
-		document.getElementById("TaskNameCN").value = clicked_name_1;
+		document.getElementById("TaskNameZH").value = node.labelZH ?? "";
+		document.getElementById("TaskNameEN").value = node.labelEN ?? "";
 		if ('details' in node)
 			document.getElementById("Details").value = node.details;
 		else
@@ -243,25 +254,22 @@ async function loadJSON() {
 async function switchLang() {
 	const button = document.getElementById("lang");
 	lang = button.value;
-	if (lang == "CN") {
+	if (lang == "ZH") {
 		lang = "EN";
 		// NOTE: should display the language to switch to next
 		button.innerHTML = "中<br><small>Language</small>";
 		}
 	else if (lang == "EN") {
-		lang = "CN";
+		lang = "ZH";
 		button.innerHTML = "English<br><small>Language</small>";
 		}
 	button.value = lang;
+	$('[lang="zh"]').toggle();
+	$('[lang="en"]').toggle();
 	// console.log("Current language:", lang);
 	for (const id in data.nodes.getIds()) {
 		const i = parseInt(id);
-		var label;
-		if (lang == "CN")
-			label = nodes.get(i).hasOwnProperty("labelCN") ? nodes.get(i).labelCN : nodes.get(i).labelEN;
-		else
-			label = nodes.get(i).hasOwnProperty("labelEN") ? nodes.get(i).labelEN : nodes.get(i).labelCN;
-		data.nodes.updateOnly({ id: i, label: label});
+		data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
 		}
 	techClick2.play();
 	}
