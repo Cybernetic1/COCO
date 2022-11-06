@@ -162,11 +162,9 @@ async function linkNodes() {
 	techClick2.play();
 	}
 
-var str = "";
-
 async function saveJSON() {
 	// For all nodes:
-	str = "{\"nodes\":[";
+	var str = "{\"nodes\":[";
 	var ns = nodes._data;
 	ns.forEach(function(n) {
 		str += JSON.stringify(n);
