@@ -11,21 +11,21 @@ var nodes = new vis.DataSet([
 { id:9, labelEN: "bot scripts", },
 { id:10, labelEN: "extract WeChat logs", labelZH: "extract 微信 chat logs", },
 { id:11, labelEN: "connect Aragon", },
-{ id:12, labelEN: "voting UI", color: "#f77", },
-{ id:13, labelEN: "bug: total votes >100", color: "#f77", details: `Solved by continuous slider`, },
+{ id:12, labelEN: "voting UI", status: "finished", },
+{ id:13, labelEN: "bug: total votes >100", status: "finished", details: `Solved by continuous slider`, },
 { id:14, labelEN: "tell 'Crossing the Snow' story", labelZH: "讲《渡过雪原》故事", },
 { id:15, labelEN: "read Git repo", },
 { id:16, labelEN: "extract authors", },
-{ id:17, labelEN: "Neo4j", color: "#999", },
+{ id:17, labelEN: "Neo4j", status: "paused", },
 { id:18, labelEN: "VisDCC interface", labelZH: "VisDCC 界面", details: `基本上已经可以使用了。
 
 各人可以储存自己的 json 档案，自行试验一下。 
 
 这部分有个 to-do 工作未完成： 查看成员的贡献值。 所以我开了一个 sub-task 在它的子叶。`, },
 { id:19, labelEN: "lookup authors", labelZH: "查看作者", },
-{ id:20, labelEN: "create Aragon DAO", color: "#f77", details: `@YKY: @Alvin helped me to create an initial DAO blockchain on Aragon, with 1 million tokens.`, },
-{ id:21, labelEN: "test Neo4j server", color: "#f77", details: `@eatcosmos tested hosting the server.`, },
-{ id:22, labelEN: "hello world", color: "#f77", },
+{ id:20, labelEN: "create Aragon DAO", status: "finished", details: `@YKY: @Alvin helped me to create an initial DAO blockchain on Aragon, with 1 million tokens.`, },
+{ id:21, labelEN: "test Neo4j server", status: "finished", details: `@eatcosmos tested hosting the server.`, },
+{ id:22, labelEN: "hello world", status: "finished", },
 { id:23, labelEN: "transfer messages to WeChat", labelZH: "转发讯息到微信", },
 { id:24, labelEN: "WeChat Enterprise version", labelZH: "企业微信", },
 { id:25, labelEN: "send messages to Discord", labelZH: "转发讯息到 Discord", },
