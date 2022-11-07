@@ -97,6 +97,12 @@ var options = {
 				// scaleFactor: 1,
 				}
 			},
+		color: {
+			color: '#AAA',
+			highlight:'#000',
+			inherit: false,
+			opacity:1.0
+		}
 		},
 	/* interaction: {
 		hover: true
@@ -134,17 +140,23 @@ function onClick(params) {
 		console.log("node ID =", clicked_id_1);
 		var node = data.nodes.get(clicked_id_1);
 		clicked_name_1 = get_label_in_lang(node);
+
+		// display details of nodes ① ②:
 		node1.innerText = clicked_name_1;
 		node1.style.backgroundColor = node.color;
 		node2.innerText = clicked_name_2;
-
-		// display details of node (1)
+		// radio button:
+		if ('status' in node)
+			document.getElementById(node.status).checked = true;
+		else
+			document.getElementById('in-progress').checked = true;
 		document.getElementById("TaskNameEN").value = node.labelEN;
 		document.getElementById("TaskNameZH").value = node.labelZH ?? "";
 		if ('details' in node)
 			document.getElementById("Details").value = node.details;
 		else
 			document.getElementById("Details").value = "";
+		// show Nodes ① ② and hide Edge:
 		document.getElementById("Edge").style.display = "none";
 		document.getElementById("Node12").style.display = "inline-block";
 		techClick.play();
