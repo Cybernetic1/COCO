@@ -76,7 +76,7 @@ var options = {
 		font: { size: 16 },
 		color: '#CDF',
 		shape: 'box',
-		widthConstraint: 100,
+		widthConstraint: { minimum: 30, maximum: 150 },
 		},
 	edges: {
 		arrows: {
@@ -304,6 +304,9 @@ async function loadJSON() {
 			edges = new vis.DataSet(data0.edges);
 			data.nodes = nodes;
 			data.edges = edges;
+			nodes.forEach((node) => {
+				node.label = get_label_in_lang(node);
+				});
 			network = new vis.Network(container, data, options);
 			update_node_index();
 			network.on("click", onClick);
@@ -329,9 +332,9 @@ async function switchLang() {
 	$('[lang="ZH"]').toggle();
 	$('[lang="EN"]').toggle();
 	// console.log("Current language:", lang);
-	for (const id in data.nodes.getIds()) {
+	data.nodes.getIds().forEach( (id) => {
 		const i = parseInt(id);
 		data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
-		}
+		});
 	techClick2.play();
 	}
