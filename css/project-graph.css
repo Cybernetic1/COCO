@@ -1,8 +1,11 @@
 :root {
-  --bg: #C9F9FF;
-  --node: #CDF;
-  --node2: #EFF;
-  --nodeBorder: #27E;
+	/* for Task statuses */
+	--in-progress: #FCC;
+	--finished: #CFC;
+	--paused: #CCC;
+
+	--button: #CFF;
+	--button-pressed: #EFF;
 }
 
 #viz {
@@ -15,7 +18,7 @@ label[disabled] {
 }
 
 .viz-buttons button:active {
-	background-color: var(--node2);
+	background-color: var(--button-pressed);
 	transform: translateY(4px);		/* Moving button 4px y-axis */
 	}
 
@@ -26,22 +29,22 @@ label[disabled] {
 	/* padding: 5px; */
     }
 
-.viz-buttons small {
+.viz-buttons small {	/* small texts at bottom of buttons */
 	font-size: 12px;
 	}
 
 .viz-buttons button {
 	/* width: 70px; */
 	/* height: 80px; */
-	background-color: var(--bg);
+	background-color: var(--button);
 	font-size: 30px;
 	border-radius: 10px;
 	border:2px solid Black;
 	}
 
-#Node12, #Edge {
-	background-color: var(--bg);
-	border-radius: 10px;
+#Node12, #Edge {		/* box containing Nodes ① ② and Edge */
+	background-color: White;
+	border: 1px solid Black;
 	padding: 20px;
 	color: Black;
 	font-size: 30px;
@@ -50,10 +53,10 @@ label[disabled] {
 #Node12 span {
 	width: 90px;
 	height: 30px;
-	background-color: var(--node);
+	/* background-color: White; */
 	color: Black;
 	font-size: 20px;
-	border:2px solid var(--nodeBorder);
+	border:2px solid #BBB;
 	border-radius: 10px;
 	padding: 10px;
 	}
@@ -64,10 +67,28 @@ label[disabled] {
 	background-color: White;
 	color: Black;
 	font-size: 20px;
-	border:2px solid Black;
-	border-radius: 10px;
+	/* text-decoration: underline; */
+	/* border:2px solid Black; */
+	/* border-radius: 10px; */
 	padding: 10px;
 	}
+
+/****** for 'Status' radio buttons ******/
+input[type='radio'] {
+	margin-bottom: 15px;
+}
+
+.colorKey {
+	color: Black;
+	font-size: 18px;
+	/* border:1px solid Black; */
+	border-radius: 8px;
+	padding: 4px;
+}
+
+label[for='in-progress']	{ background-color: var(--in-progress); }
+label[for='finished']		{ background-color: var(--finished); }
+label[for='paused']			{ background-color: var(--paused); }
 
 #new-task-data, input, textarea {
 	font-size: 20px;

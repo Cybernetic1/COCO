@@ -53,10 +53,21 @@ function get_label_in_lang(node) {
 	return (lang == 'ZH' && ('labelZH' in node)) ? node.labelZH : node.labelEN;
 	}
 
-// Initialize labels to be in default language
-nodes.forEach((node) => {
-	node.label = get_label_in_lang(node);
-	});
+nodeColors = {
+	"in-progress": "#FCC",
+	"finished": "#CFC",
+	"paused": "#CCC",
+	};
+
+// Initialize node labels to be in default language; set node colors
+function init_nodes() {
+	nodes.forEach((node) => {
+		node.label = get_label_in_lang(node);
+		node.color = ('status' in node) ? nodeColors[node.status] : nodeColors['in-progress'];
+		});
+	nodes.updateOnly({ id: 0, color: 'cyan'});
+	}
+init_nodes();
 
 // set node_index to be maximal value + 1, used for adding nodes
 var node_index = 0;
@@ -117,12 +128,14 @@ function onClick(params) {
 		// shift node (1) to (2)
 		clicked_id_2 = clicked_id_1;
 		clicked_name_2 = clicked_name_1;
+		node2.style.backgroundColor = node1.style.backgroundColor;
 		clicked_id_1 = params['nodes'][0];
 		clicked_edge = -1;
 		console.log("node ID =", clicked_id_1);
 		var node = data.nodes.get(clicked_id_1);
 		clicked_name_1 = get_label_in_lang(node);
 		node1.innerText = clicked_name_1;
+		node1.style.backgroundColor = node.color;
 		node2.innerText = clicked_name_2;
 
 		// display details of node (1)
@@ -142,7 +155,7 @@ function onClick(params) {
 		var edge = data.edges.get(clicked_edge);
 		document.getElementById("Node12").style.display = "none";
 		document.getElementById("Edge").style.display = "inline-block";
-		document.getElementById("Edge1").innerText = "Edge " + edge.from.toString() + "-" + edge.to.toString();
+		document.getElementById("Edge1").innerText = "Edge: [" + edge.from.toString() + "] ⟶ [" + edge.to.toString() + "]";
 		techClick.play();
 		}
 	else {										// clicked on white space
