@@ -76,6 +76,7 @@ label[disabled] {
 /****** for 'Status' radio buttons ******/
 input[type='radio'] {
 	margin-bottom: 15px;
+	accent-color: Black;
 }
 
 .colorKey {
