@@ -1,5 +1,4 @@
 // TO-DO:
-// * Allow saving different graphs with filenames
 // * Task status: in progress, done, paused
 // * Per-Task Voting:
 // 		- list authors for each task
@@ -15,9 +14,10 @@
 // * Load / save graph as JSON
 // * Save JSON to server-side
 // * Allow bi-lingual labels
+// * Allow saving different graphs with filenames
 
 // For our Project Graph, (* = required)
-// each Node may contain attributes:  *id, label, label-EN, status, details, authors[], votes[]
+// each Node may contain attributes:  *id, label, labels{}, status, details, authors[], votes[]
 // each Edge may contains attributes:  *from, *to
 
 /* **** Example data format ****
@@ -45,24 +45,31 @@ nodes: nodes,
 edges: edges
 };
 
-var lang = document.getElementById("lang").value;		// Current language ("ZH" or "EN")
-nodes.forEach((n) => {
-	if (n.hasOwnProperty("labelZH"))
-		n.label = n.labelZH;	// copy Chinese label to be default label
-	else
-		n.label = n.labelEN;
-	});
-$('[lang="en"]').hide();
+var lang = document.getElementById("lang").value;		// Default language ("ZH" or "EN")
+$('[lang="EN"]').hide();
 
+// Returns a node's label in the language in 'lang' variable
+function get_label_in_lang(node) {
+	return (lang == 'ZH' && ('labelZH' in node)) ? node.labelZH : node.labelEN;
+	}
+
+// Initialize labels to be in default language
+nodes.forEach((node) => {
+	node.label = get_label_in_lang(node);
+	});
+
+// set node_index to be maximal value + 1, used for adding nodes
 var node_index = 0;
 function update_node_index() {
 	nodes.forEach((n) => {
 		if (n.id > node_index)
 			node_index = n.id;
 		})
+	node_index++;
 	}
 update_node_index();
 
+// Options for Vis.js network
 var options = {
 	nodes: {
 		// font: { color: 'white' },
@@ -90,8 +97,8 @@ var network = new vis.Network(container, data, options);
 
 var clicked_id_1 = -1;
 var clicked_id_2 = -1;
-var clicked_name_1 = "";
-var clicked_name_2 = "";
+var clicked_name_1 = "none";
+var clicked_name_2 = "none";
 var clicked_edge = -1;
 var node1 = document.getElementById("Node1");
 var node2 = document.getElementById("Node2");
@@ -99,14 +106,9 @@ var node2 = document.getElementById("Node2");
 // Sound files
 const techClick = new Audio('sounds/tech-click.wav');
 const techClick2 = new Audio('sounds/tech-click2.wav');
+const techFail = new Audio('sounds/tech-fail.wav');
 
-function get_label_in_lang(node) {
-	if (lang == "ZH")
-		return node.hasOwnProperty('labelZH') ? node.labelZH : node.labelEN;
-	else
-		return node.hasOwnProperty('labelEN') ? node.labelEN : node.labelZH;
-	}
-
+// On clicking a node on Vis.js canvas
 function onClick(params) {
 	// console.log("selectNode Event:", params);
 	// console.log("Selected node=", params['nodes'][0]);
@@ -124,8 +126,8 @@ function onClick(params) {
 		node2.innerText = clicked_name_2;
 
 		// display details of node (1)
+		document.getElementById("TaskNameEN").value = node.labelEN;
 		document.getElementById("TaskNameZH").value = node.labelZH ?? "";
-		document.getElementById("TaskNameEN").value = node.labelEN ?? "";
 		if ('details' in node)
 			document.getElementById("Details").value = node.details;
 		else
@@ -159,11 +161,22 @@ network.on("hoverNode", function (params) {
 */
 
 async function addNode() {
-	const taskname = document.getElementById("TaskName").value;
-	data.nodes.add({id : node_index, label: taskname});
+	const tasknameEN = document.getElementById("TaskNameEN").value;
+	if (tasknameEN == "" || tasknameEN == "???") {
+		document.getElementById("TaskNameEN").value = "???";
+		techFail.play();
+		return;
+		}
+	const tasknameZH = document.getElementById("TaskNameZH").value;
+	const taskname = ((lang == 'ZH') && (tasknameZH != "")) ? tasknameZH : tasknameEN;
+	data.nodes.add({id : node_index,
+		label: taskname,
+		labelEN: tasknameEN,
+		...(tasknameZH != "") && { labelZH: tasknameZH }
+		});
 	data.edges.add({from: node_index, to: clicked_id_1});
-	node_index += 1;
-	console.log("Added node", taskname, "to node #", clicked_id_1);
+	console.log("Added node", tasknameEN, "to node #", clicked_id_1);
+	node_index++;
 	techClick2.play();
 	}
 
@@ -180,16 +193,16 @@ async function delEdge() {
 	}
 
 async function editNode() {
-	var node = data.nodes.get(clicked_id_1);
-
-	const taskname = document.getElementById("TaskName").value;
-	if (taskname != "")
-		node.label = taskname;
+	const tasknameEN = document.getElementById("TaskNameEN").value;
+	const tasknameZH = document.getElementById("TaskNameZH").value;
 	const details = document.getElementById("Details").value;
-	if (details != "")
-		node.details = details;
+	nodes.update({ id: clicked_id_1,
+		...(tasknameEN != "") && {labelEN: tasknameEN},
+		...(tasknameZH != "") && {labelZH: tasknameZH},
+		label: (lang == "ZH" && tasknameZH != "") ? tasknameZH : tasknameEN,
+		...(details != "") && {details: details},
+		});
 	console.log("Updated node #", clicked_id_1);
-	network.redraw();
 	techClick2.play();
 	}
 
@@ -201,7 +214,7 @@ async function linkNodes() {
 
 async function clearGraph() {
 	network.destroy();
-	nodes = new vis.DataSet([ {id: 0, label: "ROOT", color: "cyan"} ]);
+	nodes = new vis.DataSet([ {id: 0, label: "ROOT", labelEN: "ROOT", color: "cyan"} ]);
 	edges = new vis.DataSet([]);
 	data.nodes = nodes;
 	data.edges = edges;
@@ -233,6 +246,7 @@ async function saveJSON() {
 	var str = "{\"nodes\":[";
 	var ns = nodes._data;
 	ns.forEach(function(n) {
+		delete n['label'];		// only save labelEN and labelZH
 		str += JSON.stringify(n);
 		str += ",";
 		});
@@ -293,6 +307,7 @@ async function loadJSON() {
 			network = new vis.Network(container, data, options);
 			update_node_index();
 			network.on("click", onClick);
+			modal.style.display = "none";
 			techClick2.play();
 			} });
 		}
@@ -311,8 +326,8 @@ async function switchLang() {
 		button.innerHTML = "English<br><small>Language</small>";
 		}
 	button.value = lang;
-	$('[lang="zh"]').toggle();
-	$('[lang="en"]').toggle();
+	$('[lang="ZH"]').toggle();
+	$('[lang="EN"]').toggle();
 	// console.log("Current language:", lang);
 	for (const id in data.nodes.getIds()) {
 		const i = parseInt(id);
