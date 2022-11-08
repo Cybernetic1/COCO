@@ -24,24 +24,16 @@
 // each Node may contain attributes:  *id, label, labels{}, status, details, authors[], votes[]
 // each Edge may contains attributes:  *from, *to
 
-/* **** Example data format ****
+/****** Initial data  ******/
 
 var nodes = new vis.DataSet([
-{ id: 1, label: "Node 1" },
-{ id: 2, label: "Node 2" },
-{ id: 3, label: "Node 3" },
-{ id: 4, label: "Node 4" },
-{ id: 5, label: "Node 5" }
+{ id: 0, labelEN: "Root", color: 'cyan' },
+{ id: 1, labelEN: "Node 1" }
 ]);
 
 var edges = new vis.DataSet([
-{ from: 1, to: 3 },
-{ from: 1, to: 2 },
-{ from: 2, to: 4 },
-{ from: 2, to: 5 },
-{ from: 3, to: 3 }
+{ from: 1, to: 0 },
 ]);
-*/
 
 // Note: graph data "nodes" and "edges" are already loaded from "ProjectGraph.js"
 var data = {
