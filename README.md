@@ -1,6 +1,22 @@
 ![](images/COCO-logo.png) 
 
-# COCO collaborative platform (world-wide version)
+# COCO collaborative platform
+
+### Quick Start
+
+Install **Node.js** (my version is v18.12.0):
+
+	sudo apt install nodejs
+	
+Start the server from COCO's root directory:
+
+	git clone https://github.com/Cybernetic1/COCO.git
+	cd COCO
+	node server.js
+
+Open [localhost:8383/](localhost:8383/) in your browser.  This allows you to test the "Project Graph" UI.
+
+You may also read [business-plan.html](localhost:8383/business-plan.html)  and [technical-white-paper.html](localhost:8383/technical-white-paper.html)  for other UI demos.
 
 ## Introduction
 

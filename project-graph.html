@@ -2,7 +2,7 @@
 <html lang="zh-Hans">
 <head>
 	<meta charset="UTF-8">
-	<link rel='shortcut icon' href='favicon.ico' type='image/x-icon'/>
+	<link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" type="text/css" href="css/project-graph.css">
 	<script src="https://unpkg.com/vis-data@latest/peer/umd/vis-data.min.js"></script>
@@ -20,71 +20,64 @@ link them.<br>
 Create / Update Nodes:  Fill out information, then choose node ①,
 and click button.</p>
 
-<div class="viz-buttons" style="display:inline-block; margin-right:10px;">
-	<div style="margin-right:10px;">
-		<button type="button" id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
-		English<br><small>Language</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="saveJSON()">→🖹<br>
-		<small>Save JSON</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="loadJSON()">🖹→<br>
-		<small>Load JSON</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="clearGraph()">🗑<br>
-		<small>Clear</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="addNode()">+③⇢①<br>
-		<small>Add Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="editNode()">✎①<br>
-		<small>Edit Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="linkNodes()">②⇢①<br>
-		<small>Link Nodes</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="delNode()">-①<br>
-		<small>Delete Node</small></button>
-	</div>
-	<div>
-		<button type="button" onclick="delEdge()">-⤸<br>
-		<small>Delete Edge</small></button>
-	</div>
-</div>
-<div style="display:inline-block; vertical-align: bottom;" id="Node12">
+<table style="display:inline-block;">
+<tr style="text-align:center; height:16px;">
+		<td><label class="small">Language</label>
+		<td><label class="small">Save JSON</label>
+		<td><label class="small">Load JSON</label>
+		<td><label class="small">Clear</label>
+		<td><label class="small">Add Node</label>
+		<td><label class="small">Delete Node</label>
+		<td><label class="small">Link Nodes</label>
+		<td><label class="small">Delete Edge</label>
+</tr>
+<tr class="viz-buttons" style="text-align:center;">
+		<td><button type="button" id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
+		English</button>
+		<td><button type="button" onclick="saveJSON()">↳🖹</button>
+		<td><button type="button" onclick="loadJSON()">🖹⮥</button>
+		<td><button type="button" onclick="clearGraph()"><span style="color:red;">🗑</span></button>
+		<td><button type="button" onclick="addNode()">+Ⓝ</button>
+		<td><button type="button" onclick="delNode()"><span style="color:red;">✕Ⓝ</span></button>
+		<td><button type="button" onclick="linkNodes()">②⇢①</button>
+		<td><button type="button" onclick="delEdge()"><span style="color:red;">✕⇢</span></button>
+</tr>
+</table>
+
+<div style="display:inline-block; vertical-align: bottom; margin-left:10px;" id="Node12">
 ② <span id="Node2">none</span>
 ⇢ ① <span id="Node1">none</span>
 </div>
 <div id="Edge" style="display:none; vertical-align: bottom;">
 <span id="Edge1">none</span>
 </div>
-<br><br>
+<br>
 
-<div id="new-task-data" style="display: inline-block; vertical-align: top;">
-	<span style="font-size:30px">③</span>= New Node:<br>
-
+<div id="new-task-data" style="display: inline-block; vertical-align: top; margin-left:10px;">
 	<div lang="ZH">
 	<label>工作名称：</label><br>
-	<input type="text" id="TaskNameZH" value=""><br>
+	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
 	</div>
 
 	<label>Task name:</label><br>
-	<input type="text" id="TaskNameEN" value=""><br>
+	<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
 
 	<label>Status:</label><br>
-	<input type="radio" id="in-progress" name="status" value="in-progress">
+	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
 	<label class="colorKey" for="in-progress">in progress</label><br>
-	<input type="radio" id="finished" name="status" value="finished">
+	<input type="radio" id="finished" name="status" value="finished" onclick="changeStatus(this)">
 	<label class="colorKey" for="finished">finished</label><br>
-	<input type="radio" id="paused" name="status" value="paused">
+	<input type="radio" id="paused" name="status" value="paused" onclick="changeStatus(this)">
 	<label class="colorKey" for="paused">paused</label><br>
+	<input type="radio" id="research" name="status" value="research" onclick="changeStatus(this)">
+	<label class="colorKey" for="research">research area</label><br>
+
+	<label>Edge label:</label><br>
+	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
+
+	<label>Details:</label><br>
+	<textarea rows="15" id="Details" onchage="changeDetails">
+	</textarea><br>
 
 	<label disabled>Expected tokens</label>
 	<input type="number" id="ExpTokens" style="width:7em;" disabled><br>
@@ -93,27 +86,49 @@ and click button.</p>
 	<label disabled>Expected # workers</label>
 	<input type="number" id="ExpWorkers" style="width:4em;" disabled><br>
 
-	<label>Details:</label><br>
-	<textarea rows="15" width="25%" id="Details">Enter details here...
-	</textarea><br>
-
 	<label disabled>Git references:</label><br>
 	<textarea rows="5" width="25%" id="gitRefs" disabled>
 	</textarea>
 </div>
 
-<div id="viz" style="display:inline-block; width:70%; height:900px; margin-left:20px; border:1px solid Black;"></div>
+<div id="viz" style="display:inline-block; width:70%; height:900px; margin:10px; border:1px solid Black;"></div>
 
-<!-- Modal Window for inputting file names etc -->
-<div id="modalWindow" class="modal">
+<!-- Modal Window for inputting JSON file names -->
+<div id="modalWindow1" class="modal">
 	<div class="modal-content">
-	<span class="close">&times;</span>
-	<label id="modalLabel"></label>
+	<span class="close" id="modal1_Close">⮽</span>
+	<label>Select or enter a JSON file name:</label>
 	<br>
-	<input type="text" id="modalInput" style="width:90%;">
+	<select id="JSONdropDown" style="font-size:20px;">
+		<option value="none">---</option>
+		<option value="DAO-project-graph.json">DAO-project-graph.json</option>
+		<option value="AGI-project-graph.json">AGI-project-graph.json</option>
+	</select>
 	<br>
-	<button id="modalOK">OK</button>
-	<button id="modalCancel">Cancel</button>
+	<br>
+	<input type="text" id="JSONfileName" style="width:90%;" value=".json">
+	<br>
+	<button id="modal1_OK">OK</button>
+	<button id="modal1_Cancel">Cancel</button>
+	</div>
+</div>
+
+<!-- Modal Window for inputting graph Node labels -->
+<div id="modalWindow2" class="modal">
+	<div class="modal-content">
+	<span class="close" id="modal2_Close">⮽</span>
+	<label>Enter Node name</label>
+	<br>
+	<br>
+	<label>English (required):</label>
+	<input type="text" id="nameEN" style="width:90%;">
+	<br>
+	<label>Chinese (optional):</label>
+	<input type="text" id="nameZH" style="width:90%;">
+	<br>
+	<p>The new Node will be linked to the last selected Node.</p>
+	<button id="modal2_OK">OK</button>
+	<button id="modal2_Cancel">Cancel</button>
 	</div>
 </div>
 
