@@ -3,44 +3,41 @@
 	--in-progress: #FCC;
 	--finished: #CFC;
 	--paused: #CCC;
+	--research: #FF0;
 
 	--button: #CFF;
-	--button-pressed: #EFF;
 }
 
-#viz {
+#viz {		/* the Vis.js canvas */
 	background-color: White;
 	}
-
 
 label[disabled] {
 	color: Gray;
 }
 
-.viz-buttons button:active {
-	background-color: var(--button-pressed);
-	transform: translateY(4px);		/* Moving button 4px y-axis */
-	}
-
-.viz-buttons div {
-	display: inline-flex;
-	color: white;
-    line-height: 82px;
-	/* padding: 5px; */
-    }
-
-.viz-buttons small {	/* small texts at bottom of buttons */
-	font-size: 12px;
-	}
-
 .viz-buttons button {
-	/* width: 70px; */
-	/* height: 80px; */
+	width: 100%;
+	height: 100%;
 	background-color: var(--button);
 	font-size: 30px;
 	border-radius: 10px;
-	border:2px solid Black;
+	/* border:2px solid Black; */
 	}
+
+.viz-buttons button:active {
+	transform: translateY(4px);		/* Moving button 4px y-axis */
+	}
+
+label.small {	/* small texts at bottom of buttons */
+	font-family: sans;
+	font-size: 14px;
+	}
+
+.viz-buttons td {
+	height: 50px;
+	padding: 0 10px;
+}
 
 #Node12, #Edge {		/* box containing Nodes ① ② and Edge */
 	background-color: White;
@@ -73,7 +70,7 @@ label[disabled] {
 	padding: 10px;
 	}
 
-/****** for 'Status' radio buttons ******/
+/******************* for 'Status' radio buttons ******************/
 input[type='radio'] {
 	margin-bottom: 15px;
 	accent-color: Black;
@@ -82,7 +79,6 @@ input[type='radio'] {
 .colorKey {
 	color: Black;
 	font-size: 18px;
-	/* border:1px solid Black; */
 	border-radius: 8px;
 	padding: 4px;
 }
@@ -90,14 +86,22 @@ input[type='radio'] {
 label[for='in-progress']	{ background-color: var(--in-progress); }
 label[for='finished']		{ background-color: var(--finished); }
 label[for='paused']			{ background-color: var(--paused); }
+label[for='research']		{ background-color: var(--research); }
 
-#new-task-data, input, textarea {
+#new-task-data, input {
 	font-size: 20px;
 }
+
+textarea {
+	font-size: 14px;
+	width: 20em;
+	}
 
 #number, input[type='number'] {
 	width: 4em;
 }
+
+/************** Modal Window for asking user inputs *****************/
 
 /* The Modal (background) */
 .modal {
@@ -125,9 +129,9 @@ label[for='paused']			{ background-color: var(--paused); }
 
 /* The Close Button */
 .close {
-	color: #333;
+	color: #F00;
 	float: right;
-	font-size: 28px;
+	font-size: 20px;
 	font-weight: bold;
 }
 

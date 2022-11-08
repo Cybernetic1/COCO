@@ -1,5 +1,5 @@
 // TO-DO:
-// * Task status: in progress, done, paused
+// * Edges may have descriptions also
 // * Per-Task Voting:
 // 		- list authors for each task
 //		- first author self-claim # of credits for task
@@ -9,12 +9,16 @@
 // NOT URGENT:
 // * Save graph as directory files
 // * Allow bi-lingual task details
+// * Use "Input" area to directly updates nodes
+// * drop-down menu to show existing JSON files in directory, for load/save
+// * "Add Node" should use separate input window for data
 
 // DONE:
 // * Load / save graph as JSON
 // * Save JSON to server-side
 // * Allow bi-lingual labels
 // * Allow saving different graphs with filenames
+// * Task status: in progress, done, paused
 
 // For our Project Graph, (* = required)
 // each Node may contain attributes:  *id, label, labels{}, status, details, authors[], votes[]
@@ -57,6 +61,7 @@ nodeColors = {
 	"in-progress": "#FCC",
 	"finished": "#CFC",
 	"paused": "#CCC",
+	"research": "#FF0",
 	};
 
 // Initialize node labels to be in default language; set node colors
@@ -165,6 +170,7 @@ function onClick(params) {
 		// console.log("Selected edge=", params);
 		clicked_edge = params['edges'][0];
 		var edge = data.edges.get(clicked_edge);
+		document.getElementById("EdgeNameEN").value = ('label' in edge) ? edge.label : "";
 		document.getElementById("Node12").style.display = "none";
 		document.getElementById("Edge").style.display = "inline-block";
 		document.getElementById("Edge1").innerText = "Edge: [" + edge.from.toString() + "] ⟶ [" + edge.to.toString() + "]";
@@ -179,30 +185,48 @@ function onClick(params) {
 
 network.on("click", onClick);
 
-/*
-network.on("hoverNode", function (params) {
-	console.log("hoverNode Event:", params);
-});
-*/
+// Prepare modal window for user to input Node labels
+var modal2 = document.getElementById("modalWindow2");
+
+// Clicking "X" or "Cancel" closes the modal
+document.getElementById("modal2_Close").onclick =
+document.getElementById("modal2_Cancel").onclick =
+	function() {
+		modal2.style.display = "none";
+		};
+
+// When user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+	if (event.target == modal2) {
+		modal2.style.display = "none";
+		}
+	};
 
 async function addNode() {
-	const tasknameEN = document.getElementById("TaskNameEN").value;
-	if (tasknameEN == "" || tasknameEN == "???") {
-		document.getElementById("TaskNameEN").value = "???";
-		techFail.play();
-		return;
-		}
-	const tasknameZH = document.getElementById("TaskNameZH").value;
-	const taskname = ((lang == 'ZH') && (tasknameZH != "")) ? tasknameZH : tasknameEN;
-	data.nodes.add({id : node_index,
-		label: taskname,
-		labelEN: tasknameEN,
-		...(tasknameZH != "") && { labelZH: tasknameZH }
-		});
-	data.edges.add({from: node_index, to: clicked_id_1});
-	console.log("Added node", tasknameEN, "to node #", clicked_id_1);
-	node_index++;
+	// Open modal window to ask for Node labels:
+	modal2.style.display = "block";
 	techClick2.play();
+	document.getElementById("modal2_OK").onclick = function() {
+
+		const tasknameEN = document.getElementById("nameEN").value;
+		if (tasknameEN == "" || tasknameEN == "???") {
+			document.getElementById("nameEN").value = "???";
+			techFail.play();
+			return;
+			}
+		const tasknameZH = document.getElementById("nameZH").value;
+		const taskname = ((lang == 'ZH') && (tasknameZH != "")) ? tasknameZH : tasknameEN;
+		data.nodes.add({id : node_index,
+			label: taskname,
+			labelEN: tasknameEN,
+			...(tasknameZH != "") && { labelZH: tasknameZH },
+			color: nodeColors['in-progress'],
+			});
+		data.edges.add({from: node_index, to: clicked_id_1});
+		console.log("Added node", tasknameEN, "to node #", clicked_id_1);
+		node_index++;
+		techClick2.play();
+		}
 	}
 
 async function delNode() {
@@ -217,24 +241,46 @@ async function delEdge() {
 	techClick2.play();
 	}
 
-async function editNode() {
-	const tasknameEN = document.getElementById("TaskNameEN").value;
-	const tasknameZH = document.getElementById("TaskNameZH").value;
-	const details = document.getElementById("Details").value;
-	nodes.update({ id: clicked_id_1,
-		...(tasknameEN != "") && {labelEN: tasknameEN},
-		...(tasknameZH != "") && {labelZH: tasknameZH},
-		label: (lang == "ZH" && tasknameZH != "") ? tasknameZH : tasknameEN,
-		...(details != "") && {details: details},
-		});
-	console.log("Updated node #", clicked_id_1);
-	techClick2.play();
-	}
-
 async function linkNodes() {
 	data.edges.add({from: clicked_id_2, to: clicked_id_1});
 	console.log("Linked node #", clicked_id_2, "as SubTask to node #", clicked_id_1);
 	techClick2.play();
+	}
+
+async function changeStatus(radio) {
+	data.nodes.updateOnly({ id: clicked_id_1,
+		status: radio.value,
+		color: nodeColors[radio.value],
+		});
+	techClick2.play();
+	}
+
+async function changeTaskNameZH(input) {
+	data.nodes.updateOnly({ id: clicked_id_1,
+		labelZH: input.value,
+		...(lang == "ZH") && {label: input.value},
+		});
+	}
+
+async function changeTaskNameEN(input) {
+	// Check if label defaults to English because there are no other-language labels:
+	const default_EN = !('labelZH' in nodes.get(clicked_id_1));
+	data.nodes.updateOnly({ id: clicked_id_1,
+		labelEN: input.value,
+		...(lang == "EN" || default_EN) && {label: input.value},
+		});
+	}
+
+async function changeDetails(input) {
+	data.nodes.updateOnly({ id: clicked_id_1,
+		details: input.value,
+		});
+	}
+
+async function changeEdgeEN(input) {
+	data.edges.updateOnly({ id: clicked_edge,
+		label: input.value,
+		});
 	}
 
 async function clearGraph() {
@@ -250,19 +296,19 @@ async function clearGraph() {
 	}
 
 // Prepare modal window for user to input filenames etc
-var modal = document.getElementById("modalWindow");
+var modal1 = document.getElementById("modalWindow1");
 
 // Clicking "X" or "Cancel" closes the modal
-document.getElementsByClassName("close")[0].onclick =
-document.getElementById("modalCancel").onclick =
+document.getElementById("modal1_Close").onclick =
+document.getElementById("modal1_Cancel").onclick =
 	function() {
-		modal.style.display = "none";
+		modal1.style.display = "none";
 		};
 
 // When user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-	if (event.target == modal) {
-		modal.style.display = "none";
+	if (event.target == modal1) {
+		modal1.style.display = "none";
 		}
 	};
 
@@ -290,34 +336,35 @@ async function saveJSON() {
 	techClick2.play();
 
 	// Open modal window and ask for filename
-	document.getElementById("modalLabel").innerText = "Please enter JSON filename: ";
-	var input = document.getElementById("modalInput");
-	input.defaultValue = "ProjectGraph.json";
-	modal.style.display = "block";
-	document.getElementById("modalOK").onclick = function() {
+	modal1.style.display = "block";
+	document.getElementById("modal1_OK").onclick = function() {
+		var name = document.getElementById("JSONdropDown").value;
+		if (name == "none")
+			name = document.getElementById("JSONfileName").value;
 		console.log($.ajax({
 			method: "POST",
-			url: "/saveJSON/" + input.value,
+			url: "/saveJSON/" + name,
 			data: str,
 			success: function(resp) {}
 			}));
-		modal.style.display = "none";
+
+		modal1.style.display = "none";		// close window
 		techClick2.play();
 		};
 	}
 
 async function loadJSON() {
 	// Open modal window and ask for filename
-	document.getElementById("modalLabel").innerText = "Please enter JSON filename: ";
-	var input = document.getElementById("modalInput");
-	input.defaultValue = "ProjectGraph.json";
-	modal.style.display = "block";
+	modal1.style.display = "block";
 	techClick2.play();
-	document.getElementById("modalOK").onclick = function() {
+	document.getElementById("modal1_OK").onclick = function() {
 
+		var name = document.getElementById("JSONdropDown").value;
+		if (name == "none")
+			name = document.getElementById("JSONfileName").value;
 		$.ajax({
 				method: "GET",
-				url: "/loadJSON/" + input.value,
+				url: "/loadJSON/" + name,
 				cache: false,
 				success: function(data0) {
 
@@ -329,13 +376,12 @@ async function loadJSON() {
 			edges = new vis.DataSet(data0.edges);
 			data.nodes = nodes;
 			data.edges = edges;
-			nodes.forEach((node) => {
-				node.label = get_label_in_lang(node);
-				});
+			init_nodes();		// set lang, colors, ... from existing data
 			network = new vis.Network(container, data, options);
 			update_node_index();
 			network.on("click", onClick);
-			modal.style.display = "none";
+
+			modal1.style.display = "none";		// close window
 			techClick2.play();
 			} });
 		}
@@ -347,11 +393,11 @@ async function switchLang() {
 	if (lang == "ZH") {
 		lang = "EN";
 		// NOTE: should display the language to switch to next
-		button.innerHTML = "中<br><small>Language</small>";
+		button.innerHTML = "中文";
 		}
 	else if (lang == "EN") {
 		lang = "ZH";
-		button.innerHTML = "English<br><small>Language</small>";
+		button.innerHTML = "English";
 		}
 	button.value = lang;
 	$('[lang="ZH"]').toggle();
