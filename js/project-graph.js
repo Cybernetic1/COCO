@@ -118,7 +118,9 @@ const techClick2 = new Audio('sounds/tech-click2.wav');
 const techFail = new Audio('sounds/tech-fail.wav');
 
 function toggleSidePane() {
-	techClick2.play();
+	techClick2.play().catch(function (error) {
+		// console.log("Chrome cannot play sound without user interaction first");
+		});
 	if (pane.style.display == "none") {
 		pane.style.display = "inline-block";
 		container.style.height = window.innerHeight - 130 + "px";
