@@ -14,7 +14,7 @@
 
 label[disabled] {
 	color: Gray;
-}
+	}
 
 .viz-buttons button {
 	width: 100%;
@@ -44,7 +44,7 @@ label.small {	/* small texts at bottom of buttons */
 	border: 1px solid Black;
 	padding: 20px;
 	color: Black;
-	font-size: 30px;
+	font-size: 25px;
 	}
 
 #Node12 span {
@@ -88,17 +88,19 @@ label[for='finished']		{ background-color: var(--finished); }
 label[for='paused']			{ background-color: var(--paused); }
 label[for='research']		{ background-color: var(--research); }
 
-#new-task-data, input {
+#side-pane input[type='text'] {
 	font-size: 20px;
+	width: 100%;
 }
 
 textarea {
 	font-size: 14px;
-	width: 20em;
+	width: 100%;
 	}
 
 #number, input[type='number'] {
 	width: 4em;
+	float: right;
 }
 
 /************** Modal Window for asking user inputs *****************/

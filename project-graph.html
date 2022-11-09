@@ -5,19 +5,19 @@
 	<link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" type="text/css" href="css/project-graph.css">
-	<script src="https://unpkg.com/vis-data@latest/peer/umd/vis-data.min.js"></script>
-	<script src="https://unpkg.com/vis-network@latest/peer/umd/vis-network.min.js"></script>
+	<script src="js/vis-data.min.js"></script>
+	<script src="js/vis-network.min.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script src="js/project-graph.js" defer></script>
 </head>
 
 <body>
 <p lang="ZH">Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-<p lang="EN">Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to
-link them.</p>
+<p lang="EN">Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
 
 <table style="display:inline-block;">
 <tr style="text-align:center; height:16px;">
+		<td></td>
 		<td><label class="small">Language</label>
 		<td><label class="small">Save JSON</label>
 		<td><label class="small">Load JSON</label>
@@ -28,15 +28,16 @@ link them.</p>
 		<td><label class="small">Delete Edge</label>
 </tr>
 <tr class="viz-buttons" style="text-align:center;">
-		<td><button type="button" id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
+		<td><span id="SidePaneButton" onclick="toggleSidePane()">⏴</span></td>
+		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
 		English</button>
-		<td><button type="button" onclick="saveJSON()">↳🖹</button>
-		<td><button type="button" onclick="loadJSON()">🖹⮥</button>
-		<td><button type="button" onclick="clearGraph()"><span style="color:red;">🗑</span></button>
-		<td><button type="button" onclick="addNode()">+Ⓝ</button>
-		<td><button type="button" onclick="delNode()"><span style="color:red;">✕Ⓝ</span></button>
-		<td><button type="button" onclick="linkNodes()">②⇢①</button>
-		<td><button type="button" onclick="delEdge()"><span style="color:red;">✕⇢</span></button>
+		<td><button onclick="saveJSON()">↳🖹</button>
+		<td><button onclick="loadJSON()">🖹⮥</button>
+		<td><button onclick="clearGraph()"><span style="color:red;">🗑</span></button>
+		<td><button onclick="addNode()">+Ⓝ</button>
+		<td><button onclick="delNode()"><span style="color:red;">✕Ⓝ</span></button>
+		<td><button onclick="linkNodes()">②⇢①</button>
+		<td><button onclick="delEdge()"><span style="color:red;">✕⇢</span></button>
 </tr>
 </table>
 
@@ -49,7 +50,7 @@ link them.</p>
 </div>
 <br>
 
-<div id="new-task-data" style="display: inline-block; vertical-align: top; margin-left:10px;">
+<div id="side-pane" style="width:20%; display:inline-block; vertical-align:top; margin-left:10px;">
 	<div lang="ZH">
 	<label>工作名称：</label><br>
 	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
@@ -72,11 +73,10 @@ link them.</p>
 	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
 
 	<label>Details:</label><br>
-	<textarea rows="15" id="Details" onchage="changeDetails">
-	</textarea><br>
+	<textarea rows="15" id="Details" onchage="changeDetails"></textarea><br>
 
 	<label disabled>Expected tokens</label>
-	<input type="number" id="ExpTokens" style="width:7em;" disabled><br>
+	<input type="number" id="ExpTokens" style="width:9em;" disabled><br>
 	<label disabled>Expected days</label>
 	<input type="number" id="ExpTime" style="width:4em;" disabled><br>
 	<label disabled>Expected # workers</label>
@@ -87,7 +87,7 @@ link them.</p>
 	</textarea>
 </div>
 
-<div id="viz" style="display:inline-block; width:70%; height:900px; margin:10px; border:1px solid Black;"></div>
+<div id="viz" style="display:inline-block; margin-left:20%; margin:10px; border:1px solid Black;">height:900px;</div>
 
 <!-- Modal Window for inputting JSON file names -->
 <div id="modalWindow1" class="modal">
