@@ -99,7 +99,7 @@ var options = {
 			highlight:'#000',
 			inherit: false,
 			opacity:1.0
-		}
+			}
 		},
 	/* interaction: {
 		hover: true
@@ -109,6 +109,33 @@ var options = {
 var container = document.getElementById("viz");
 var network = new vis.Network(container, data, options);
 
+var pane = document.getElementById("side-pane");
+pane.style.display = "none";
+
+// Sound files
+const techClick = new Audio('sounds/tech-click.wav');
+const techClick2 = new Audio('sounds/tech-click2.wav');
+const techFail = new Audio('sounds/tech-fail.wav');
+
+function toggleSidePane() {
+	techClick2.play();
+	if (pane.style.display == "none") {
+		pane.style.display = "inline-block";
+		container.style.height = window.innerHeight - 130 + "px";
+		container.style.width = window.innerWidth * .75 + "px";
+		document.getElementById("SidePaneButton").innerText = "⏴";
+		}
+	else {
+		pane.style.display = "none";
+		container.style.height = window.innerHeight - 130 + "px";
+		container.style.width = window.innerWidth * .95 + "px";
+		document.getElementById("SidePaneButton").innerText = "⏵";
+		}
+	}
+
+// $("SidePaneButton").trigger('click');
+document.getElementById("SidePaneButton").click();
+
 var clicked_id_1 = -1;
 var clicked_id_2 = -1;
 var clicked_name_1 = "none";
@@ -117,18 +144,13 @@ var clicked_edge = -1;
 var node1 = document.getElementById("Node1");
 var node2 = document.getElementById("Node2");
 
-// Sound files
-const techClick = new Audio('sounds/tech-click.wav');
-const techClick2 = new Audio('sounds/tech-click2.wav');
-const techFail = new Audio('sounds/tech-fail.wav');
-
 // On clicking a node on Vis.js canvas
 function onClick(params) {
 	// console.log("selectNode Event:", params);
 	// console.log("Selected node=", params['nodes'][0]);
 	
 	if (params['nodes'].length > 0) {			// a node is clicked
-		// shift node (1) to (2)
+		// shift node ① to ②
 		clicked_id_2 = clicked_id_1;
 		clicked_name_2 = clicked_name_1;
 		node2.style.backgroundColor = node1.style.backgroundColor;

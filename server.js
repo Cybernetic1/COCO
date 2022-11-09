@@ -66,6 +66,7 @@ function reqHandler(req, res) {
 		".html" : ["text/html"				, "utf-8"],
 		".css"	: ["text/css"				, "utf-8"],
 		".js"   : ["application/javascript" , "utf-8"],
+		".map"	: ["application/javascript" , "utf-8"],
 		".json" : ["application/json"		, "utf-8"],
 		".ogg"  : ["audio/ogg"				, "base64"],
 		".wav"  : ["audio/wav"				, "base64"],
