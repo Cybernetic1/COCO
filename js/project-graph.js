@@ -241,6 +241,7 @@ async function addNode() {
 		data.edges.add({from: node_index, to: clicked_id_1});
 		console.log("Added node", tasknameEN, "to node #", clicked_id_1);
 		node_index++;
+		modal2.style.display = "none";		// close modal window
 		techClick2.play();
 		}
 	}
