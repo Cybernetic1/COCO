@@ -12,6 +12,8 @@ function reqHandler(req, res) {
 	if (fileName === "/")
 		fileName = "/index.html";
 
+
+
 	if (fileName.startsWith("/saveJSON/")) {
 		var fname = path.basename(url.parse(req.url).pathname);
 
@@ -48,7 +50,6 @@ function reqHandler(req, res) {
 			"Connection"	: "keep-alive"
 			});
 
-		fs = require('fs');
 		fs.readFile("./" + fname, "utf-8", function (err, data) {
 			if (err) {
 				return console.log(err);
@@ -59,6 +60,33 @@ function reqHandler(req, res) {
 			});
 		return;
 		}
+
+	if (fileName.startsWith("/getGitAuthors/")) {
+		res.writeHead(200, {
+			"Content-Type"	: "text; charset=utf-8",
+			"Cache-Control"	: "no-cache",
+			"Connection"	: "keep-alive"
+			});
+
+		const { exec } = require("child_process");
+
+		// git: %an = author name, %ae = author email, %s = commit subject
+		exec("git log --pretty='%an <%ae>' | uniq", (error, stdout, stderr) => {
+			if (error) {
+				console.log(`error: ${error.message}`);
+				return;
+			}
+			if (stderr) {
+				console.log(`stderr: ${stderr}`);
+				return;
+			}
+			res.end(stdout, "utf-8");
+			console.log("Extracted Git authors:", stdout);
+		});
+		return;
+		}
+
+	// ************* Process the reading of various file types ****************
 
 	fileName = "./" + fileName;
 
