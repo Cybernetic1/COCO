@@ -1,5 +1,4 @@
 // TO-DO:
-// * Edges may have descriptions also
 // * Per-Task Voting:
 // 		- list authors for each task
 //		- first author self-claim # of credits for task
@@ -9,11 +8,12 @@
 // NOT URGENT:
 // * Save graph as directory files
 // * Allow bi-lingual task details
-// * Use "Input" area to directly updates nodes
-// * drop-down menu to show existing JSON files in directory, for load/save
-// * "Add Node" should use separate input window for data
 
 // DONE:
+// * "Add Node" should use separate input window for data
+// * Use "Input" area to directly updates nodes
+// * drop-down menu to show existing JSON files in directory, for load/save
+// * Edges may have descriptions also
 // * Load / save graph as JSON
 // * Save JSON to server-side
 // * Allow bi-lingual labels
@@ -426,3 +426,13 @@ async function switchLang() {
 		});
 	techClick2.play();
 	}
+
+$.ajax({
+		method: "GET",
+		url: "/getGitAuthors/",
+		cache: false,
+		success: function(data0) {
+
+	console.log("Extracted Git authors:", data0);
+	document.getElementById("gitRefs").value = data0;
+	} });
