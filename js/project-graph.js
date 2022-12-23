@@ -1,10 +1,7 @@
 // TO-DO:
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 // * Drop-down menu to add authors
-// * Per-Task Voting:
-//		- first author self-claim # of credits for task
-//		- needs others' vote to support
-//		- final result = # of tokens for every author of task
+// * Per-Task Voting
 
 // NOT URGENT:
 // * Allow bi-lingual task details
