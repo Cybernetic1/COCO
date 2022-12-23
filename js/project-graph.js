@@ -1,4 +1,5 @@
 // TO-DO:
+// * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 // * Drop-down menu to add authors
 // * Per-Task Voting:
 //		- first author self-claim # of credits for task
@@ -215,6 +216,34 @@ function onClick(params) {
 				});
 			divAuthors.appendChild(span);	// add the button
 			})();
+
+		node.votes = new Array();
+		if ('votes' in node) {
+			for (const author of node.authors) {
+				(function createVoter() {	// create function and invoke it too
+					const div = document.createElement('div');
+					div.classList.add('slidecontainer');
+					const name = document.createElement('p');
+					name.classList.add('name');
+					// var hash = require('object-hash');
+					name.innerText = author[0];
+					div.appendChild(name);
+					const score = document.createElement('pre');
+					score.classList.add('score');
+					score.innerText = '0';
+					div.appendChild(score);
+					const slider = document.createElement('input');
+					slider.classList.add('slider');
+					slider.setAttribute('type', 'range');
+					slider.setAttribute('min', '0');
+					slider.setAttribute('max', '1000');
+					slider.setAttribute('value', '0');
+					slider.setAttribute('id', '0');
+					div.appendChild(slider);
+					document.getElementById('voting').appendChild(div);
+					})();
+				}
+			}
 
 		// show Nodes ① ② and hide Edge:
 		document.getElementById("Edge").style.display = "none";
