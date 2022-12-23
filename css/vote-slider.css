@@ -3,17 +3,17 @@
 	display:inline-block;margin-right:5px; width:10%;
 }
 
-.score2 {
+.score {
 	font-size: 20px;
 	display:inline-block;margin-right:5px; width:10%;
 }
 
-.slidecontainer2 {
-    width: 100%; /* Width of the outside container */
+.slidecontainer {
+	width: clamp(40ch, 50%, 70ch);	/* minimum, ideal, maximum */
     height: 35px;
 }
 
-.slider2 {
+.slider {
 	width: 70%;
 	display:inline-block;
 }
