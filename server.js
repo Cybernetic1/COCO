@@ -28,7 +28,7 @@ function reqHandler(req, res) {
 
 			// Save to file
 			var fs = require('fs');
-			var stream = fs.createWriteStream("./" + fname, {encoding: 'utf8'});
+			var stream = fs.createWriteStream("./projects-data/" + fname, {encoding: 'utf8'});
 			stream.once('open', function(fd) {
 				stream.write(data);
 				stream.end();
@@ -50,7 +50,7 @@ function reqHandler(req, res) {
 			"Connection"	: "keep-alive"
 			});
 
-		fs.readFile("./" + fname, "utf-8", function (err, data) {
+		fs.readFile("./projects-data/" + fname, "utf-8", function (err, data) {
 			if (err) {
 				return console.log(err);
 				}
