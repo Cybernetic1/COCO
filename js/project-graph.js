@@ -152,7 +152,7 @@ var node2 = document.getElementById("Node2");
 function onClick(params) {
 	// console.log("selectNode Event:", params);
 	// console.log("Selected node=", params['nodes'][0]);
-	
+
 	if (params['nodes'].length > 0) {			// a node is clicked
 		// shift node ① to ②
 		clicked_id_2 = clicked_id_1;
@@ -217,33 +217,63 @@ function onClick(params) {
 			divAuthors.appendChild(span);	// add the button
 			})();
 
-		node.votes = new Array();
-		if ('votes' in node) {
-			for (const author of node.authors) {
-				(function createVoter() {	// create function and invoke it too
+		// Create HTML element vote slider
+		(function createPoll() {
+			const voting = document.getElementById('voting');
+			voting.innerHTML = '';
+			if ('votes' in node) {
+				window.votes = node.votes;
+				for (const author of node.authors) {
 					const div = document.createElement('div');
 					div.classList.add('slidecontainer');
 					const name = document.createElement('p');
 					name.classList.add('name');
-					// var hash = require('object-hash');
 					name.innerText = author[0];
 					div.appendChild(name);
-					const score = document.createElement('pre');
-					score.classList.add('score');
-					score.innerText = '0';
-					div.appendChild(score);
 					const slider = document.createElement('input');
 					slider.classList.add('slider');
 					slider.setAttribute('type', 'range');
 					slider.setAttribute('min', '0');
 					slider.setAttribute('max', '1000');
 					slider.setAttribute('value', '0');
-					slider.setAttribute('id', '0');
 					div.appendChild(slider);
-					document.getElementById('voting').appendChild(div);
-					})();
+					const score = document.createElement('pre');
+					score.classList.add('score');
+					score.innerText = '0';
+					div.appendChild(score);
+					voting.appendChild(div);
+					}
+				// Create HTML element for "total" vote count
+				const div = document.createElement('div');
+				div.classList.add('slidecontainer');
+				const name = document.createElement('p');
+				name.classList.add('name');
+				name.innerText = "Total";
+				div.appendChild(name);
+				const score = document.createElement('pre');
+				score.classList.add('score');
+				score.innerText = '0';
+				score.setAttribute('id', 'total');
+				div.appendChild(score);
+				voting.appendChild(div);
+				$.getScript("js/vote-slider.js", function() {
+					console.log("vote-slider.js loaded and executed.");
+					});
+				// Record votes values into node.votes
+				document.getElementById("total").onclick = function() {
+					node.votes = window.votes;
+					};
 				}
-			}
+			else {	// no votes, allow users to start a poll
+				const butt = document.createElement('p');
+				butt.innerText = "⊕ start voting";
+				butt.onclick = function () {
+					node.votes = new Array();
+					createPoll();
+					}
+				voting.appendChild(butt);
+				}
+			} )();	// end of function, and function call
 
 		// show Nodes ① ② and hide Edge:
 		document.getElementById("Edge").style.display = "none";
@@ -447,7 +477,8 @@ async function loadJSON() {
 	// Open modal window and ask for filename
 	modal1.style.display = "block";
 	techClick2.play();
-	document.getElementById("modal1_OK").onclick = function() {
+	document.getElementById("modal1_OK").onclick =
+	document.getElementById("JSONdropDown").onchange = function () {
 
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
@@ -474,7 +505,7 @@ async function loadJSON() {
 			modal1.style.display = "none";		// close window
 			techClick2.play();
 			} });
-		}
+		};
 	}
 
 async function switchLang() {

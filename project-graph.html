@@ -5,10 +5,12 @@
 	<link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" type="text/css" href="css/project-graph.css">
+	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
 	<script src="js/vis-data.min.js"></script>
 	<script src="js/vis-network.min.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script src="js/project-graph.js" defer></script>
+	<!--script src="js/vote-slider.js" defer></script-->
 </head>
 
 <body>
@@ -94,7 +96,10 @@
 <div id="modalWindow1" class="modal">
 	<div class="modal-content">
 	<span class="close" id="modal1_Close">⮽</span>
-	<label>Select or enter a JSON file name:</label>
+	<label>Type or select a JSON file name:</label>
+	<br>
+	<input type="text" id="JSONfileName" style="width:90%;" value=".json">
+	<br>
 	<br>
 	<select id="JSONdropDown" style="font-size:20px;">
 		<option value="none">---</option>
@@ -103,8 +108,6 @@
 		<option value="DeepSales-project-graph.json">DeepSales-project-graph.json</option>
 	</select>
 	<br>
-	<br>
-	<input type="text" id="JSONfileName" style="width:90%;" value=".json">
 	<br>
 	<button id="modal1_OK">OK</button>
 	<button id="modal1_Cancel">Cancel</button>

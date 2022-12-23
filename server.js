@@ -104,6 +104,9 @@ function reqHandler(req, res) {
 		".gif"  : ["image/gif"				, "base64"],
 		};
 
+	// Remove the cache-preventer suffix that begins with a '?'
+	fileName = fileName.split('?')[0];
+	// console.log("filename =", fileName);
 	var ext = path.extname(fileName);
 	if (ext in fileTypes) {
 		fs.exists(fileName, function(exists) {
