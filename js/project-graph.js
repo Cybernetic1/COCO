@@ -1,5 +1,10 @@
 // TO-DO:
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
+//	- everyone runs a server on their own, use Github to merge results
+//	- the vote results saved on private server (as JSON) are the user's
+//		own votes, which can be uploaded to Github
+//	- how to merge these graphs and their data?
+//	- each person has name, email, Github ID
 // * Drop-down menu to add authors
 // * Per-Task Voting
 
