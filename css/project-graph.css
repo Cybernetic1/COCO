@@ -70,6 +70,20 @@ label.small {	/* small texts at bottom of buttons */
 	padding: 10px;
 	}
 
+input[type='author'] {
+	color: black;
+	border:1px solid Black;
+	font-size: 18px;
+	border-radius: 8px;
+	padding: 5px;
+	margin-top: 5px;
+	display: block;
+}
+
+input[type='author'][disabled] {
+	background-color: var(--button);
+}
+
 /******************* for 'Status' radio buttons ******************/
 input[type='radio'] {
 	margin-bottom: 15px;
@@ -103,7 +117,7 @@ textarea {
 	float: right;
 }
 
-/************** Modal Window for asking user inputs *****************/
+/************** Modal Window for asking user inputs *************/
 
 /* The Modal (background) */
 .modal {
