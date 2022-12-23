@@ -1,18 +1,19 @@
 // TO-DO:
+// * Drop-down menu to add authors
 // * Per-Task Voting:
-// 		- list authors for each task
 //		- first author self-claim # of credits for task
 //		- needs others' vote to support
 //		- final result = # of tokens for every author of task
 
 // NOT URGENT:
-// * Save graph as directory files
 // * Allow bi-lingual task details
+// * Save graph as directory files
 
 // DONE:
+// * Allow per-Node authors
 // * "Add Node" should use separate input window for data
 // * Use "Input" area to directly updates nodes
-// * drop-down menu to show existing JSON files in directory, for load/save
+// * Drop-down menu to show existing JSON files in directory, for load/save
 // * Edges may have descriptions also
 // * Load / save graph as JSON
 // * Save JSON to server-side
@@ -21,8 +22,8 @@
 // * Task status: in progress, done, paused
 
 // For our Project Graph, (* = required)
-// each Node may contain attributes:  *id, label, labels{}, status, details, authors[], votes[]
-// each Edge may contains attributes:  *from, *to
+// each Node may contain attributes:  *id, *labelEN, labelZH, status, details, authors[], votes[]
+// each Edge may contains attributes:  *from, *to, label
 
 /****** Initial data  ******/
 
@@ -62,7 +63,7 @@ function init_nodes() {
 		node.label = get_label_in_lang(node);
 		node.color = ('status' in node) ? nodeColors[node.status] : nodeColors['in-progress'];
 		});
-	nodes.updateOnly({ id: 0, color: 'cyan'});
+	nodes.updateOnly({ id: 0, color: 'cyan' });
 	}
 init_nodes();
 
@@ -173,10 +174,48 @@ function onClick(params) {
 			document.getElementById('in-progress').checked = true;
 		document.getElementById("TaskNameEN").value = node.labelEN;
 		document.getElementById("TaskNameZH").value = node.labelZH ?? "";
+
 		if ('details' in node)
 			document.getElementById("Details").value = node.details;
 		else
 			document.getElementById("Details").value = "";
+
+		const divAuthors = document.getElementById("authors");
+		divAuthors.innerHTML = "";
+		if ('authors' in node) {
+			for (const author of node.authors) {
+				const span = document.createElement('input');
+				span.value = author[0];
+				span.title = author[1];
+				span.setAttribute('type', 'author');
+				span.setAttribute('disabled', '');		// for an added author, changes color
+				divAuthors.appendChild(span);
+				}
+			}
+
+		// Add a button to add authors;  this function needs to call itself:
+		(function addAuthorButton() {
+			const span = document.createElement('input');
+			span.setAttribute('type', 'author');
+			span.value = '⊕ name [, e-mail]';
+			span.onclick = (event) => {
+				span.value = "";			// clear input field
+				};
+			span.addEventListener('keyup', (event) => {
+				// when finished entering the author name / e-mail:
+				if (event.key === "Enter") {
+					[span.value, ...span.title] = span.value.split(/,\s*/);
+					if (node.authors == null)
+						node.authors = new Array();
+					node.authors.push([span.value, span.title]);
+					span.setAttribute('disabled', '');	// for an added author
+					techClick2.play();
+					addAuthorButton();		// call itself to add button
+					}
+				});
+			divAuthors.appendChild(span);	// add the button
+			})();
+
 		// show Nodes ① ② and hide Edge:
 		document.getElementById("Edge").style.display = "none";
 		document.getElementById("Node12").style.display = "inline-block";
@@ -200,6 +239,11 @@ function onClick(params) {
 	}
 
 network.on("click", onClick);
+
+function addAuthor(event) {
+	techClick2.play();
+	event.currentTarget.value = "";
+	}
 
 // Prepare modal window for user to input Node labels
 var modal2 = document.getElementById("modalWindow2");
@@ -427,12 +471,26 @@ async function switchLang() {
 	techClick2.play();
 	}
 
+// **** Read from Git to extract authors
 $.ajax({
 		method: "GET",
 		url: "/getGitAuthors/",
 		cache: false,
 		success: function(data0) {
 
-	console.log("Extracted Git authors:", data0);
-	document.getElementById("gitRefs").value = data0;
+	var authors = data0.split(/\r?\n/);
+	const div = document.getElementById("authors");
+	for (const author of authors) {
+		if (author == '')
+			break;
+		console.log("add Git author:", author);
+		const span = document.createElement('input');
+		const [email, ...name] = author.split(',');
+		span.value = name;
+		span.title = email;
+		span.setAttribute('type', 'author');
+		span.setAttribute('disabled', '');
+        div.appendChild(span);
+        //div.appendChild(document.createElement('br'));
+		}
 	} });

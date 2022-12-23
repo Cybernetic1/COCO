@@ -71,7 +71,7 @@ function reqHandler(req, res) {
 		const { exec } = require("child_process");
 
 		// git: %an = author name, %ae = author email, %s = commit subject
-		exec("git log --pretty='%an <%ae>' | uniq", (error, stdout, stderr) => {
+		exec("git log --pretty='%ae,%an' | uniq", (error, stdout, stderr) => {
 			if (error) {
 				console.log(`error: ${error.message}`);
 				return;
