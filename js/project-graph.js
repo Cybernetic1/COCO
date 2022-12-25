@@ -1,10 +1,16 @@
 // TO-DO:
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
-//	- everyone runs a server on their own, use Github to merge results
-//	- the vote results saved on private server (as JSON) are the user's
+//	- Everyone runs a server on their own, use Github to merge results
+//	- Vote results saved on private server (as JSON) are each user's
 //		own votes, which can be uploaded to Github
-//	- how to merge these graphs and their data?
-//	- each person has name, email, Github ID
+//	- Everyone would be writing to the same Git repo, how to tell them apart?
+//	- Perhaps we can record project-data files with user-ID attached,
+//		other files would have shared-authorship
+//	- How to merge these graphs and their votes?  What does it mean to merge?
+//		To merge means to resolve conflicts.  After merging the differences
+//		can be forgotten.  Except we may keep voting records permanently.
+//	- So the crux of it is to design merging algorithms
+//	- Each person has name, email, Github ID
 // * Drop-down menu to add authors
 // * Per-Task Voting
 
@@ -478,9 +484,25 @@ async function saveJSON() {
 async function loadJSON() {
 	// Open modal window and ask for filename
 	modal1.style.display = "block";
+	// Populate dropdown menu with JSON filenames:
+	let dropDown = document.getElementById("JSONdropDown");
+	$.ajax({
+		method: "GET",
+		url: "/fileList/",
+		success: function (files) {
+			// console.log(typeof(files), files);
+			files.forEach( file => {
+				if (!file.endsWith('.json'))
+					return;
+				var option = document.createElement("option");
+				option.value = file;
+				option.text = file;
+				dropDown.appendChild(option);
+				} );
+			} });
 	techClick2.play();
-	document.getElementById("modal1_OK").onclick =
-	document.getElementById("JSONdropDown").onchange = function () {
+	// Wait for modal window to be clicked OK, then do:
+	document.getElementById("modal1_OK").onclick = dropDown.onchange = function () {
 
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
