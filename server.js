@@ -12,8 +12,7 @@ function reqHandler(req, res) {
 	if (fileName === "/")
 		fileName = "/index.html";
 
-
-
+	// **** Save a JSON file to server's directory
 	if (fileName.startsWith("/saveJSON/")) {
 		var fname = path.basename(url.parse(req.url).pathname);
 
@@ -41,6 +40,7 @@ function reqHandler(req, res) {
 		return;
 		}
 
+	// **** Read a JSON file
 	if (fileName.startsWith("/loadJSON/")) {
 		var fname = path.basename(url.parse(req.url).pathname);
 
@@ -50,17 +50,32 @@ function reqHandler(req, res) {
 			"Connection"	: "keep-alive"
 			});
 
-		fs.readFile("./projects-data/" + fname, "utf-8", function (err, data) {
+		fs.readFile("projects-data/" + fname, "utf-8", function (err, data) {
 			if (err) {
-				return console.log(err);
+				console.log(err);
+				return err;
 				}
-			res.writeHead(200, {"Content-Type": "application/json"});
 			res.end(data, "utf-8");
 			console.log("Loaded JSON file:", fname);
 			});
 		return;
 		}
 
+	// **** Return a list of files in directory
+	if (fileName.startsWith("/fileList/")) {
+		fs.readdir("./projects-data/", (err, files) => {
+			if (err) {
+				console.log(err);
+				return err;
+				}
+			console.log("JSON files list =", typeof(files), files);
+			res.writeHead(200, {"Content-Type": "application/json"});
+			res.end(JSON.stringify(files), "utf-8");
+			});
+		return;
+		}
+
+	// **** Return list of authers in a Git repository
 	if (fileName.startsWith("/getGitAuthors/")) {
 		res.writeHead(200, {
 			"Content-Type"	: "text; charset=utf-8",
