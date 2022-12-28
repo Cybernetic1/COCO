@@ -10,13 +10,14 @@
 	<script src="js/vis-network.min.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script src="js/project-graph.js" defer></script>
-	<!--script src="js/vote-slider.js" defer></script-->
+	<script src="js/compare-project-graphs.js" defer></script>
 </head>
 
 <body>
 <p lang="ZH">Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
 <p lang="EN">Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
 
+<!-- top row of Graph Editing buttons -->
 <table style="display:inline-block;">
 <tr style="text-align:center; height:16px;">
 		<td></td>
@@ -43,6 +44,7 @@
 </tr>
 </table>
 
+<!-- icons for indicating last 2 clicked nodes -->
 <div style="display:inline-block; vertical-align: bottom; margin-left:10px;" id="Node12">
 ② <span id="Node2">none</span>
 ⇢ ① <span id="Node1">none</span>
@@ -52,6 +54,7 @@
 </div>
 <br>
 
+<!-- side panel for input data -->
 <div id="side-pane" style="width:20%; display:none; vertical-align:top; margin-left:10px;">
 	<div lang="ZH">
 	<label>工作名称：</label><br>
@@ -88,9 +91,20 @@
 	<div id="authors" style="width=15%;"></div>
 </div>
 
+<!-- for displaying project graph using Vis.js -->
 <div id="viz" style="display:inline-block; margin-left:20%; margin:10px; border:1px solid Black;">height:900px;</div>
 
+<!-- for displaying voting UI -->
 <div id="voting"></div>
+
+<!-- for displaying "diff" of two users' graphs / votes -->
+<div id="diff" class="viz-buttons">
+	<button onclick="loadGraph(1)" style="width:auto; font-size:18px">Load Graph 1</button>
+	<span id="graph1-name">Graph 1</span>
+	<button onclick="loadGraph(2)" style="width:auto; font-size:18px; margin-left:50px;">Load Graph 2</button>
+	<span id="graph2-name">Graph 2</span>
+	<div id="differences"><span>node1</span></div>
+</div>
 
 <!-- Modal Window for inputting JSON file names -->
 <div id="modalWindow1" class="modal">
