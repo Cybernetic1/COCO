@@ -486,6 +486,7 @@ async function loadJSON() {
 	modal1.style.display = "block";
 	// Populate dropdown menu with JSON filenames:
 	let dropDown = document.getElementById("JSONdropDown");
+	dropDown.replaceChildren();		// clear all options
 	$.ajax({
 		method: "GET",
 		url: "/fileList/",
