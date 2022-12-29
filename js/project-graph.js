@@ -564,7 +564,7 @@ $.ajax({
 		success: function(data0) {
 
 	var authors = data0.split(/\r?\n/);
-	uniqs = authors.filter((x, i, a) => a.indexOf(x) == i);
+	const uniqs = Array.from(new Set(authors));
 	const div = document.getElementById("authors");
 	for (const author of uniqs) {
 		if (author == '')
