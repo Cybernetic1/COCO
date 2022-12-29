@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (1:1.2.2+202212051550+b0a8486541)"
+   sodipodi:docname="DAO-with-Git.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#cccccc"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.914906"
+     inkscape:cx="396.76207"
+     inkscape:cy="570.55041"
+     inkscape:window-width="1080"
+     inkscape:window-height="1895"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="Arrow5"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow5"
+       markerWidth="11.887"
+       markerHeight="13.344852"
+       viewBox="0 0 5.8874262 6.6094758"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
+         id="path8893" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow5-2"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow5"
+       markerWidth="11.887"
+       markerHeight="13.344852"
+       viewBox="0 0 5.8874262 6.6094758"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
+         id="path8893-9" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1657">
+      <rect
+         style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+         id="rect167"
+         width="58.044964"
+         height="17.525421"
+         x="65.660873"
+         y="215.46759"
+         ry="5.8561344" />
+      <text
+         xml:space="preserve"
+         style="font-size:5.64444007px;line-height:1.25;font-family:'Alibaba PuHuiTi';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+         x="73.342728"
+         y="225.98199"
+         id="text113"><tspan
+           sodipodi:role="line"
+           id="tspan111"
+           style="font-size:5.64444007px;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+           x="73.342728"
+           y="225.98199">server repository</tspan></text>
+    </g>
+    <g
+       id="g1646"
+       transform="translate(-26.552183,15.96438)">
+      <rect
+         style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+         id="rect385"
+         width="54.820198"
+         height="19.930065"
+         x="50.266094"
+         y="112.21486"
+         ry="5.8561344" />
+      <text
+         xml:space="preserve"
+         style="font-size:5.64444007px;line-height:1.25;font-family:'Alibaba PuHuiTi';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+         x="76.865692"
+         y="119.96679"
+         id="text383"><tspan
+           sodipodi:role="line"
+           id="tspan381"
+           style="font-size:5.64444007px;text-align:center;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+           x="76.865692"
+           y="119.96679">user's local</tspan><tspan
+           sodipodi:role="line"
+           style="font-size:5.64444007px;text-align:center;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+           x="76.865692"
+           y="127.02234"
+           id="tspan1612">Git workspace</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:5.64444007px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583;font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+       x="117.80388"
+       y="124.44155"
+       id="text490"><tspan
+         sodipodi:role="line"
+         id="tspan488"
+         style="stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-size:5.64444007px;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+         x="117.80388"
+         y="124.44155">edit graph</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5)"
+       d="m 131.01422,129.14398 c -2.9504,33.90687 -32.311109,60.1097 -32.972219,79.24061"
+       id="path555"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5-2)"
+       d="m 131.01422,129.14398 c -8.79413,19.47563 -25.20885,9.90631 -45.781983,9.1348"
+       id="path555-1"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:5.64444007px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583;font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+       x="122.86564"
+       y="175.38622"
+       id="text1610"><tspan
+         sodipodi:role="line"
+         id="tspan1608"
+         style="stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-size:5.64444007px;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+         x="122.86564"
+         y="175.38622">save where?</tspan></text>
+    <g
+       id="g1652"
+       transform="translate(-12.776634,3.5649811)">
+      <rect
+         style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+         id="rect385-3"
+         width="54.820198"
+         height="19.930065"
+         x="116.97866"
+         y="91.878075"
+         ry="5.8561344" />
+      <text
+         xml:space="preserve"
+         style="font-size:5.64444007px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583;font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+         x="144.98372"
+         y="100.28621"
+         id="text1638"><tspan
+           sodipodi:role="line"
+           id="tspan1636"
+           style="text-align:center;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-size:5.64444007px;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+           x="144.98372"
+           y="100.28621">Snow-Crossing</tspan><tspan
+           sodipodi:role="line"
+           style="text-align:center;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-size:5.64444007px;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
+           x="144.98372"
+           y="107.34176"
+           id="tspan1640">web site</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:5.64444px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
+       x="31.271999"
+       y="254.84192"
+       id="text1661"><tspan
+         sodipodi:role="line"
+         id="tspan1659"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi Light';stroke-width:0.264583"
+         x="31.271999"
+         y="254.84192">有一个问题就是： 是不是所有 edit history 都是 git history？</tspan></text>
+  </g>
+</svg>

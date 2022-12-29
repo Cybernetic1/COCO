@@ -564,8 +564,9 @@ $.ajax({
 		success: function(data0) {
 
 	var authors = data0.split(/\r?\n/);
+	uniqs = authors.filter((x, i, a) => a.indexOf(x) == i);
 	const div = document.getElementById("authors");
-	for (const author of authors) {
+	for (const author of uniqs) {
 		if (author == '')
 			break;
 		console.log("add Git author:", author);
