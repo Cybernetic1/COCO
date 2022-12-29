@@ -59,17 +59,22 @@ async function loadGraph(i) {		// i = 1 or 2
 // Thus nodes should be sorted by distance from root
 // Which means IDs may require decimal points
 // Two nodes may differ by: ID, names, status, details, authors, votes.
-// To enforce integrity we may require users to modify from a common existing graph
+// To enforce integrity we may require users to modify from a common
+// existing graph
 // Then any modifications to such a graph can be traced easily
 // But, isn't this the same as if the common graph is a Git structure?
-// We don't have anything new here, we just need to visualize branches better,
+// We don't have anything new here, just need to visualize branches better,
 // get used to creating branches, and to consider all branches as a whole.
-// There's also a conservative approach where all node creations are accepted.
+// There's also a conservative approach where all node creations are
+// accepted.
 // It seems that the HISTORY of editing the graph must be taken into account.
 // We don't need a lot of conflict resolution if we refer to the history.
-// So the crux is to record edit history, and this history should be recorded by Git.
-// So all users can create nodes in the "main" branch, unless conflicts arise.
-// Another way is: each individual user's edit = branch, to be merged with main branch
+// So the crux is to record edit history,
+// and this history should be recorded by Git.
+// So all users can create nodes in the "main" branch,
+// unless conflicts arise.
+// Another way is: each individual user's edit = branch,
+// to be merged with main branch
 // 
 function compare-graphs() {
 	// **** Find all nodes that differ
