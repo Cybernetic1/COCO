@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
    height="297mm"
    viewBox="0 0 210 297"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2.2 (1:1.2.2+202212051550+b0a8486541)"
-   sodipodi:docname="DAO-with-Git.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
+   inkscape:version="1.0.2 (1.0.2+r75+1)"
+   sodipodi:docname="DAO-with-Git.svg">
+  <metadata
+     id="metadata60">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
   <sodipodi:namedview
      id="namedview7"
      pagecolor="#ffffff"
@@ -24,15 +36,16 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.914906"
+     inkscape:zoom="1.829812"
      inkscape:cx="403.32012"
-     inkscape:cy="191.27648"
-     inkscape:window-width="1080"
-     inkscape:window-height="1895"
+     inkscape:cy="654.22944"
+     inkscape:window-width="1920"
+     inkscape:window-height="1059"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0" />
   <defs
      id="defs2">
     <marker
@@ -50,47 +63,9 @@
        preserveAspectRatio="xMidYMid">
       <path
          transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
          d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
          id="path8893-9" />
-    </marker>
-    <marker
-       style="overflow:visible"
-       id="Arrow5-2-8"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Arrow5"
-       markerWidth="11.887"
-       markerHeight="13.344852"
-       viewBox="0 0 5.8874262 6.6094758"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
-      <path
-         transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
-         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
-         id="path8893-9-8" />
-    </marker>
-    <marker
-       style="overflow:visible"
-       id="Arrow5-3"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Arrow5"
-       markerWidth="11.887"
-       markerHeight="13.344852"
-       viewBox="0 0 5.8874262 6.6094758"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
-      <path
-         transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
-         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
-         id="path8893-1" />
     </marker>
     <marker
        style="overflow:visible"
@@ -107,96 +82,150 @@
        preserveAspectRatio="xMidYMid">
       <path
          transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
          d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
          id="path8893-2" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow5-9-1"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow5"
+       markerWidth="11.887"
+       markerHeight="13.344852"
+       viewBox="0 0 5.8874262 6.6094758"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
+         id="path8893-2-9" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow5-9-1-6"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow5"
+       markerWidth="11.887"
+       markerHeight="13.344852"
+       viewBox="0 0 5.8874262 6.6094758"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
+         id="path8893-2-9-0" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow5-9-4"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow5"
+       markerWidth="11.887"
+       markerHeight="13.344852"
+       viewBox="0 0 5.8874262 6.6094758"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="m 6,0 c -3,1 -7,3 -9,5 0,0 0,-4 2,-5 -2,-1 -2,-5 -2,-5 2,2 6,4 9,5 z"
+         id="path8893-2-99" />
     </marker>
   </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <g
-       id="g1657"
-       transform="translate(8.6840174,-1.5338188)">
-      <rect
-         style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
-         id="rect167"
-         width="58.044964"
-         height="17.525421"
-         x="65.660873"
-         y="215.46759"
-         ry="5.8561344" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-         x="73.342728"
-         y="225.98199"
-         id="text113"><tspan
-           sodipodi:role="line"
-           id="tspan111"
-           style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
-           x="73.342728"
-           y="225.98199">remote repository</tspan></text>
-    </g>
-    <g
-       id="g1646"
-       transform="translate(-26.552183,15.96438)">
-      <rect
-         style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
-         id="rect385"
-         width="54.820198"
-         height="19.930065"
-         x="50.266094"
-         y="112.21486"
-         ry="5.8561344" />
-      <text
-         xml:space="preserve"
-         style="font-size:5.64444007px;line-height:1.25;font-family:'Alibaba PuHuiTi';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
-         x="76.865692"
-         y="119.96679"
-         id="text383"><tspan
-           sodipodi:role="line"
-           id="tspan381"
-           style="font-size:5.64444007px;text-align:center;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
-           x="76.865692"
-           y="119.96679">user's local</tspan><tspan
-           sodipodi:role="line"
-           style="font-size:5.64444007px;text-align:center;text-anchor:middle;stroke-width:0.264583;-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-family:'Alibaba PuHuiTi';font-weight:300;font-style:normal;font-stretch:normal;font-variant:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
-           x="76.865692"
-           y="127.02234"
-           id="tspan1612">Git workspace</tspan></text>
-    </g>
+    <rect
+       style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+       id="rect385-3-3-8"
+       width="56.059875"
+       height="46.511864"
+       x="103.94217"
+       y="73.460884"
+       ry="5.8561344" />
+    <rect
+       style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+       id="rect385-3-3"
+       width="51.272354"
+       height="32.18399"
+       x="106.48576"
+       y="85.181152"
+       ry="5.8561344" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5-9-1-6)"
+       d="m 72.220118,222.75067 41.390392,-0.006"
+       id="path555-0-9-6"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+       id="rect167"
+       width="34.447414"
+       height="17.109118"
+       x="37.83239"
+       y="213.93378"
+       ry="5.8561344" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="120.05987"
-       y="91.746635"
-       id="text490"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
+       x="55.143745"
+       y="220.69485"
+       id="text113"><tspan
          sodipodi:role="line"
-         id="tspan488"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
-         x="120.05987"
-         y="91.746635">edit graph</tspan></text>
+         id="tspan111"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="55.143745"
+         y="220.69485">remote Git</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="55.143745"
+         y="227.75041"
+         id="tspan106">repository</tspan></text>
+    <rect
+       style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+       id="rect385"
+       width="41.9147"
+       height="19.409687"
+       x="34.521637"
+       y="128.45677"
+       ry="5.8561344" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
+       x="55.605179"
+       y="135.93117"
+       id="text383"><tspan
+         sodipodi:role="line"
+         id="tspan381"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="55.605179"
+         y="135.93117">user's local</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="55.605179"
+         y="142.98672"
+         id="tspan1612">Git workspace</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5-9)"
-       d="m 47.721547,152.15968 c 9.155907,31.58129 41.192918,36.89418 40.531808,56.02509"
+       d="m 50.745679,148.26319 0.0063,61.78792"
        id="path555-0"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.06, 1.06;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Arrow5-3)"
-       d="m 151.95601,118.66798 c -2.9504,33.90687 -32.61536,70.5857 -33.27647,89.71661"
-       id="path555-4"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5-2)"
-       d="m 103.84917,108.54573 c -19.648953,0.55683 -43.963734,3.19185 -49.363166,15.74622"
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow5-2);marker-end:url(#Arrow5-2)"
+       d="m 100.67417,108.54573 c -19.648953,0.55683 -40.788734,3.19185 -46.188166,15.74622"
        id="path555-1"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.06, 1.06;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Arrow5-2-8)"
-       d="m 104.06897,101.09019 c -26.801495,1.51645 -62.748139,0.48462 -66.825583,22.3695"
-       id="path555-1-4"
        sodipodi:nodetypes="cc" />
     <g
        id="g1652"
@@ -204,10 +233,10 @@
       <rect
          style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
          id="rect385-3"
-         width="54.820198"
-         height="19.930065"
-         x="116.97866"
-         y="91.878075"
+         width="45.27985"
+         height="19.097446"
+         x="122.39065"
+         y="92.329079"
          ry="5.8561344" />
       <text
          xml:space="preserve"
@@ -229,14 +258,14 @@
     <text
        xml:space="preserve"
        style="font-size:5.64444px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="31.984745"
-       y="245.06241"
+       x="38.863918"
+       y="12.228995"
        id="text1661"><tspan
          sodipodi:role="line"
          id="tspan1659"
          style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi Light';stroke-width:0.264583"
-         x="31.984745"
-         y="245.06241">A question is: are all edit histories stored as Git history?</tspan></text>
+         x="38.863918"
+         y="12.228995">A question is: are all edit histories stored as Git history?</tspan></text>
     <text
        xml:space="preserve"
        style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
@@ -293,7 +322,7 @@
          id="tspan14951"
          style="stroke-width:0.264583"
          x="101.09954"
-         y="29.664656">Every mod require consensus by others?</tspan><tspan
+         y="29.664656">Every mod requires consensus by others?</tspan><tspan
          sodipodi:role="line"
          style="stroke-width:0.264583"
          x="101.09954"
@@ -301,68 +330,105 @@
          id="tspan14957">So all mods are saved in local git?</tspan></text>
     <text
        xml:space="preserve"
-       style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;fill:#808080;stroke-width:0.264583"
-       x="7.7953982"
-       y="108.94667"
-       id="text15034"
-       transform="rotate(-9.2575294)"><tspan
-         sodipodi:role="line"
-         id="tspan15032"
-         style="fill:#808080;stroke-width:0.264583"
-         x="7.7953982"
-         y="108.94667">client-side cannot write here</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
-       x="167.54604"
-       y="149.37396"
-       id="text16112"><tspan
-         sodipodi:role="line"
-         id="tspan16110"
-         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
-         x="167.54604"
-         y="149.37396">client-side</tspan><tspan
-         sodipodi:role="line"
-         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
-         x="167.54604"
-         y="156.42952"
-         id="tspan16114">can write to</tspan><tspan
-         sodipodi:role="line"
-         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
-         x="167.54604"
-         y="163.48506"
-         id="tspan16116">user's Git?</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;fill:#ff0000;stroke-width:0.264583"
-       x="69.978447"
-       y="121.21942"
+       style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;fill:#000000;stroke-width:0.264583;"
+       x="117.07426"
+       y="81.002769"
        id="text16285"><tspan
          sodipodi:role="line"
          id="tspan16283"
-         style="fill:#ff0000;stroke-width:0.264583"
-         x="69.978447"
-         y="121.21942">local server</tspan></text>
+         style="fill:#000000;stroke-width:0.264583;"
+         x="117.07426"
+         y="81.002769">local server</tspan></text>
     <text
        xml:space="preserve"
        style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="31.208666"
-       y="181.40804"
+       x="19.632582"
+       y="171.60712"
        id="text16379"><tspan
          sodipodi:role="line"
          id="tspan16377"
          style="stroke-width:0.264583"
-         x="31.208666"
-         y="181.40804">Git commit</tspan><tspan
+         x="19.632582"
+         y="171.60712">Git commit</tspan><tspan
          sodipodi:role="line"
          style="stroke-width:0.264583"
-         x="31.208666"
-         y="188.46359"
+         x="19.632582"
+         y="178.66267"
          id="tspan16504">(to branch</tspan><tspan
          sodipodi:role="line"
          style="stroke-width:0.264583"
-         x="31.208666"
-         y="195.51913"
+         x="19.632582"
+         y="185.71822"
          id="tspan16506">or to main)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-weight:300;font-size:7.05556px;line-height:1.25;font-family:'Alibaba Sans';-inkscape-font-specification:'Alibaba Sans, Light';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583"
+       x="131.4361"
+       y="91.830795"
+       id="text84"><tspan
+         sodipodi:role="line"
+         id="tspan82"
+         x="131.4361"
+         y="91.830795"
+         style="font-size:5.64444px;stroke-width:0.264583">client-side</tspan></text>
+    <g
+       id="g1657-1"
+       transform="translate(47.313188,-1.5338188)">
+      <rect
+         style="opacity:0.6;fill:#ffffff;stroke:#000000;stroke-width:0.529167"
+         id="rect167-6"
+         width="26.815132"
+         height="17.351965"
+         x="69.43354"
+         y="215.22475"
+         ry="5.8561344" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
+         x="82.443062"
+         y="222.22867"
+         id="text113-8"><tspan
+           sodipodi:role="line"
+           id="tspan111-5"
+           style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583"
+           x="82.443062"
+           y="222.22867">remote</tspan><tspan
+           sodipodi:role="line"
+           style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.64444px;font-family:'Alibaba PuHuiTi';-inkscape-font-specification:'Alibaba PuHuiTi, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583"
+           x="82.443062"
+           y="229.28423"
+           id="tspan106-2">server</tspan></text>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5-9-1)"
+       d="m 130.55273,213.64666 0.006,-93.53792"
+       id="path555-0-9"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-weight:300;font-size:5.64444px;line-height:1.25;font-family:'Alibaba Sans';-inkscape-font-specification:'Alibaba Sans, Light';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583"
+       x="154.48071"
+       y="162.40117"
+       id="text1099"><tspan
+         sodipodi:role="line"
+         id="tspan1097"
+         x="154.48071"
+         y="162.40117"
+         style="font-size:5.64444px;stroke-width:0.264583">this is one-way,</tspan><tspan
+         sodipodi:role="line"
+         x="154.48071"
+         y="169.45673"
+         style="font-size:5.64444px;stroke-width:0.264583"
+         id="tspan1101">for displaying</tspan><tspan
+         sodipodi:role="line"
+         x="154.48071"
+         y="176.51227"
+         style="font-size:5.64444px;stroke-width:0.264583"
+         id="tspan1103">&quot;main&quot; graph</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow5-9-4)"
+       d="m 57.624847,213.56777 0.0063,-61.78792"
+       id="path555-0-0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
