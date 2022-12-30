@@ -1,4 +1,5 @@
 // TO-DO:
+// * Move away from JSON file to Git as the data source of Project Graph
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
