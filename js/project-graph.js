@@ -1,5 +1,7 @@
 // TO-DO:
 // * Move away from JSON file to Git as the data source of Project Graph
+//	- how server access local Git dir?
+//	- 
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
@@ -482,6 +484,55 @@ async function saveJSON() {
 		};
 	}
 
+// **** read Project Graph from current directory
+async function loadDirectory() {
+	// Open modal window and ask for filename
+	modal1.style.display = "block";
+	// Populate dropdown menu with JSON filenames:
+	let dropDown = document.getElementById("JSONdropDown");
+	dropDown.replaceChildren();		// clear all options
+	$.ajax({
+		method: "GET",
+		url: "/dirList/",
+		success: function (dirs) {
+			// console.log(typeof(files), files);
+			dirs.forEach( dir => {
+				var option = document.createElement("option");
+				option.value = dir;
+				option.text = dir;
+				dropDown.appendChild(option);
+				} );
+			} });
+	techClick2.play();
+	// Wait for modal window to be clicked OK, then do:
+	document.getElementById("modal1_OK").onclick = dropDown.onchange = function () {
+
+		var dir = document.getElementById("JSONdropDown").value;
+		if (dir == "none")
+			dir = document.getElementById("JSONfileName").value;
+
+		$.ajax({
+				method: "GET",
+				url: "/loadDir/" + dir,
+				cache: false,
+				success: function(data0) {
+
+			network.destroy();
+			nodes = new vis.DataSet(data0.nodes);
+			edges = new vis.DataSet(data0.edges);
+			data.nodes = nodes;
+			data.edges = edges;
+			init_nodes();		// set lang, colors, ... from existing data
+			network = new vis.Network(container, data, options);
+			update_node_index();
+			network.on("click", onClick);
+
+			modal1.style.display = "none";		// close window
+			techClick2.play();
+			} });
+		};
+	}
+	
 async function loadJSON() {
 	// Open modal window and ask for filename
 	modal1.style.display = "block";
