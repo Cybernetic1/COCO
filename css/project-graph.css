@@ -8,6 +8,7 @@
 	--button: #CFF;
 }
 
+/* These 2 lines causes side-pane to overlap on top of viz canvas */
 #container { position: relative; }
 #container #viz, #side-pane {
 	position: absolute;
@@ -75,20 +76,6 @@ label.small {	/* small texts at bottom of buttons */
 	padding: 5px;
 	}
 
-input[type='author'] {
-	color: black;
-	border:1px solid Black;
-	font-size: 18px;
-	border-radius: 8px;
-	padding: 5px;
-	margin-top: 5px;
-	display: block;
-}
-
-input[type='author'][disabled] {
-	background-color: var(--button);
-}
-
 /******************* for 'Status' radio buttons ******************/
 input[type='radio'] {
 	margin-bottom: 15px;
@@ -120,6 +107,22 @@ textarea {
 #number, input[type='number'] {
 	width: 4em;
 	float: right;
+}
+
+/******************* for Authors list ******************/
+
+input[type='author'] {
+	color: black;
+	border:1px solid Black;
+	font-size: 18px;
+	border-radius: 8px;
+	padding: 5px;
+	margin-top: 5px;
+	display: block;
+}
+
+input[type='author'][disabled] {
+	background-color: var(--button);
 }
 
 /*************** Modal Windows for asking user inputs *************/
