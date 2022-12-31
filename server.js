@@ -6,48 +6,21 @@ var fs = require("fs");
 var url = require("url");
 var path = require("path");
 
-var data = null;
 const { exec } = require("child_process");
 const fs = require('fs');
 import { readdir } from 'fs/promises';
 
-// **** Traverse dir and create data object
-function traverse(dir) {
-	// cd into the directory:
-	exec(`cd ${dir}`, (error, stdout, stderr) => {
-		if (error) { console.log(`error: ${error.message}`); return; }
-		if (stderr) { console.log(`stderr: ${stderr}`); return; }
-		}
-	// read file "data.txt" and fill in details
-	fs.readFile("data.txt", "utf-8", function (err, details) {
-		if (err) {
-			console.log(err);
-			return err;
-			}
-		details.split('\n').forEach( line => {
-			const i = line.indexOf(':');
-			const head = line.slice(0,i);
-			const tail = line.slice(i+1);
-			data.nodes[head] = JSON.parse(tail);
-			});
-		});
-	// get all sub-dirs in current dir
-	subdirs = (await readdir(".", { withFileTypes: true } ))
-		.filter(dirent => dirent.isDirectory())
-		// recurse for all sub-dirs
-		.map(dirent => traverse(dirent.name))
-	}
-
-// **** read Edges file
-function getEdges(dir) {
-	// read file "{dir}/edges.txt" and fill in details
-	fs.readFile(`${dir}/edges.txt`, "utf-8", function (err, edges) {
-		if (err) {
-			console.log(err);
-			return err;
-			}
-		data.edges = JSON.parse(edges);
-		});
+// Clean filename of any unwanted chars, allowing Chinese chars etc to remain
+// (This function is unused)
+function clean_name(name) {
+	const regex = RegExp('[/\\?%*:|\"<>\x7F\x00-\x1F]', 'g');
+	var result = "";
+		for (let ch of name) {
+			if (regex.exec(ch)[0] == null)
+				result += ch;
+			else
+				result += '%' + ('0' + ch.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
+	return result;
 	}
 
 function reqHandler(req, res) {
@@ -105,7 +78,7 @@ function reqHandler(req, res) {
 		return;
 		}
 
-	// **** create a project dir from JSON
+	// **** save a project as a dir-structure, from project graph JSON
 	if (fileName.startsWith("/saveDir/")) {
 		var dirName = path.basename(url.parse(req.url).pathname);
 
@@ -120,12 +93,40 @@ function reqHandler(req, res) {
 
 			// Save to dir -- it should be the same dir every time
 			// as there may be other project files in the dirs
-			var stream = fs.createWriteStream("./projects-data/" + fname, {encoding: 'utf8'});
+			// 1. if root-dir not exist create it:
+			if (!fs.existsSync(dirName)) {
+				fs.mkdirSync(dirName);
+				}
+			// 2. for each node, if not exists create sub-dir
+			data.nodes.forEach( node => {
+				const dirName = node.id.toString();
+				if (!fs.existsSync(dirName)) {
+					fs.mkdirSync(dirName);
+					}
+
+				// export node details per line in JSON format
+				var lines = "";
+				for (const [key, value] of Object.entries(node)) {
+					lines += key.toString() + ":" + value.toString();
+					}
+
+				// 3. write node details to "node-data.txt"
+				var stream = fs.createWriteStream("./node-data.txt", {encoding: 'utf8'});
+				stream.once('open', function(fd) {
+					stream.write(lines);
+					stream.end();
+					});
+					
+				} );
+
+			// 4. write edges to "edges-data.json"
+			var stream = fs.createWriteStream("./edges-data.json", {encoding: 'utf8'});
 			stream.once('open', function(fd) {
-				stream.write(data);
+				stream.write(JSON.stringify(data.edges));
 				stream.end();
 				});
-			console.log("Saved JSON file:", fname);
+
+			console.log("Saved project graph to directory:", dirName);
 			});
 		res.end();
 		return;
@@ -144,8 +145,41 @@ function reqHandler(req, res) {
 		data = {};
 		data.nodes = [];
 		data.edges = [];
-		traverse(dirName);
-		getEdges(dirName);
+
+		// **** Read all nodes from directory and create data.nodes object
+		// 1. read root-node file "node-data.txt" and fill in details
+		( function get1Node() {
+			fs.readFile(`${dirName}/node-data.txt`, "utf-8", function (err, details) {
+				if (err) {
+					console.log(err);
+					return err;
+					}
+				var node = {};
+				details.split('\n').forEach( line => {
+					const i = line.indexOf(':');
+					const head = line.slice(0,i);
+					const tail = line.slice(i+1);
+					node[head] = JSON.parse(tail);
+					});
+				data.nodes.push(node);
+				});
+			} ) ();
+
+		// 2. for each sub-dir, do the same:
+		(await readdir(dirName, { withFileTypes: true } ))
+			.filter(dirent => dirent.isDirectory())
+			// recurse for all sub-dirs
+			.map(dirent => get1Node(dirent.name));
+
+		// 3. read edges data file and fill in details
+		fs.readFile(`${dir}/edges-data.json`, "utf-8", function (err, edges) {
+			if (err) {
+				console.log(err);
+				return err;
+				}
+			data.edges = JSON.parse(edges);
+			});
+
 		res.end(JSON.stringify(data), "utf-8");
 		console.log("Loaded dir as JSON");
 		return;
