@@ -8,6 +8,11 @@
 	--button: #CFF;
 }
 
+#container { position: relative; }
+#container #viz, #side-pane {
+	position: absolute;
+	}
+
 #viz {		/* the Vis.js canvas */
 	background-color: White;
 	}
@@ -20,7 +25,7 @@ label[disabled] {
 	width: 100%;
 	height: 100%;
 	background-color: var(--button);
-	font-size: 30px;
+	font-size: 25px;
 	border-radius: 10px;
 	/* border:2px solid Black; */
 	}
@@ -35,39 +40,39 @@ label.small {	/* small texts at bottom of buttons */
 	}
 
 .viz-buttons td {
-	height: 50px;
-	padding: 0 10px;
+	height: 36px;
+	padding: 0 2px;
 }
 
 #Node12, #Edge {		/* box containing Nodes ① ② and Edge */
 	background-color: White;
-	border: 1px solid Black;
-	padding: 20px;
+	border: 2px solid Black;
+	padding: 10px;
 	color: Black;
-	font-size: 25px;
+	font-size: 22px;
 	}
 
 #Node12 span {
 	width: 90px;
-	height: 30px;
+	height: 25px;
 	/* background-color: White; */
 	color: Black;
 	font-size: 20px;
 	border:2px solid #BBB;
 	border-radius: 10px;
-	padding: 10px;
+	padding: 5px;
 	}
 
 #Edge span {
 	width: 90px;
-	height: 30px;
+	height: 25px;
 	background-color: White;
 	color: Black;
 	font-size: 20px;
 	/* text-decoration: underline; */
 	/* border:2px solid Black; */
 	/* border-radius: 10px; */
-	padding: 10px;
+	padding: 5px;
 	}
 
 input[type='author'] {
@@ -104,12 +109,12 @@ label[for='research']		{ background-color: var(--research); }
 
 #side-pane input[type='text'] {
 	font-size: 20px;
-	width: 100%;
+	width: 95%;
 }
 
 textarea {
 	font-size: 14px;
-	width: 100%;
+	width: 95%;
 	}
 
 #number, input[type='number'] {

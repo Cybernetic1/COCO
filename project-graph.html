@@ -14,28 +14,34 @@
 </head>
 
 <body>
-<p lang="ZH">Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-<p lang="EN">Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
+
+<div id="help" style="display: none">
+	<p lang="ZH">Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
+	<p lang="EN">Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
+</div>
+
+<div id="container">
 
 <!-- top row of Graph Editing buttons -->
 <table style="display:inline-block;">
-<tr style="text-align:center; height:16px;">
+<tr style="text-align:center; height:14px;">
 		<td></td>
-		<td><label class="small">Language</label>
-		<td><label class="small">Save JSON</label>
-		<td><label class="small">Load JSON</label>
+		<td><label class="small">Help</label>
+		<td><label class="small">Lang</label>
+		<td><label class="small">Load</label>
+		<td><label class="small">Save</label>
 		<td><label class="small">Clear</label>
-		<td><label class="small">Add Node</label>
-		<td><label class="small">Delete Node</label>
+		<td><label class="small">+ Node</label>
+		<td><label class="small">- Node</label>
 		<td><label class="small">Link Nodes</label>
-		<td><label class="small">Delete Edge</label>
+		<td><label class="small">- Edge</label>
 </tr>
 <tr class="viz-buttons" style="text-align:center;">
 		<td><span id="SidePaneButton" onclick="toggleSidePane()">⏴</span></td>
-		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">
-		English</button>
-		<td><button onclick="saveJSON()">↳🖹</button>
+		<td><button onclick="help()">🛈</button>
+		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">Eng</button>
 		<td><button onclick="loadJSON()">🖹⮥</button>
+		<td><button onclick="saveJSON()">↳🖹</button>
 		<td><button onclick="clearGraph()"><span style="color:red;">🗑</span></button>
 		<td><button onclick="addNode()">+Ⓝ</button>
 		<td><button onclick="delNode()"><span style="color:red;">✕Ⓝ</span></button>
@@ -45,7 +51,7 @@
 </table>
 
 <!-- icons for indicating last 2 clicked nodes -->
-<div style="display:inline-block; vertical-align: bottom; margin-left:10px;" id="Node12">
+<div style="display:inline-block; vertical-align: top; margin-left:10px; margin-top:25px;" id="Node12">
 ② <span id="Node2">none</span>
 ⇢ ① <span id="Node1">none</span>
 </div>
@@ -54,8 +60,11 @@
 </div>
 <br>
 
+<!-- for displaying project graph using Vis.js -->
+<div id="viz""></div>
+
 <!-- side panel for input data -->
-<div id="side-pane" style="width:20%; display:none; vertical-align:top; margin-left:10px;">
+<div id="side-pane" style="width:25%; display:none; vertical-align:top; margin-left:10px; border:1px solid Black; background-color: White; padding: 5px;">
 	<div lang="ZH">
 	<label>工作名称：</label><br>
 	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
@@ -78,7 +87,7 @@
 	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
 
 	<label>Details:</label><br>
-	<textarea rows="15" id="Details" onchage="changeDetails"></textarea><br>
+	<textarea rows="13" id="Details" onchage="changeDetails"></textarea><br>
 
 	<label disabled>Expected tokens</label>
 	<input type="number" id="ExpTokens" style="width:9em;" disabled><br>
@@ -91,8 +100,7 @@
 	<div id="authors" style="width=15%;"></div>
 </div>
 
-<!-- for displaying project graph using Vis.js -->
-<div id="viz" style="display:inline-block; margin-left:20%; margin:10px; border:1px solid Black;">height:900px;</div>
+</div>
 
 <!-- for displaying voting UI -->
 <div id="voting"></div>

@@ -134,16 +134,15 @@ function toggleSidePane() {
 	techClick2.play().catch(function (error) {
 		// console.log("Chrome cannot play sound without user interaction first");
 		});
+	container.style.height = window.innerHeight -100 + "px";
+	container.style.width = window.innerWidth -20 + "px";
+
 	if (pane.style.display == "none") {
 		pane.style.display = "inline-block";
-		container.style.height = window.innerHeight - 130 + "px";
-		container.style.width = window.innerWidth * .75 + "px";
 		document.getElementById("SidePaneButton").innerText = "⏴";
 		}
 	else {
 		pane.style.display = "none";
-		container.style.height = window.innerHeight - 130 + "px";
-		container.style.width = window.innerWidth * .95 + "px";
 		document.getElementById("SidePaneButton").innerText = "⏵";
 		}
 	}
@@ -595,7 +594,7 @@ async function switchLang() {
 		}
 	else if (lang == "EN") {
 		lang = "ZH";
-		button.innerHTML = "English";
+		button.innerHTML = "Eng";
 		}
 	button.value = lang;
 	$('[lang="ZH"]').toggle();
