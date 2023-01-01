@@ -16,6 +16,7 @@
 //	- Each person has name, email, Github ID
 // * Drop-down menu to add authors
 // * Per-Task Voting
+// * Make 'Help' a modal window
 
 // NOT URGENT:
 // * Allow bi-lingual task details
