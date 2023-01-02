@@ -1,0 +1,6 @@
+{
+  "id": 33,
+  "labelEN": "save to Git dir",
+  "color": "#CFC",
+  "status": "finished"
+}

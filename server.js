@@ -116,6 +116,7 @@ async function reqHandler(req, res) {
 		}
 
 	// **** read a project dir and return as JSON file
+	// must use synchronous read
 	if (fileName.startsWith("/loadDir/")) {
 		var rootDirName = path.basename(url.parse(req.url).pathname);
 

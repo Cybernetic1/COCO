@@ -337,7 +337,7 @@ window.onclick = function(event) {
 
 async function addNode() {
 	// Open modal window to ask for Node labels:
-	modal2.style.display = "block";
+	node_modal.style.display = "block";
 	techClick2.play();
 	document.getElementById("node_modal_OK").onclick = function() {
 
