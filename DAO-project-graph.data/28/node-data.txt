@@ -1,0 +1,7 @@
+{
+  "id": 28,
+  "labelEN": "analyse competitors",
+  "labelZH": "分析竞争者",
+  "status": "in-progress",
+  "color": "#FCC"
+}

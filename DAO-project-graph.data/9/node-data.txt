@@ -1,0 +1,5 @@
+{
+  "id": 9,
+  "labelEN": "bot scripts",
+  "color": "#FCC"
+}

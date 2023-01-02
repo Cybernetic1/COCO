@@ -1,0 +1,6 @@
+{
+  "id": 2,
+  "labelEN": "technical white paper",
+  "labelZH": "技术白皮书",
+  "color": "#FCC"
+}

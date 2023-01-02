@@ -76,7 +76,7 @@ async function loadGraph(i) {		// i = 1 or 2
 // Another way is: each individual user's edit = branch,
 // to be merged with main branch
 // 
-function compare-graphs() {
+function compareGraphs() {
 	// **** Find all nodes that differ
 	graphs[1].nodes.forEach( node1 => {
 		graphs[2].nodes.forEach( node2 => {

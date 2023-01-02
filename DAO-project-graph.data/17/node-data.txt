@@ -1,0 +1,6 @@
+{
+  "id": 17,
+  "labelEN": "Neo4j",
+  "status": "paused",
+  "color": "#CCC"
+}

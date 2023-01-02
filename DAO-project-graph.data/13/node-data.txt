@@ -1,0 +1,7 @@
+{
+  "id": 13,
+  "labelEN": "bug: total votes >100",
+  "status": "finished",
+  "details": "Solved by continuous slider",
+  "color": "#CFC"
+}

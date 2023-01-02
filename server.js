@@ -1,29 +1,15 @@
 // Simple server based on Node.js
 // ==============================
 
-var http = require("http");
-var fs = require("fs");
-var url = require("url");
-var path = require("path");
-
+const http = require("http");
+const fs = require("fs");
+const url = require("url");
+const path = require("path");
+const process = require('process');
 const { exec } = require("child_process");
-const fs = require('fs');
-import { readdir } from 'fs/promises';
+const { readdir } = require("fs/promises");
 
-// Clean filename of any unwanted chars, allowing Chinese chars etc to remain
-// (This function is unused)
-function clean_name(name) {
-	const regex = RegExp('[/\\?%*:|\"<>\x7F\x00-\x1F]', 'g');
-	var result = "";
-		for (let ch of name) {
-			if (regex.exec(ch)[0] == null)
-				result += ch;
-			else
-				result += '%' + ('0' + ch.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
-	return result;
-	}
-
-function reqHandler(req, res) {
+async function reqHandler(req, res) {
 
 	var fileName = decodeURIComponent(req.url);
 	if (fileName === "/")
@@ -80,7 +66,7 @@ function reqHandler(req, res) {
 
 	// **** save a project as a dir-structure, from project graph JSON
 	if (fileName.startsWith("/saveDir/")) {
-		var dirName = path.basename(url.parse(req.url).pathname);
+		var rootDirName = path.basename(url.parse(req.url).pathname);
 
 		res.writeHead(200, {
 			'Content-Type': 'text/event-stream; charset=utf-8',
@@ -94,39 +80,36 @@ function reqHandler(req, res) {
 			// Save to dir -- it should be the same dir every time
 			// as there may be other project files in the dirs
 			// 1. if root-dir not exist create it:
-			if (!fs.existsSync(dirName)) {
-				fs.mkdirSync(dirName);
+			if (!fs.existsSync(rootDirName)) {
+				fs.mkdirSync(rootDirName);
 				}
+
 			// 2. for each node, if not exists create sub-dir
 			data.nodes.forEach( node => {
-				const dirName = node.id.toString();
-				if (!fs.existsSync(dirName)) {
-					fs.mkdirSync(dirName);
-					}
-
-				// export node details per line in JSON format
-				var lines = "";
-				for (const [key, value] of Object.entries(node)) {
-					lines += key.toString() + ":" + value.toString();
+				const subDirName = rootDirName + '/' + node.id.toString();
+				if (!fs.existsSync(subDirName)) {
+					fs.mkdirSync(subDirName);
 					}
 
 				// 3. write node details to "node-data.txt"
-				var stream = fs.createWriteStream("./node-data.txt", {encoding: 'utf8'});
+				var stream = fs.createWriteStream(`${subDirName}/node-data.txt`, {encoding: 'utf8'});
 				stream.once('open', function(fd) {
-					stream.write(lines);
+					// pretty JSON spacing level = 2
+					stream.write(JSON.stringify(node, null, 2));
 					stream.end();
 					});
-					
+
 				} );
 
 			// 4. write edges to "edges-data.json"
-			var stream = fs.createWriteStream("./edges-data.json", {encoding: 'utf8'});
+			var stream = fs.createWriteStream(`${rootDirName}/edges-data.json`, {encoding: 'utf8'});
 			stream.once('open', function(fd) {
-				stream.write(JSON.stringify(data.edges));
+				// JSON spacing level = 1
+				stream.write(JSON.stringify(data.edges, null, 1));
 				stream.end();
 				});
 
-			console.log("Saved project graph to directory:", dirName);
+			console.log("Saved project graph to directory:", rootDirName);
 			});
 		res.end();
 		return;
@@ -134,7 +117,7 @@ function reqHandler(req, res) {
 
 	// **** read a project dir and return as JSON file
 	if (fileName.startsWith("/loadDir/")) {
-		var dirName = path.basename(url.parse(req.url).pathname);
+		var rootDirName = path.basename(url.parse(req.url).pathname);
 
 		res.writeHead(200, {
 			"Content-Type"	: "application/json",
@@ -142,44 +125,26 @@ function reqHandler(req, res) {
 			"Connection"	: "keep-alive"
 			});
 
-		data = {};
+		var data = {};
 		data.nodes = [];
-		data.edges = [];
 
 		// **** Read all nodes from directory and create data.nodes object
 		// 1. read root-node file "node-data.txt" and fill in details
-		( function get1Node() {
-			fs.readFile(`${dirName}/node-data.txt`, "utf-8", function (err, details) {
-				if (err) {
-					console.log(err);
-					return err;
-					}
-				var node = {};
-				details.split('\n').forEach( line => {
-					const i = line.indexOf(':');
-					const head = line.slice(0,i);
-					const tail = line.slice(i+1);
-					node[head] = JSON.parse(tail);
-					});
-				data.nodes.push(node);
-				});
-			} ) ();
+		function get1Node(subdir) {
+			const details = fs.readFileSync(`${rootDirName}/${subdir}/node-data.txt`, "utf-8");
+			const node = JSON.parse(details);
+			data.nodes.push(node);
+			}
 
 		// 2. for each sub-dir, do the same:
-		(await readdir(dirName, { withFileTypes: true } ))
+		fs.readdirSync( rootDirName, { withFileTypes: true } )
 			.filter(dirent => dirent.isDirectory())
-			// recurse for all sub-dirs
-			.map(dirent => get1Node(dirent.name));
+			.map(dirent => get1Node(dirent.name));	// recurse ∀ sub-dirs
 
 		// 3. read edges data file and fill in details
-		fs.readFile(`${dir}/edges-data.json`, "utf-8", function (err, edges) {
-			if (err) {
-				console.log(err);
-				return err;
-				}
-			data.edges = JSON.parse(edges);
-			});
-
+		const edges = fs.readFileSync(`${rootDirName}/edges-data.json`, "utf-8");
+		data.edges = JSON.parse(edges);
+		
 		res.end(JSON.stringify(data), "utf-8");
 		console.log("Loaded dir as JSON");
 		return;
@@ -201,8 +166,11 @@ function reqHandler(req, res) {
 
 	// **** Return a list of project directories
 	if (fileName.startsWith("/dirList/")) {
-		var dirs = ["DAO-project-graph"];
-		console.log("JSON dir list =", typeof(dirs), dirs);
+		var dirs = (await readdir("./", { withFileTypes: true }))
+			.filter(dirent => dirent.isDirectory())
+			.map(dirent => dirent.name)
+			.filter(name => name.endsWith(".data"))
+		console.log("Dir list =", dirs);
 		res.writeHead(200, {"Content-Type": "application/json"});
 		res.end(JSON.stringify(dirs), "utf-8");
 		return;
@@ -229,7 +197,7 @@ function reqHandler(req, res) {
 				return;
 			}
 			res.end(stdout, "utf-8");
-			console.log("Extracted Git authors:", stdout);
+			console.log("Extracted Git authors.");
 		});
 		return;
 		}
@@ -288,3 +256,19 @@ var shell = require('child_process').exec;
 shell("beep", function(err, stdout, stderr) {});
 
 console.log("Server running at http://127.0.0.1:8383/");
+
+/*
+// Clean filename of any unwanted chars
+// allowing Chinese chars etc to remain
+// (This function is unused and has buggy RegEx syntax)
+function clean_name(name) {
+	const regex = RegExp('[/\\?%*:|\"<>\x7F\x00-\x1F]', 'g');
+	var result = "";
+		for (let ch of name) {
+			if (regex.exec(ch)[0] == null)
+				result += ch;
+			else
+				result += '%' + ('0' + ch.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
+	return result;
+	}
+*/

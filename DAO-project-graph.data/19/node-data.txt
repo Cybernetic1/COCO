@@ -1,0 +1,6 @@
+{
+  "id": 19,
+  "labelEN": "lookup authors",
+  "labelZH": "查看作者",
+  "color": "#FCC"
+}

@@ -1,0 +1,7 @@
+{
+  "id": 20,
+  "labelEN": "create Aragon DAO",
+  "status": "finished",
+  "details": "@YKY: @Alvin helped me to create an initial DAO blockchain on Aragon, with 1 million tokens.",
+  "color": "#CFC"
+}

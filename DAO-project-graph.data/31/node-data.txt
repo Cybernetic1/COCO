@@ -1,0 +1,7 @@
+{
+  "id": 31,
+  "labelEN": "bilingual",
+  "labelZH": "双语",
+  "status": "finished",
+  "color": "#CFC"
+}

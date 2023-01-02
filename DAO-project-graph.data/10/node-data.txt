@@ -1,0 +1,6 @@
+{
+  "id": 10,
+  "labelEN": "extract WeChat logs",
+  "labelZH": "extract 微信 chat logs",
+  "color": "#FCC"
+}

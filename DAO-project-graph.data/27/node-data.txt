@@ -1,0 +1,6 @@
+{
+  "id": 27,
+  "labelEN": "send tokens",
+  "labelZH": "发 token",
+  "color": "#FCC"
+}

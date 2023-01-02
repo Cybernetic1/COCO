@@ -315,28 +315,31 @@ function addAuthor(event) {
 	event.currentTarget.value = "";
 	}
 
-// Prepare modal window for user to input Node labels
-var modal2 = document.getElementById("modalWindow2");
+// Prepare modal window for user to input filenames etc
+const json_modal = document.getElementById("JSON_modal");
+const  git_modal = document.getElementById("Git_modal");
+const node_modal = document.getElementById("Node_modal");
+const help_modal = document.getElementById("Help_modal");
 
 // Clicking "X" or "Cancel" closes the modal
-document.getElementById("modal2_Close").onclick =
-document.getElementById("modal2_Cancel").onclick =
-	function() {
-		modal2.style.display = "none";
-		};
+function close_json_modal() { json_modal.style.display = "none"; };
+function close_git_modal()  { git_modal.style.display = "none"; };
+function close_node_modal() { node_modal.style.display = "none"; };
+function close_help_modal() { help_modal.style.display = "none"; };
 
 // When user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-	if (event.target == modal2) {
-		modal2.style.display = "none";
-		}
+	if (event.target == json_modal) json_modal.style.display = "none";
+	if (event.target == git_modal)  git_modal.style.display = "none";
+	if (event.target == node_modal) node_modal.style.display = "none";
+	if (event.target == help_modal) help_modal.style.display = "none";
 	};
 
 async function addNode() {
 	// Open modal window to ask for Node labels:
 	modal2.style.display = "block";
 	techClick2.play();
-	document.getElementById("modal2_OK").onclick = function() {
+	document.getElementById("node_modal_OK").onclick = function() {
 
 		const tasknameEN = document.getElementById("nameEN").value;
 		if (tasknameEN == "" || tasknameEN == "???") {
@@ -355,7 +358,7 @@ async function addNode() {
 		data.edges.add({from: node_index, to: clicked_id_1});
 		console.log("Added node", tasknameEN, "to node #", clicked_id_1);
 		node_index++;
-		modal2.style.display = "none";		// close modal window
+		node_modal.style.display = "none";		// close modal window
 		techClick2.play();
 		}
 	}
@@ -426,23 +429,6 @@ async function clearGraph() {
 	techClick2.play();
 	}
 
-// Prepare modal window for user to input filenames etc
-var modal1 = document.getElementById("modalWindow1");
-
-// Clicking "X" or "Cancel" closes the modal
-document.getElementById("modal1_Close").onclick =
-document.getElementById("modal1_Cancel").onclick =
-	function() {
-		modal1.style.display = "none";
-		};
-
-// When user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-	if (event.target == modal1) {
-		modal1.style.display = "none";
-		}
-	};
-
 async function saveJSON() {
 	// For all nodes:
 	var str = "{\"nodes\":[";
@@ -467,8 +453,8 @@ async function saveJSON() {
 	techClick2.play();
 
 	// Open modal window and ask for filename
-	modal1.style.display = "block";
-	document.getElementById("modal1_OK").onclick = function() {
+	json_modal.style.display = "block";
+	document.getElementById("json_modal_OK").onclick = function() {
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
 			name = document.getElementById("JSONfileName").value;
@@ -479,63 +465,14 @@ async function saveJSON() {
 			success: function(resp) {}
 			}));
 
-		modal1.style.display = "none";		// close window
+		json_modal.style.display = "none";		// close window
 		techClick2.play();
 		};
 	}
 
-// **** read Project Graph from current directory
-async function loadDirectory() {
-	// Open modal window and ask for filename
-	modal1.style.display = "block";
-	// Populate dropdown menu with JSON filenames:
-	let dropDown = document.getElementById("JSONdropDown");
-	dropDown.replaceChildren();		// clear all options
-	$.ajax({
-		method: "GET",
-		url: "/dirList/",
-		success: function (dirs) {
-			// console.log(typeof(files), files);
-			dirs.forEach( dir => {
-				var option = document.createElement("option");
-				option.value = dir;
-				option.text = dir;
-				dropDown.appendChild(option);
-				} );
-			} });
-	techClick2.play();
-	// Wait for modal window to be clicked OK, then do:
-	document.getElementById("modal1_OK").onclick = dropDown.onchange = function () {
-
-		var dir = document.getElementById("JSONdropDown").value;
-		if (dir == "none")
-			dir = document.getElementById("JSONfileName").value;
-
-		$.ajax({
-				method: "GET",
-				url: "/loadDir/" + dir,
-				cache: false,
-				success: function(data0) {
-
-			network.destroy();
-			nodes = new vis.DataSet(data0.nodes);
-			edges = new vis.DataSet(data0.edges);
-			data.nodes = nodes;
-			data.edges = edges;
-			init_nodes();		// set lang, colors, ... from existing data
-			network = new vis.Network(container, data, options);
-			update_node_index();
-			network.on("click", onClick);
-
-			modal1.style.display = "none";		// close window
-			techClick2.play();
-			} });
-		};
-	}
-	
 async function loadJSON() {
 	// Open modal window and ask for filename
-	modal1.style.display = "block";
+	json_modal.style.display = "block";
 	// Populate dropdown menu with JSON filenames:
 	let dropDown = document.getElementById("JSONdropDown");
 	dropDown.replaceChildren();		// clear all options
@@ -555,7 +492,7 @@ async function loadJSON() {
 			} });
 	techClick2.play();
 	// Wait for modal window to be clicked OK, then do:
-	document.getElementById("modal1_OK").onclick = dropDown.onchange = function () {
+	document.getElementById("json_modal_OK").onclick = dropDown.onchange = function () {
 
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
@@ -579,10 +516,105 @@ async function loadJSON() {
 			update_node_index();
 			network.on("click", onClick);
 
-			modal1.style.display = "none";		// close window
+			json_modal.style.display = "none";		// close window
 			techClick2.play();
 			} });
 		};
+	}
+
+async function saveDirectory() {
+	// For all nodes:
+	var str = "{\"nodes\":[";
+	var ns = nodes._data;
+	ns.forEach(function(n) {
+		delete n['label'];		// only save labelEN and labelZH
+		str += JSON.stringify(n);
+		str += ",";
+		});
+	str = str.slice(0,-1) + "],";
+
+	// For all edges:
+	str += "\"edges\":[";
+	var es = edges._data;
+	es.forEach(function(e) {
+		delete e['id'];
+		str += JSON.stringify(e);
+		str += ",";
+		});
+	str = str.slice(0,-1) + "]}";
+	console.log(str);
+	techClick2.play();
+
+	// Open modal window and ask for filename
+	git_modal.style.display = "block";
+	document.getElementById("git_modal_OK").onclick = function() {
+		var name = document.getElementById("gitDropDown").value;
+		if (name == "none")
+			name = document.getElementById("gitFileName").value;
+		$.ajax({
+			method: "POST",
+			url: "/saveDir/" + name,
+			data: str,
+			success: function(resp) {}
+			});
+
+		git_modal.style.display = "none";		// close window
+		techClick2.play();
+		};
+	}
+
+// **** read Project Graph from current directory
+async function loadDirectory() {
+	// Open modal window and ask for filename
+	git_modal.style.display = "block";
+	// Populate dropdown menu with JSON filenames:
+	let dropDown = document.getElementById("gitDropDown");
+	dropDown.replaceChildren();		// clear all options
+	$.ajax({
+		method: "GET",
+		url: "/dirList/",
+		success: function (dirs) {
+			// console.log(typeof(files), files);
+			dirs.forEach( dir => {
+				var option = document.createElement("option");
+				option.value = dir;
+				option.text = dir;
+				dropDown.appendChild(option);
+				} );
+			} });
+	techClick2.play();
+	// Wait for modal window to be clicked OK, then do:
+	document.getElementById("git_modal_OK").onclick = dropDown.onchange = function () {
+
+		var dir = document.getElementById("gitDropDown").value;
+		if (dir == "none")
+			dir = document.getElementById("gitFileName").value;
+
+		$.ajax({
+				method: "GET",
+				url: "/loadDir/" + dir,
+				cache: false,
+				success: function(data0) {
+
+			network.destroy();
+			nodes = new vis.DataSet(data0.nodes);
+			edges = new vis.DataSet(data0.edges);
+			data.nodes = nodes;
+			data.edges = edges;
+			init_nodes();		// set lang, colors, ... from existing data
+			network = new vis.Network(container, data, options);
+			update_node_index();
+			network.on("click", onClick);
+
+			git_modal.style.display = "none";		// close window
+			techClick2.play();
+			} });
+		};
+	}
+
+async function help() {
+	techClick2.play();
+	help_modal.style.display = "block";
 	}
 
 async function switchLang() {

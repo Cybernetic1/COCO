@@ -1,0 +1,7 @@
+{
+  "id": 30,
+  "labelEN": "Vis.js interface",
+  "labelZH": "Vis.js 界面",
+  "status": "in-progress",
+  "color": "#FCC"
+}

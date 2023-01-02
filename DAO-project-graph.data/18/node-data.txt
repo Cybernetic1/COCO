@@ -1,0 +1,8 @@
+{
+  "id": 18,
+  "labelEN": "VisDCC interface",
+  "labelZH": "VisDCC 界面",
+  "details": "基本上已经可以使用了。\n\n各人可以储存自己的 json 档案，自行试验一下。 \n\n这部分有个 to-do 工作未完成： 查看成员的贡献值。 所以我开了一个 sub-task 在它的子叶。",
+  "color": "#CCC",
+  "status": "paused"
+}

@@ -1,0 +1,5 @@
+{
+  "id": 11,
+  "labelEN": "connect Aragon",
+  "color": "#FCC"
+}

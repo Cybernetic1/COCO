@@ -1,0 +1,7 @@
+{
+  "id": 14,
+  "labelEN": "tell 'Crossing the Snow' story",
+  "labelZH": "讲《渡过雪原》故事",
+  "color": "#CFC",
+  "status": "finished"
+}

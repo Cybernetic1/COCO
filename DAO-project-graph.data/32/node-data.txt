@@ -1,0 +1,7 @@
+{
+  "id": 32,
+  "labelEN": "add \"research\" nodes",
+  "labelZH": "节点可以是 「研究范围」",
+  "status": "finished",
+  "color": "#CFC"
+}

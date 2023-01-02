@@ -1,0 +1,6 @@
+{
+  "id": 7,
+  "labelEN": "DAO interface",
+  "labelZH": "DAO 界面",
+  "color": "#FCC"
+}
