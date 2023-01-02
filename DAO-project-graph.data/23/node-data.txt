@@ -1,0 +1,6 @@
+{
+  "id": 23,
+  "labelEN": "transfer messages to WeChat",
+  "labelZH": "转发讯息到微信",
+  "color": "#FCC"
+}

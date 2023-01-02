@@ -1,0 +1,6 @@
+{
+  "id": 3,
+  "labelEN": "web site",
+  "labelZH": "网站",
+  "color": "#FCC"
+}

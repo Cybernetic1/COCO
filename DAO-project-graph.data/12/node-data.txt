@@ -1,0 +1,6 @@
+{
+  "id": 12,
+  "labelEN": "voting UI",
+  "status": "finished",
+  "color": "#CFC"
+}

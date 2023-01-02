@@ -1,0 +1,6 @@
+{
+  "id": 25,
+  "labelEN": "send messages to Discord",
+  "labelZH": "转发讯息到 Discord",
+  "color": "#FCC"
+}

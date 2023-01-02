@@ -1,0 +1,6 @@
+{
+  "id": 6,
+  "labelEN": "chatroom interface",
+  "labelZH": "聊天室 界面",
+  "color": "#FCC"
+}

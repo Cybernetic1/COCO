@@ -1,0 +1,6 @@
+{
+  "id": 26,
+  "labelEN": "per-Task voting",
+  "labelZH": "per task 投票",
+  "color": "#FCC"
+}

@@ -1,0 +1,6 @@
+{
+  "id": 24,
+  "labelEN": "WeChat Enterprise version",
+  "labelZH": "企业微信",
+  "color": "#FCC"
+}

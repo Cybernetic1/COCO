@@ -1,0 +1,6 @@
+{
+  "id": 22,
+  "labelEN": "hello world",
+  "status": "finished",
+  "color": "#CFC"
+}

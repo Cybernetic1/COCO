@@ -15,26 +15,23 @@
 
 <body>
 
-<div id="help" style="display: none">
-	<p lang="ZH">Link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-	<p lang="EN">Link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
-</div>
-
 <div id="container">
 
 <!-- top row of Graph Editing buttons -->
 <table style="display:inline-block;">
-<tr style="text-align:center; height:14px;">
+<tr style="text-align:center; height:14px; line-height:50%">
 		<td></td>
 		<td><label class="small">Help</label>
 		<td><label class="small">Lang</label>
-		<td><label class="small">Load</label>
-		<td><label class="small">Save</label>
+		<td><label class="small">Load<br>JSON</label>
+		<td><label class="small">Save<br>JSON</label>
+		<td><label class="small">Load<br>dir</label>
+		<td><label class="small">Save<br>dir</label>
 		<td><label class="small">Clear</label>
-		<td><label class="small">+ Node</label>
-		<td><label class="small">- Node</label>
-		<td><label class="small">Link Nodes</label>
-		<td><label class="small">- Edge</label>
+		<td><label class="small">add<br>Node</label>
+		<td><label class="small">delete<br>Node</label>
+		<td><label class="small">link<br>Nodes</label>
+		<td><label class="small">delete<br>Edge</label>
 </tr>
 <tr class="viz-buttons" style="text-align:center;">
 		<td><span id="SidePaneButton" onclick="toggleSidePane()">⏴</span></td>
@@ -42,6 +39,8 @@
 		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">Eng</button>
 		<td><button onclick="loadJSON()">🖹⮥</button>
 		<td><button onclick="saveJSON()">↳🖹</button>
+		<td><button onclick="loadDirectory()">🖹⮥</button>
+		<td><button onclick="saveDirectory()">↳🖹</button>
 		<td><button onclick="clearGraph()"><span style="color:red;">🗑</span></button>
 		<td><button onclick="addNode()">+Ⓝ</button>
 		<td><button onclick="delNode()"><span style="color:red;">✕Ⓝ</span></button>
@@ -115,10 +114,30 @@ by the function toggleSidePane() in project-graph.js -->
 	<div id="differences"><span>node1</span></div>
 </div>
 
-<!-- Modal Window for inputting JSON file names -->
-<div id="modalWindow1" class="modal">
+<!-- Modal window for inputting Git directory -->
+<div id="Git_modal" class="modal">
 	<div class="modal-content">
-	<span class="close" id="modal1_Close">⮽</span>
+	<span class="close" onclick="close_git_modal();">⮽</span>
+	<label>Type or select a Git directory:</label>
+	<br>
+	<input type="text" id="gitFileName" style="width:90%;" value="DAO-project-graph.data">
+	<br>
+	<br>
+	<select id="gitDropDown" style="font-size:20px;">
+		<option value="none">---</option>
+		<option value="DAO-project-graph.data">DAO-project-graph.data</option>
+	</select>
+	<br>
+	<br>
+	<button id="git_modal_OK">OK</button>
+	<button onclick="close_git_modal();">Cancel</button>
+	</div>
+</div>
+
+<!-- Modal window for inputting JSON file names -->
+<div id="JSON_modal" class="modal">
+	<div class="modal-content">
+	<span class="close" onclick="close_json_modal();">⮽</span>
 	<label>Type or select a JSON file name:</label>
 	<br>
 	<input type="text" id="JSONfileName" style="width:90%;" value=".json">
@@ -129,15 +148,15 @@ by the function toggleSidePane() in project-graph.js -->
 	</select>
 	<br>
 	<br>
-	<button id="modal1_OK">OK</button>
-	<button id="modal1_Cancel">Cancel</button>
+	<button id="json_modal_OK">OK</button>
+	<button onclick="close_json_modal();">Cancel</button>
 	</div>
 </div>
 
-<!-- Modal Window for inputting graph Node labels -->
-<div id="modalWindow2" class="modal">
+<!-- Modal window for inputting graph Node labels -->
+<div id="Node_modal" class="modal">
 	<div class="modal-content">
-	<span class="close" id="modal2_Close">⮽</span>
+	<span class="close" onclick="close_node_modal()">⮽</span>
 	<label>Enter Node name</label>
 	<br>
 	<br>
@@ -148,8 +167,19 @@ by the function toggleSidePane() in project-graph.js -->
 	<input type="text" id="nameZH" style="width:90%;">
 	<br>
 	<p>The new Node will be linked to the last selected Node.</p>
-	<button id="modal2_OK">OK</button>
-	<button id="modal2_Cancel">Cancel</button>
+	<button id="node_modal_OK">OK</button>
+	<button onclick="close_node_modal()">Cancel</button>
+	</div>
+</div>
+
+<!-- "Help" as a modal window -->
+<div id="Help_modal" class="modal">
+	<div class="modal-content">
+	<span class="close" onclick="close_help_modal()">⮽</span>
+	<p lang="ZH">欢迎。 可以试试 load JSON 选择某项目。</p>
+	<p lang="EN">Welcome.  You may try "load JSON" and choose a project.</p>
+	<p lang="ZH">To link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
+	<p lang="EN">To link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
 	</div>
 </div>
 
