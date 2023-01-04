@@ -21,13 +21,13 @@
 <table style="display:inline-block;">
 <tr style="text-align:center; height:14px; line-height:50%">
 		<td></td>
-		<td><label class="small">Help</label>
-		<td><label class="small">Lang</label>
-		<td><label class="small">Load<br>JSON</label>
-		<td><label class="small">Save<br>JSON</label>
-		<td><label class="small">Load<br>dir</label>
-		<td><label class="small">Save<br>dir</label>
-		<td><label class="small">Clear</label>
+		<td><label class="small">help</label>
+		<td><label class="small">lang</label>
+		<td><label class="small">load<br>JSON</label>
+		<td><label class="small">save<br>JSON</label>
+		<td><label class="small">load<br>Git dir</label>
+		<td><label class="small">save<br>Git dir</label>
+		<td><label class="small">clear</label>
 		<td><label class="small">add<br>Node</label>
 		<td><label class="small">delete<br>Node</label>
 		<td><label class="small">link<br>Nodes</label>
@@ -138,9 +138,9 @@ by the function toggleSidePane() in project-graph.js -->
 <div id="JSON_modal" class="modal">
 	<div class="modal-content">
 	<span class="close" onclick="close_json_modal();">⮽</span>
-	<label>Type or select a JSON file name:</label>
+	<label>Type or select a file name (no extension):</label>
 	<br>
-	<input type="text" id="JSONfileName" style="width:90%;" value=".json">
+	<input type="text" id="JSONfileName" style="width:90%;" value="">
 	<br>
 	<br>
 	<select id="JSONdropDown" style="font-size:20px;">
@@ -148,6 +148,20 @@ by the function toggleSidePane() in project-graph.js -->
 	</select>
 	<br>
 	<br>
+	<div id="remote-user" style="display:none">
+		<label>You're on machine: ???</label><br>
+		<label>Please select a user-identifier:</label><br>
+		<input type="radio" name="remoteUser" id="tester" value="tester">
+		<label for="tester">tester</label><br>
+		<input type="radio" name="remoteUser" id="Alvin" value="Alvin">
+		<label for="Alvin">Alvin</label><br>
+		<input type="radio" name="remoteUser" id="Sherry" value="Sherry">
+		<label for="Sherry">Sherry</label><br>
+		<input type="radio" name="remoteUser" id="YKY" value="YKY">
+		<label for="YKY">YKY</label><br>
+		<br>
+	</div>
+
 	<button id="json_modal_OK">OK</button>
 	<button onclick="close_json_modal();">Cancel</button>
 	</div>
