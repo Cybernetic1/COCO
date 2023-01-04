@@ -502,6 +502,8 @@ async function saveJSON() {
 			'input[name="remoteUser"]:checked').value;
 		if (name.endsWith(".json"))
 			name = name.slice(0,-5) + tag + ".json";
+		else if (name.endsWith(tag))
+			name = name + ".json";
 		else
 			name = name + tag + ".json";
 		console.log("Saving file:", name);
@@ -533,6 +535,8 @@ async function loadJSON() {
 			'input[name="remoteUser"]:checked').value;
 		if (name.endsWith(".json"))
 			name = name.slice(0,-5) + tag + ".json";
+		else if (name.endsWith(tag))
+			name = name + ".json";
 		else
 			name = name + tag + ".json";
 		console.log("Loading file:", name);
