@@ -249,14 +249,23 @@ async function reqHandler(req, res) {
 	res.end();
 	}
 
-var s = http.createServer(reqHandler);
-s.listen(8383, "127.0.0.1");
+const s = http.createServer(reqHandler);
 
-// Beep sound to signify server is being started
-var shell = require('child_process').exec;
-shell("beep", function(err, stdout, stderr) {});
+// Determine if server is local or remote
+const os = require("os");
+var address = "127.0.0.1";
+if (os.hostname() == 'VM-12-17-centos')		// Sherry's brother's hostname
+	address = "0.0.0.0";
 
-console.log("Server running at http://127.0.0.1:8383/");
+s.listen(8383, address, () => {
+	console.log('Server running at', s.address());
+	} );
+
+if (address == "127.0.0.1") {
+	// Beep sound to signify local server is being started
+	var shell = require('child_process').exec;
+	shell("beep", function(err, stdout, stderr) {});
+	}
 
 /*
 // Clean filename of any unwanted chars
