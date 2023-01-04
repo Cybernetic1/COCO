@@ -501,9 +501,9 @@ async function saveJSON() {
 		const tag = document.querySelector(
 			'input[name="remoteUser"]:checked').value;
 		if (name.endsWith(".json"))
-			name = name.slice(0,-4) + tag + ".json";
+			name = name.slice(0,-5) + tag + ".json";
 		else
-			name = name + '.' + tag + ".json";
+			name = name + tag + ".json";
 		console.log("Saving file:", name);
 		$.ajax({
 			method: "POST",
