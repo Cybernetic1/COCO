@@ -533,6 +533,7 @@ async function loadJSON() {
 			name = document.getElementById("JSONfileName").value;
 		const tag = document.querySelector(
 			'input[name="remoteUser"]:checked').value;
+		console.log(tag, typeof(tag));
 		if (name.endsWith(".json"))
 			name = name.slice(0,-5) + tag + ".json";
 		else if (name.endsWith(tag))
@@ -567,7 +568,7 @@ async function loadJSON() {
 
 async function saveDirectory() {
 	// Currently disallow remote users to write directly to global Git dir
-	if (not (location.hostname === "localhost" ||
+	if (!(location.hostname === "localhost" ||
 			 location.hostname === "127.0.0.1"))
 		return;
 
