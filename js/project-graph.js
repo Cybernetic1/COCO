@@ -1,7 +1,6 @@
 // TO-DO:
-// * Move away from JSON file to Git as the data source of Project Graph
-//	- how server access local Git dir?
-//	- 
+// * Allow remote users to save Project Graph with ID postfix
+//	- The graphs are just for testing and would be merged manually
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
@@ -16,13 +15,15 @@
 //	- Each person has name, email, Github ID
 // * Drop-down menu to add authors
 // * Per-Task Voting
-// * Make 'Help' a modal window
 
 // NOT URGENT:
 // * Allow bi-lingual task details
 // * Save graph as directory files
 
 // DONE:
+// * Make 'Help' a modal window
+// * Move away from JSON file to Git as the data source of Project Graph
+//	- server access local Git dir via 'git commit'
 // * Allow per-Node authors
 // * "Add Node" should use separate input window for data
 // * Use "Input" area to directly updates nodes
@@ -476,6 +477,15 @@ async function loadJSON() {
 	// Populate dropdown menu with JSON filenames:
 	let dropDown = document.getElementById("JSONdropDown");
 	dropDown.replaceChildren();		// clear all options
+
+	function addOption(value, text) {
+		const option = document.createElement("option");
+		option.value = value;
+		option.text = text;
+		dropDown.appendChild(option);
+		}
+
+	addOption("none", "---");
 	$.ajax({
 		method: "GET",
 		url: "/fileList/",
@@ -484,15 +494,12 @@ async function loadJSON() {
 			files.forEach( file => {
 				if (!file.endsWith('.json'))
 					return;
-				var option = document.createElement("option");
-				option.value = file;
-				option.text = file;
-				dropDown.appendChild(option);
+				addOption(file, file);
 				} );
 			} });
 	techClick2.play();
 	// Wait for modal window to be clicked OK, then do:
-	document.getElementById("json_modal_OK").onclick = dropDown.onchange = function () {
+	document.getElementById("json_modal_OK").onclick = function () {
 
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
@@ -584,7 +591,7 @@ async function loadDirectory() {
 			} });
 	techClick2.play();
 	// Wait for modal window to be clicked OK, then do:
-	document.getElementById("git_modal_OK").onclick = dropDown.onchange = function () {
+	document.getElementById("git_modal_OK").onclick = function () {
 
 		var dir = document.getElementById("gitDropDown").value;
 		if (dir == "none")
