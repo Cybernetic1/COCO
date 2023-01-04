@@ -461,7 +461,7 @@ function listJSONfiles() {
 function ifRemoteUser() {
 	if (location.hostname === "localhost" ||
 		location.hostname === "127.0.0.1")
-		; //return;
+		return;
 	div = document.getElementById("remote-user");
 	div.style.display = "block";
 	div.childNodes[1].innerText = "You're on machine: " + location.hostname;
@@ -562,6 +562,11 @@ async function loadJSON() {
 	}
 
 async function saveDirectory() {
+	// Currently disallow remote users to write directly to global Git dir
+	if (not (location.hostname === "localhost" ||
+			 location.hostname === "127.0.0.1"))
+		return;
+
 	// For all nodes:
 	var str = "{\"nodes\":[";
 	var ns = nodes._data;
