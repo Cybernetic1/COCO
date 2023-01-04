@@ -77,7 +77,7 @@ label.small {	/* small texts at bottom of buttons */
 	}
 
 /******************* for 'Status' radio buttons ******************/
-input[type='radio'] {
+input[name='status'] {
 	margin-bottom: 15px;
 	accent-color: Black;
 }

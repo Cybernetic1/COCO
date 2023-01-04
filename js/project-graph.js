@@ -430,6 +430,43 @@ async function clearGraph() {
 	techClick2.play();
 	}
 
+// Populate dropdown menu with JSON file found in directory
+function listJSONfiles() {
+	let dropDown = document.getElementById("JSONdropDown");
+	dropDown.replaceChildren();		// clear all options
+
+	function addOption(value, text) {
+		const option = document.createElement("option");
+		option.value = value;
+		option.text = text;
+		dropDown.appendChild(option);
+		}
+
+	addOption("none", "---");
+	$.ajax({
+		method: "GET",
+		url: "/fileList/",
+		success: function (files) {
+			// console.log(typeof(files), files);
+			files.forEach( file => {
+				if (!file.endsWith('.json'))
+					return;
+				file = file.slice(0,-5);
+				addOption(file, file);
+				} );
+			} });
+	}
+
+// Check if user is local or remote
+function ifRemoteUser() {
+	if (location.hostname === "localhost" ||
+		location.hostname === "127.0.0.1")
+		; //return;
+	div = document.getElementById("remote-user");
+	div.style.display = "block";
+	div.childNodes[1].innerText = "You're on machine: " + location.hostname;
+	}
+
 async function saveJSON() {
 	// For all nodes:
 	var str = "{\"nodes\":[";
@@ -451,20 +488,29 @@ async function saveJSON() {
 		});
 	str = str.slice(0,-1) + "]}";
 	console.log(str);
-	techClick2.play();
 
 	// Open modal window and ask for filename
 	json_modal.style.display = "block";
+	techClick2.play();
+	listJSONfiles();
+	ifRemoteUser();
 	document.getElementById("json_modal_OK").onclick = function() {
 		var name = document.getElementById("JSONdropDown").value;
-		if (name == "none")
+		if (name === "none")
 			name = document.getElementById("JSONfileName").value;
-		console.log($.ajax({
+		const tag = document.querySelector(
+			'input[name="remoteUser"]:checked').value;
+		if (name.endsWith(".json"))
+			name = name.slice(0,-4) + tag + ".json";
+		else
+			name = name + '.' + tag + ".json";
+		console.log("Saving file:", name);
+		$.ajax({
 			method: "POST",
 			url: "/saveJSON/" + name,
 			data: str,
 			success: function(resp) {}
-			}));
+			});
 
 		json_modal.style.display = "none";		// close window
 		techClick2.play();
@@ -474,36 +520,22 @@ async function saveJSON() {
 async function loadJSON() {
 	// Open modal window and ask for filename
 	json_modal.style.display = "block";
-	// Populate dropdown menu with JSON filenames:
-	let dropDown = document.getElementById("JSONdropDown");
-	dropDown.replaceChildren();		// clear all options
-
-	function addOption(value, text) {
-		const option = document.createElement("option");
-		option.value = value;
-		option.text = text;
-		dropDown.appendChild(option);
-		}
-
-	addOption("none", "---");
-	$.ajax({
-		method: "GET",
-		url: "/fileList/",
-		success: function (files) {
-			// console.log(typeof(files), files);
-			files.forEach( file => {
-				if (!file.endsWith('.json'))
-					return;
-				addOption(file, file);
-				} );
-			} });
 	techClick2.play();
+	listJSONfiles();
+	ifRemoteUser();
 	// Wait for modal window to be clicked OK, then do:
 	document.getElementById("json_modal_OK").onclick = function () {
 
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
 			name = document.getElementById("JSONfileName").value;
+		const tag = document.querySelector(
+			'input[name="remoteUser"]:checked').value;
+		if (name.endsWith(".json"))
+			name = name.slice(0,-4) + tag + ".json";
+		else
+			name = name + '.' + tag + ".json";
+		console.log("Loading file:", name);
 		$.ajax({
 				method: "GET",
 				url: "/loadJSON/" + name,
