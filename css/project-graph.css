@@ -52,7 +52,7 @@ label.small {	/* small texts at bottom of buttons */
 	padding: 10px;
 	color: Black;
 	font-size: 22px;
-	z-index: 2;
+	z-index: 0;
 	}
 
 #Node12 span {
@@ -160,7 +160,17 @@ input[type='author'][disabled] {
 	background-color: White;
 	margin: auto;
 	padding: 10px;
-	border: 1px solid Black;
+	border: 2px solid Black;
+	width: 40%;
+	font-size: 18px;
+}
+
+/* Modal Content for Help */
+.help-content {
+	background-color: White;
+	margin: auto;
+	padding: 0px;
+	border: 2px solid Black;
 	width: 50%;
 	font-size: 18px;
 }
