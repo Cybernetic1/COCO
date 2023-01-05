@@ -1,4 +1,5 @@
 // TO-DO:
+// * multi-page Help
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
@@ -669,11 +670,6 @@ async function loadDirectory() {
 		};
 	}
 
-async function help() {
-	techClick2.play();
-	help_modal.style.display = "block";
-	}
-
 async function switchLang() {
 	const button = document.getElementById("lang");
 	lang = button.value;
@@ -695,6 +691,12 @@ async function switchLang() {
 		data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
 		});
 	techClick2.play();
+	}
+
+
+async function help() {
+	techClick2.play();
+	help_modal.style.display = "block";
 	}
 
 // **** Read from Git to extract authors

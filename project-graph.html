@@ -11,6 +11,7 @@
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script src="js/project-graph.js" defer></script>
 	<script src="js/compare-project-graphs.js" defer></script>
+	<script src="js/help.js" defer></script>
 </head>
 
 <body>
@@ -196,13 +197,8 @@ by the function toggleSidePane() in project-graph.js -->
 <div id="Help_modal" class="modal">
 	<div class="modal-content">
 	<div class="close" onclick="close_help_modal()">⮽</div>
-	<h2 lang="ZH">欢迎使用 COCO</h2>
-	<p lang="ZH">可以试试 load JSON 选择某项目。</p>
-	<p lang="ZH">To link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-
-	<h1 lang="EN">Welcome to COCO</h1>
-	<p lang="EN">You may try "load JSON" and choose a project.</p>
-	<p lang="EN">To link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
+	<iframe src="help1.html" onload='resizeIframe(this)' frameborder="0"
+		scrolling="no" ></iframe>
 	</div>
 </div>
 
