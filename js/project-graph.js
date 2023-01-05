@@ -1,6 +1,4 @@
 // TO-DO:
-// * Per-Task Voting
-//	- with pop-up windows
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
@@ -16,10 +14,12 @@
 // * Drop-down menu to add authors
 
 // NOT URGENT:
+// * Cannot click side-pane button when covered by side-pane
 // * Allow bi-lingual task details
-// * Save graph as directory files
 
 // DONE:
+// * Save graph as Git directory tree
+// * Per-Task Voting - with a pop-up window
 // * Allow remote users to save Project Graph with ID postfix
 //	- These graphs are just for testing and would be merged manually
 // * Make 'Help' a modal window
