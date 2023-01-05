@@ -89,7 +89,7 @@ by the function toggleSidePane() in project-graph.js -->
 		<td><button id="vote">✓</button></td>
 		<td><button onclick="addNode()">+ⓝ</button></td>
 		<td><button onclick="delNode()"><span style="color:red;">-ⓝ</span></button></td>
-		<td><button onclick="linkNodes()">②⇢①</button></td>
+		<td><button onclick="linkNodes()">➁⇢➀</button></td>
 		<td><button onclick="delEdge()"><span style="color:red;">⨯⇢</span></button></td>
 </tr>
 </table>
@@ -196,7 +196,12 @@ by the function toggleSidePane() in project-graph.js -->
 <div id="Help_modal" class="modal">
 	<div id="helpDiv" class="help-content">
 	<canvas id="helpCanvas" style="position:absolute; z-index:-1;"></canvas>
-	<div class="close" onclick="close_help_modal()">⮽</div>
+	<div>
+		<span class="close" onclick="close_help_modal()">⮽</span>
+		<span class="close" id="home" style="position:absolute; bottom:0, left:50vw;">▲</span>
+		<span class="close" id="backward" style="position:absolute; bottom:0, left:0;">◄</span>
+		<span class="close" id="forward" style="position:absolute; bottom:0; right:0;">►</span>
+	</div>
 	<iframe id="helpFrame" src="help0.html" onload='resizeIframe(this)' frameborder="0" scrolling="no" style="width:100%"></iframe>
 	</div>
 </div>

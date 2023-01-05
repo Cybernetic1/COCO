@@ -180,7 +180,7 @@ async function reqHandler(req, res) {
 	// **** Return list of authers in a Git repository
 	if (fileName.startsWith("/getGitAuthors/")) {
 		res.writeHead(200, {
-			"Content-Type"	: "text; charset=utf-8",
+			"Content-Type"	: "text/event-stream; charset=utf-8",
 			"Cache-Control"	: "no-cache",
 			"Connection"	: "keep-alive"
 			});

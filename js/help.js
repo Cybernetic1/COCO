@@ -42,28 +42,28 @@ function snowDrawing() {
 		return x + Math.floor(Math.random() * sd * 2) - sd;
 		}
 
-	ctx.drawImage(img3, gitter(0.3*width), gitter(10));	// 云
+	ctx.drawImage(img3, gitter(0.3*width), gitter(5));	// 云
 
 	ctx.beginPath();		// 地平线，啡色
-	ctx.moveTo(0, gitter(150));
+	ctx.moveTo(0, gitter(180));
 	ctx.lineTo(0, height);
 	ctx.lineTo(width, height);
 	ctx.lineTo(width, gitter(170));
-	ctx.quadraticCurveTo(gitter(280), gitter(100), gitter(200), gitter(150));
+	ctx.quadraticCurveTo(gitter(280), gitter(150), gitter(200), gitter(150));
 	ctx.quadraticCurveTo(gitter(100), gitter(160), 0, gitter(150));
 	ctx.fillStyle = "#deeaea";
 	ctx.fill();
 
-	ctx.drawImage(img2, gitter(0.8*width), gitter(100)); // 树2
-	ctx.drawImage(img1, gitter(0.9*width), gitter(95));  // 树1
+	ctx.drawImage(img2, gitter(0.8*width), gitter(105)); // 树2
+	ctx.drawImage(img1, gitter(0.9*width), gitter(105));  // 树1
 
 	ctx.beginPath();		// 地平线，白色
 	ctx.moveTo(0, gitter(175));
 	ctx.lineTo(0, height);
 	ctx.lineTo(width, height);
 	ctx.lineTo(width, gitter(160));
-	ctx.quadraticCurveTo(gitter(380), gitter(170), gitter(330), gitter(180));
-	ctx.quadraticCurveTo(gitter(075), gitter(140), 0, gitter(175));
+	ctx.quadraticCurveTo(gitter(380), gitter(180), gitter(330), gitter(170));
+	ctx.quadraticCurveTo(gitter(075), gitter(170), 0, gitter(180));
 	ctx.fillStyle = "#FFF";
 	ctx.fill();
 
@@ -85,4 +85,5 @@ function resizeIframe(obj) {
 	obj.style.height = 0;
 	// console.log("height:", obj.contentWindow.document.body.scrollHeight);
 	obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+	snowDrawing();
 }
