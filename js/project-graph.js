@@ -1,6 +1,6 @@
 // TO-DO:
-// * Allow remote users to save Project Graph with ID postfix
-//	- The graphs are just for testing and would be merged manually
+// * Per-Task Voting
+//	- with pop-up windows
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
@@ -14,13 +14,14 @@
 //	- So the crux of it is to design merging algorithms
 //	- Each person has name, email, Github ID
 // * Drop-down menu to add authors
-// * Per-Task Voting
 
 // NOT URGENT:
 // * Allow bi-lingual task details
 // * Save graph as directory files
 
 // DONE:
+// * Allow remote users to save Project Graph with ID postfix
+//	- These graphs are just for testing and would be merged manually
 // * Make 'Help' a modal window
 // * Move away from JSON file to Git as the data source of Project Graph
 //	- server access local Git dir via 'git commit'
@@ -121,8 +122,8 @@ var options = {
 		}, */
 	};
 
-var container = document.getElementById("viz");
-var network = new vis.Network(container, data, options);
+var viz = document.getElementById("viz");
+var network = new vis.Network(viz, data, options);
 
 var pane = document.getElementById("side-pane");
 pane.style.display = "none";
@@ -136,16 +137,16 @@ function toggleSidePane() {
 	techClick2.play().catch(function (error) {
 		// console.log("Chrome cannot play sound without user interaction first");
 		});
-	container.style.height = window.innerHeight -100 + "px";
-	container.style.width = window.innerWidth -20 + "px";
+	viz.style.height = window.innerHeight -98 + "px";
+	viz.style.width = window.innerWidth -16 + "px";
 
 	if (pane.style.display == "none") {
 		pane.style.display = "inline-block";
-		document.getElementById("SidePaneButton").innerText = "⏴";
+		document.getElementById("SidePaneButton").innerText = "◀";
 		}
 	else {
 		pane.style.display = "none";
-		document.getElementById("SidePaneButton").innerText = "⏵";
+		document.getElementById("SidePaneButton").innerText = "▶";
 		}
 	}
 
@@ -232,8 +233,8 @@ function onClick(params) {
 		// Create HTML element vote slider
 		(function createPoll() {
 			const voting = document.getElementById('voting');
-			voting.innerHTML = '';
 			if ('votes' in node) {
+				voting.replaceChildren();	// remove all vote-sliders
 				window.votes = node.votes;
 				for (const author of node.authors) {
 					const div = document.createElement('div');
@@ -264,26 +265,30 @@ function onClick(params) {
 				div.appendChild(name);
 				const score = document.createElement('pre');
 				score.classList.add('score');
-				score.innerText = '0';
+				score.innerText = '100';
 				score.setAttribute('id', 'total');
 				div.appendChild(score);
 				voting.appendChild(div);
-				$.getScript("js/vote-slider.js", function() {
-					console.log("vote-slider.js loaded and executed.");
+				$.getScript("js/voting.js", function() {
+					console.log("voting.js loaded and executed.");
 					});
 				// Record votes values into node.votes
+				// 'click' is programmatically called from voting.js
 				document.getElementById("total").onclick = function() {
 					node.votes = window.votes;
 					};
+				voting.style.display = "block";
+				voting.style.right = "6px";
+				voting.style.bottom = (105 - window.innerHeight)
+					.toString() +'px';
 				}
 			else {	// no votes, allow users to start a poll
-				const butt = document.createElement('p');
-				butt.innerText = "⊕ start voting";
+				voting.style.display = "none";
+				const butt = document.getElementById('vote');
 				butt.onclick = function () {
 					node.votes = new Array();
 					createPoll();
 					}
-				voting.appendChild(butt);
 				}
 			} )();	// end of function, and function call
 
@@ -424,7 +429,7 @@ async function clearGraph() {
 	edges = new vis.DataSet([]);
 	data.nodes = nodes;
 	data.edges = edges;
-	network = new vis.Network(container, data, options);
+	network = new vis.Network(viz, data, options);
 	update_node_index();
 	network.on("click", onClick);
 	techClick2.play();
@@ -462,7 +467,7 @@ function ifRemoteUser() {
 	if (location.hostname === "localhost" ||
 		location.hostname === "127.0.0.1")
 		return;
-	div = document.getElementById("remote-user");
+	const div = document.getElementById("remote-user");
 	div.style.display = "block";
 	div.childNodes[1].innerText = "You're on machine: " + location.hostname;
 	}
@@ -498,8 +503,10 @@ async function saveJSON() {
 		var name = document.getElementById("JSONdropDown").value;
 		if (name === "none")
 			name = document.getElementById("JSONfileName").value;
-		const tag = document.querySelector(
-			'input[name="remoteUser"]:checked').value;
+
+		const remoteUser = document.querySelector(
+			'input[name="remoteUser"]:checked');
+		const tag = remoteUser ? remoteUser.value : "";
 		if (name.endsWith(".json"))
 			name = name.slice(0,-5) + tag + ".json";
 		else if (name.endsWith(tag))
@@ -531,9 +538,10 @@ async function loadJSON() {
 		var name = document.getElementById("JSONdropDown").value;
 		if (name == "none")
 			name = document.getElementById("JSONfileName").value;
-		const tag = document.querySelector(
-			'input[name="remoteUser"]:checked').value;
-		console.log(tag, typeof(tag));
+
+		const remoteUser = document.querySelector(
+			'input[name="remoteUser"]:checked');
+		const tag = remoteUser ? remoteUser.value : "";
 		if (name.endsWith(".json"))
 			name = name.slice(0,-5) + tag + ".json";
 		else if (name.endsWith(tag))
@@ -556,7 +564,7 @@ async function loadJSON() {
 			data.nodes = nodes;
 			data.edges = edges;
 			init_nodes();		// set lang, colors, ... from existing data
-			network = new vis.Network(container, data, options);
+			network = new vis.Network(viz, data, options);
 			update_node_index();
 			network.on("click", onClick);
 
@@ -651,7 +659,7 @@ async function loadDirectory() {
 			data.nodes = nodes;
 			data.edges = edges;
 			init_nodes();		// set lang, colors, ... from existing data
-			network = new vis.Network(container, data, options);
+			network = new vis.Network(viz, data, options);
 			update_node_index();
 			network.on("click", onClick);
 

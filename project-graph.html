@@ -5,7 +5,7 @@
 	<link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<link rel="stylesheet" type="text/css" href="css/project-graph.css">
-	<link rel="stylesheet" type="text/css" href="css/vote-slider.css">
+	<link rel="stylesheet" type="text/css" href="css/voting.css">
 	<script src="js/vis-data.min.js"></script>
 	<script src="js/vis-network.min.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -18,43 +18,47 @@
 <div id="container">
 
 <!-- top row of Graph Editing buttons -->
-<table style="display:inline-block;">
+<div style="display:inline-block; float:right">
+<table>
 <tr style="text-align:center; height:14px; line-height:50%">
 		<td></td>
-		<td><label class="small">help</label>
-		<td><label class="small">lang</label>
-		<td><label class="small">load<br>JSON</label>
-		<td><label class="small">save<br>JSON</label>
-		<td><label class="small">load<br>Git dir</label>
-		<td><label class="small">save<br>Git dir</label>
-		<td><label class="small">clear</label>
-		<td><label class="small">add<br>Node</label>
-		<td><label class="small">delete<br>Node</label>
-		<td><label class="small">link<br>Nodes</label>
-		<td><label class="small">delete<br>Edge</label>
+		<td><label class="small">help</label></td>
+		<td><label class="small">lang</label></td>
+		<td><label class="small">load<br>JSON</label></td>
+		<td><label class="small">save<br>JSON</label></td>
+		<td><label class="small">load<br>Git dir</label></td>
+		<td><label class="small">save<br>Git dir</label></td>
+		<td><label class="small">clear</label></td>
+		<td><label class="small">vote</label></td>
+		<td><label class="small">add<br>Node</label></td>
+		<td><label class="small">delete<br>Node</label></td>
+		<td><label class="small">link<br>Nodes</label></td>
+		<td><label class="small">delete<br>Edge</label></td>
 </tr>
-<tr class="viz-buttons" style="text-align:center;">
-		<td><span id="SidePaneButton" onclick="toggleSidePane()">⏴</span></td>
-		<td><button onclick="help()">🛈</button>
-		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">Eng</button>
-		<td><button onclick="loadJSON()">🖹⮥</button>
-		<td><button onclick="saveJSON()"><span style="color:red;">↳🖹</span></button>
-		<td><button onclick="loadDirectory()">🖹⮥</button>
-		<td><button onclick="saveDirectory()"><span style="color:red;">↳🖹</span></button>
-		<td><button onclick="clearGraph()"><span style="color:red;">🗑</span></button>
-		<td><button onclick="addNode()">+Ⓝ</button>
-		<td><button onclick="delNode()"><span style="color:red;">✕Ⓝ</span></button>
-		<td><button onclick="linkNodes()">②⇢①</button>
-		<td><button onclick="delEdge()"><span style="color:red;">✕⇢</span></button>
+<tr class="viz-buttons">
+		<td><span id="SidePaneButton" onclick="toggleSidePane()">◀</span></td>
+		<td><button onclick="help()">？</button></td>
+		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">Eng</button></td>
+		<td><button onclick="loadJSON()">📁</button></td>
+		<td><button onclick="saveJSON()"><span style="color:red;">↘📁</span></button></td>
+		<td><button onclick="loadDirectory()">📁</button></td>
+		<td><button onclick="saveDirectory()"><span style="color:red;">↘📁</span></button></td>
+		<td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button></td>
+		<td><button id="vote">✓</button></td>
+		<td><button onclick="addNode()">+ⓝ</button></td>
+		<td><button onclick="delNode()"><span style="color:red;">-ⓝ</span></button></td>
+		<td><button onclick="linkNodes()">②⇢①</button></td>
+		<td><button onclick="delEdge()"><span style="color:red;">⨯⇢</span></button></td>
 </tr>
 </table>
+</div>
 
 <!-- icons for indicating last 2 clicked nodes -->
-<div style="display:inline-block; vertical-align: top; margin-left:10px; margin-top:25px;" id="Node12">
+<div id="Node12" style="right:0; top:80px;">
 ② <span id="Node2">none</span>
 ⇢ ① <span id="Node1">none</span>
 </div>
-<div id="Edge" style="display:none; vertical-align: bottom;">
+<div id="Edge" style="display:none; right:0; top:80px;">
 <span id="Edge1">none</span>
 </div>
 <br>
@@ -64,15 +68,7 @@ by the function toggleSidePane() in project-graph.js -->
 <div id="viz"></div>
 
 <!-- side panel for input data -->
-<div id="side-pane" style="width:25%; display:none; vertical-align:top; margin-left:10px; border:1px solid Black; background-color: White; padding: 5px;">
-	<div lang="ZH">
-	<label>工作名称（中文）：</label><br>
-	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
-	</div>
-
-	<label>Task name (English):</label><br>
-	<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
-
+<div id="side-pane" style="width:300px; display:none; padding:5px;">
 	<label>Status:</label><br>
 	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
 	<label class="colorKey" for="in-progress">in progress</label><br>
@@ -82,6 +78,14 @@ by the function toggleSidePane() in project-graph.js -->
 	<label class="colorKey" for="paused">paused</label><br>
 	<input type="radio" id="research" name="status" value="research" onclick="changeStatus(this)">
 	<label class="colorKey" for="research">research area</label><br>
+
+	<div lang="ZH">
+	<label>工作名称（中文）：</label><br>
+	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
+	</div>
+
+	<label>Task name (English):</label><br>
+	<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
 
 	<label>Edge label:</label><br>
 	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
@@ -97,21 +101,21 @@ by the function toggleSidePane() in project-graph.js -->
 	<input type="number" id="ExpWorkers" style="width:4em;" disabled><br>
 
 	<label>Authors:</label><br>
-	<div id="authors" style="width=15%;"></div>
-</div>
-
+	<div id="authors"></div>
 </div>
 
 <!-- for displaying voting UI -->
-<div id="voting"></div>
+<div id="voting" style="display:none;"></div>
 
 <!-- for displaying "diff" of two users' graphs / votes -->
-<div id="diff" class="viz-buttons">
+<div id="diff" class="viz-buttons" style="display:none">
 	<button onclick="loadGraph(1)" style="width:auto; font-size:18px">Load Graph 1</button>
 	<span id="graph1-name">Graph 1</span>
 	<button onclick="loadGraph(2)" style="width:auto; font-size:18px; margin-left:50px;">Load Graph 2</button>
 	<span id="graph2-name">Graph 2</span>
 	<div id="differences"><span>node1</span></div>
+</div>
+
 </div>
 
 <!-- Modal window for inputting Git directory -->
