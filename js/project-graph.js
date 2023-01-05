@@ -693,12 +693,6 @@ async function switchLang() {
 	techClick2.play();
 	}
 
-
-async function help() {
-	techClick2.play();
-	help_modal.style.display = "block";
-	}
-
 // **** Read from Git to extract authors
 $.ajax({
 		method: "GET",

@@ -47,7 +47,7 @@ label.small {	/* small texts at bottom of buttons */
 }
 
 #Node12, #Edge {		/* box containing Nodes ① ② and Edge */
-	/* background-color: var(--button); */
+	background-color: White;
 	border: 2px solid #DDD;
 	padding: 10px;
 	color: Black;
@@ -58,7 +58,7 @@ label.small {	/* small texts at bottom of buttons */
 #Node12 span {
 	width: 90px;
 	height: 25px;
-	/* background-color: #DDD; */
+	/* background-color: White; */
 	color: Black;
 	font-size: 20px;
 	border:2px solid #BBB;
