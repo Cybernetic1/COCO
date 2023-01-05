@@ -137,7 +137,7 @@ function toggleSidePane() {
 	techClick2.play().catch(function (error) {
 		// console.log("Chrome cannot play sound without user interaction first");
 		});
-	viz.style.height = window.innerHeight -98 + "px";
+	viz.style.height = window.innerHeight -40 + "px";
 	viz.style.width = window.innerWidth -16 + "px";
 
 	if (pane.style.display == "none") {
@@ -279,7 +279,7 @@ function onClick(params) {
 					};
 				voting.style.display = "block";
 				voting.style.right = "6px";
-				voting.style.bottom = (105 - window.innerHeight)
+				voting.style.bottom = (50 - window.innerHeight)
 					.toString() +'px';
 				}
 			else {	// no votes, allow users to start a poll
