@@ -18,8 +18,49 @@
 
 <div id="container">
 
+<!-- for displaying project graph using Vis.js, its size is controlled
+by the function toggleSidePane() in project-graph.js -->
+<div id="viz"></div>
+
+<!-- side panel for input data -->
+<div id="side-pane" style="width:300px; display:none; padding:5px; z-index:0; pointer-events:none">
+	<label>Status:</label><br>
+	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
+	<label class="colorKey" for="in-progress">in progress</label><br>
+	<input type="radio" id="finished" name="status" value="finished" onclick="changeStatus(this)">
+	<label class="colorKey" for="finished">finished</label><br>
+	<input type="radio" id="paused" name="status" value="paused" onclick="changeStatus(this)">
+	<label class="colorKey" for="paused">paused</label><br>
+	<input type="radio" id="research" name="status" value="research" onclick="changeStatus(this)">
+	<label class="colorKey" for="research">research area</label><br>
+
+	<div lang="ZH">
+	<label>工作名称（中文）：</label><br>
+	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
+	</div>
+
+	<label>Task name (English):</label><br>
+	<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
+
+	<label>Edge label:</label><br>
+	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
+
+	<label>Details:</label><br>
+	<textarea rows="13" id="Details" onchage="changeDetails"></textarea><br>
+
+	<label disabled>Expected tokens</label>
+	<input type="number" id="ExpTokens" style="width:9em;" disabled><br>
+	<label disabled>Expected days</label>
+	<input type="number" id="ExpTime" style="width:4em;" disabled><br>
+	<label disabled>Expected # workers</label>
+	<input type="number" id="ExpWorkers" style="width:4em;" disabled><br>
+
+	<label>Authors:</label><br>
+	<div id="authors"></div>
+</div>
+
 <!-- top row of Graph Editing buttons -->
-<div style="display:inline-block; float:right; background-color:White">
+<div style="display:inline-block; float:right; background-color:White; z-index:9">
 <table>
 <tr style="text-align:center; height:14px; line-height:50%">
 		<td></td>
@@ -63,48 +104,6 @@
 <span id="Edge1">none</span>
 </div>
 <br>
-
-<!-- for displaying project graph using Vis.js, its size is controlled
-by the function toggleSidePane() in project-graph.js -->
-<div id="viz"></div>
-
-<!-- side panel for input data -->
-<div id="side-pane" style="width:300px; display:none; padding:5px;">
-	<label>Status:</label><br>
-	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
-	<label class="colorKey" for="in-progress">in progress</label><br>
-	<input type="radio" id="finished" name="status" value="finished" onclick="changeStatus(this)">
-	<label class="colorKey" for="finished">finished</label><br>
-	<input type="radio" id="paused" name="status" value="paused" onclick="changeStatus(this)">
-	<label class="colorKey" for="paused">paused</label><br>
-	<input type="radio" id="research" name="status" value="research" onclick="changeStatus(this)">
-	<label class="colorKey" for="research">research area</label><br>
-
-	<div lang="ZH">
-	<label>工作名称（中文）：</label><br>
-	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
-	</div>
-
-	<label>Task name (English):</label><br>
-	<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
-
-	<label>Edge label:</label><br>
-	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
-
-	<label>Details:</label><br>
-	<textarea rows="13" id="Details" onchage="changeDetails"></textarea><br>
-
-	<label disabled>Expected tokens</label>
-	<input type="number" id="ExpTokens" style="width:9em;" disabled><br>
-	<label disabled>Expected days</label>
-	<input type="number" id="ExpTime" style="width:4em;" disabled><br>
-	<label disabled>Expected # workers</label>
-	<input type="number" id="ExpWorkers" style="width:4em;" disabled><br>
-
-	<label>Authors:</label><br>
-	<div id="authors"></div>
-</div>
-
 <!-- for displaying voting UI -->
 <div id="voting" style="display:none;"></div>
 
@@ -195,9 +194,10 @@ by the function toggleSidePane() in project-graph.js -->
 
 <!-- "Help" as a modal window -->
 <div id="Help_modal" class="modal">
-	<div class="modal-content">
+	<div id="helpDiv" class="help-content">
+	<canvas id="helpCanvas" style="position:absolute; z-index:-1;"></canvas>
 	<div class="close" onclick="close_help_modal()">⮽</div>
-	<iframe id="helpFrame" src="help1.html" onload='resizeIframe(this)' frameborder="0" scrolling="no" style="width:100%"></iframe>
+	<iframe id="helpFrame" src="help0.html" onload='resizeIframe(this)' frameborder="0" scrolling="no" style="width:100%"></iframe>
 	</div>
 </div>
 
