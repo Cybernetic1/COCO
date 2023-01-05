@@ -1,0 +1,25 @@
+.slidecontainer {
+	width: 100%;
+    height: 35px;
+}
+
+.slider {
+	width:76%;
+	display:inline-block;
+}
+
+.name {
+	color:Blue;
+	font-size:18px;
+	display:inline-block;
+	margin-right:5px;
+	width:15%;
+	text-align:center;
+}
+
+.score {
+	font-size:16px;
+	display:inline-block;
+	margin-left:5px;
+	width:5%;
+}

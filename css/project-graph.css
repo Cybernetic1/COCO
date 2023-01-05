@@ -1,21 +1,22 @@
 :root {
+	--button: #CFF;
+
 	/* for Task statuses */
 	--in-progress: #FCC;
 	--finished: #CFC;
 	--paused: #CCC;
 	--research: #FF0;
-
-	--button: #CFF;
 }
 
 /* These 2 lines causes side-pane to overlap on top of viz canvas */
 #container { position: relative; }
-#container #viz, #side-pane {
+#viz, #side-pane, #voting, #Node12, #Edge {
 	position: absolute;
 	}
 
 #viz {		/* the Vis.js canvas */
 	background-color: White;
+	z-index: -1;
 	}
 
 label[disabled] {
@@ -23,7 +24,7 @@ label[disabled] {
 	}
 
 .viz-buttons button {
-	width: 100%;
+	/* width: 100%; */
 	height: 100%;
 	background-color: var(--button);
 	font-size: 25px;
@@ -46,17 +47,18 @@ label.small {	/* small texts at bottom of buttons */
 }
 
 #Node12, #Edge {		/* box containing Nodes ① ② and Edge */
-	background-color: White;
-	border: 2px solid Black;
+	/* background-color: var(--button); */
+	border: 2px solid #DDD;
 	padding: 10px;
 	color: Black;
 	font-size: 22px;
+	z-index: 2;
 	}
 
 #Node12 span {
 	width: 90px;
 	height: 25px;
-	/* background-color: White; */
+	/* background-color: #DDD; */
 	color: Black;
 	font-size: 20px;
 	border:2px solid #BBB;
@@ -105,13 +107,14 @@ textarea {
 	}
 
 #number, input[type='number'] {
-	width: 4em;
+	margin-right: 10px;
 	float: right;
 }
 
 /******************* for Authors list ******************/
 
 input[type='author'] {
+	width: 90%;
 	color: black;
 	border:1px solid Black;
 	font-size: 18px;
@@ -125,7 +128,17 @@ input[type='author'][disabled] {
 	background-color: var(--button);
 }
 
-/*************** Modal Windows for asking user inputs *************/
+/******************* Voting ******************/
+
+#voting {
+	width: clamp(40ch, 60%, 90ch);	/* minimum, ideal, maximum */
+	/* border:2px solid #DDD; */
+	background-color:White;
+	color:Blue;
+	padding:5px;
+}
+
+/************** Modal Windows for asking user inputs ************/
 
 /* The Modal (background) */
 .modal {
