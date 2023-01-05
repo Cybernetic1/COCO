@@ -697,7 +697,7 @@ async function switchLang() {
 $.ajax({
 		method: "GET",
 		url: "/getGitAuthors/",
-		cache: false,
+		cache: true,
 		success: function(data0) {
 
 	var authors = data0.split(/\r?\n/);
@@ -706,7 +706,7 @@ $.ajax({
 	for (const author of uniqs) {
 		if (author == '')
 			break;
-		console.log("add Git author:", author);
+		// console.log("add Git author:", author);
 		const span = document.createElement('input');
 		const [email, ...name] = author.split(',');
 		span.value = name;
