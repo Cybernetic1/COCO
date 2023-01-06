@@ -4,16 +4,35 @@
 <!-- Important to load jQuery for this page -->
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="application/javascript" src="js/bilingual.js" defer></script>
+<script>
+window.parent.document.getElementById('home').onclick = () => {
+	window.location = "help0.html"; }
+window.parent.document.getElementById('home').style.display = '';
+window.parent.document.getElementById('forward').onclick = () => {
+	window.location = "help2.html"; }
+window.parent.document.getElementById('forward').style.display = '';
+window.parent.document.getElementById('backward').onclick = () => {
+	window.location = "help0.html"; }
+window.parent.document.getElementById('backward').style.display = '';
+</script>
 <style>
 body { font-size: 20px; }
 </style>
 </head>
 <body>
-<h2 lang="ZH">如何制作 工作图</h2>
-<p lang="ZH">To link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-<a href="#AddUsers">添加 某项工作的作者</a><br>
-
-<h1 lang="EN">Welcome to COCO</h1>
-<p lang="EN">To link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
+<div lang="ZH">
+<h2>如何制作 工作图</h2>
+<p>建立新节点： 先点击 <b>母节点</b>，然后再按 “add”.</p>
+<p>连接两个节点： 用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
+<p>更改 节点的资料： 直接在左边视窗里填写。</p>
+</div>
+<!----------------------------------->
+<div lang="EN">
+<h2>Creating a Project Graph</h2>
+<p>Create new node:  click on the <b>parent node</b> first, then click "add".</p>
+<p>Link 2 nodes:  click on nodes ① &amp; then ②, then click the "link" button.</p>
+<p>Change node details: just fill in the form on the left.</p>
+</div>
+<br>
 </body>
 </html>

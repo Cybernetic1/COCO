@@ -181,7 +181,7 @@ input[type='author'][disabled] {
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
-	margin-left: 5px;
+	margin: 5px;
 }
 
 /* Navigation buttons */
@@ -190,7 +190,7 @@ input[type='author'][disabled] {
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
-	margin-left: 5px;
+	margin: 5px;
 }
 
 .close:hover,
