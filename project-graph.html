@@ -194,15 +194,16 @@ by the function toggleSidePane() in project-graph.js -->
 
 <!-- "Help" as a modal window -->
 <div id="Help_modal" class="modal">
-	<div id="helpDiv" class="help-content">
+	<div id="helpDiv" class="help-content" style="position:relative;">
 	<canvas id="helpCanvas" style="position:absolute; z-index:-1;"></canvas>
 	<div>
 		<span class="close" onclick="close_help_modal()">⮽</span>
-		<span class="close" id="home" style="position:absolute; bottom:0, left:50vw;">▲</span>
-		<span class="close" id="backward" style="position:absolute; bottom:0, left:0;">◄</span>
-		<span class="close" id="forward" style="position:absolute; bottom:0; right:0;">►</span>
+		<span class="nav" id="home" style="position:absolute; bottom:0; left:50%;">▲</span>
+		<span class="nav" id="forward" style="position:absolute; bottom:0; right:0;">►</span>
+		<span class="nav" id="backward" style="position:absolute; bottom:0; left:0;">◄</span>
 	</div>
-	<iframe id="helpFrame" src="help0.html" onload='resizeIframe(this)' frameborder="0" scrolling="no" style="width:100%"></iframe>
+	<iframe id="helpFrame" src="help0.html" onload='resizeIframe(this)' frameborder="0" scrolling="no" style="width:100%; position:absolutel;">
+	</iframe>
 	</div>
 </div>
 
