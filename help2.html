@@ -3,16 +3,35 @@
 <!-- Important to load jQuery for this page -->
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="application/javascript" src="js/bilingual.js" defer></script>
+<script>
+window.parent.document.getElementById('home').onclick = () => {
+	window.location = "help0.html"; }
+window.parent.document.getElementById('home').style.display = '';
+window.parent.document.getElementById('forward').onclick = () => {
+	window.location = "help3.html"; }
+window.parent.document.getElementById('forward').style.display = '';
+window.parent.document.getElementById('backward').onclick = () => {
+	window.location = "help1.html"; }
+window.parent.document.getElementById('backward').style.display = '';
+</script>
 <style>
 body { font-size: 20px; }
 </style>
 </head>
 <body>
-<h2 lang="ZH">添加 某项工作的作者</h2>
-<p lang="ZH">To link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-<a href="#AddUsers">添加 某项工作的作者</a><br>
-
-<h1 lang="EN">Welcome to COCO</h1>
-<p lang="EN">To link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
+<div lang="ZH">
+<h2>添加 某项工作的作者</h2>
+<p>先点击一个节点，然后在左边视窗里，Authors 之下可以添加。</p>
+<h2>投票 作者贡献的百分比 %</h2>
+<p>先在一件工作里添加若干个 作者，然后点击工作节点，会看到投票界面。</p>
+</div>
+<!----------------------------------->
+<div lang="EN">
+<h2>Adding an author to a task</h2>
+<p>Click on a node first, then on the lower left panel, add authors.</p>
+<h2>Voting on authors' contribution % percentages</h2>
+<p>Add some authors to a node first, then clicking on the node will show the voting panel.</p>
+</div>
+<br>
 </body>
 </html>

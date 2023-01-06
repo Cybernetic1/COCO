@@ -3,16 +3,33 @@
 <!-- Important to load jQuery for this page -->
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="application/javascript" src="js/bilingual.js" defer></script>
+<script>
+window.parent.document.getElementById('home').onclick = () => {
+	window.location = "help0.html"; }
+window.parent.document.getElementById('home').style.display = '';
+window.parent.document.getElementById('forward').style.display = "none";
+window.parent.document.getElementById('backward').onclick = () => {
+	window.location = "help2.html"; }
+window.parent.document.getElementById('backward').style.display = '';
+</script>
 <style>
 body { font-size: 20px; }
 </style>
 </head>
 <body>
-<h2 lang="ZH">投票 作者的贡献百分比</h2>
-<p lang="ZH">To link Nodes：用滑鼠先后点击 nodes ① &amp; ②，然后按钮将它们连接。</p>
-<a href="#AddUsers">添加 某项工作的作者</a><br>
-
-<h1 lang="EN">Welcome to COCO</h1>
-<p lang="EN">To link Nodes: Mouse click on nodes ① &amp; then ②, then click button to link them.</p>
+<div lang="ZH">
+<h2>将资料上载到 Git</h2>
+<p>你所做的修改必须上传到 Git，才可以与其他队员分享，包括 merging.</p>
+<h2>资料储存为 JSON 档案</h2>
+<p>纯粹作为个人备份只用，JSON 格式比较通用。</p>
+</div>
+<!----------------------------------->
+<div lang="EN">
+<h2>Upload data to Git</h2>
+<p>Your modifications must be uploaded to Git, to be shared with other team members.</p>
+<h2>Save data as JSON file</h2>
+<p>This is only for personal backup.  JSON is a convenient file format.</p>
+</div>
+<br>
 </body>
 </html>
