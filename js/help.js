@@ -1,6 +1,5 @@
 // **** When user clicks help button:
 async function help() {
-	techClick2.play();
 	help_modal.style.display = "block";
 	// Important to reload it, to get correct height and language:
 	const frame = document.getElementById('helpFrame');
@@ -15,6 +14,7 @@ async function help() {
 
 // **** This is called on iFrame loading
 function resizeIframe(obj) {
+	techClick2.play();
 	obj.style.height = 0;
 	// console.log("height:", obj.contentWindow.document.body.scrollHeight);
 	obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
