@@ -175,11 +175,20 @@ input[type='author'][disabled] {
 	font-size: 18px;
 }
 
-/* The Close Button */
+/* Close-Window button */
 .close {
-	color: #F00;
+	color: Red;
 	float: right;
-	font-size: 18px;
+	font-size: 28px;
+	font-weight: bold;
+	margin-left: 5px;
+}
+
+/* Navigation buttons */
+.nav {
+	color: Blue;
+	float: right;
+	font-size: 28px;
 	font-weight: bold;
 	margin-left: 5px;
 }
