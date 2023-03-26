@@ -3,6 +3,20 @@
 <head>
 </head>
 <body>
+<h2>Bidding 机制</h2>
+
+<ul>
+    <li>任何人可以 <b>自我评估</b> 他每份贡献的价值，这记作 W<sub>self</sub>.</li>
+    <li>任何贡献是不会被 “reject” 的，纯粹视乎价值的计算。 
+    <br>所以，没有人可以阻止其他人加入项目。</li>
+    <li>其他成员可以投票 某个贡献的 W<sub>self</sub> 的 <b>认可度</b>。</li>
+    <li>实际分配的 shares 是 自我评价 & 其他人评价 的函数。</li>
+    <li>如果 自我评价 跟其他人评价相差太远是会有惩罚。</li>
+    <li>在任何时刻，shares 是浮动的数值。</li>
+</ul>
+
+<p></p>
+
 <pre>
 Project members proposes an offer =
 (task, price) or
@@ -18,9 +32,34 @@ How to accept?
 If members don't even have shares... clearly they cannot sell.
 Each member can sell his/her shares according to offered price.
 
+不想 我一个人拥有所有股权
+因为 第一个人拥有决定权
+但如果不是这样，怎么开始？
+可能由我设定最初的分配？
+最初是由 founders 决定
 
+可不可以 纯粹由 bootstrap 决定？
+获得了决定权的人有不对称优势
+除非可以 branching
+Branching 是一种更民主的方式
+每个人设定他认为的价值 W_self
+没有所谓 rejection
+但其他人可以怎样对 W_self 投票？
+就是对 W_self 的价值的认可程度 %
+但夸张也会被扣分？（似乎是一定要）
+因为实际 shares 是 fn(W_self, others' votes)
+Up to a certain point the discrepancy will backfire.
+Also, the tokens may fluctuate
+Need a mechanism to translate to real shares.
 </pre>
 
+<h2>Howey test: whether a transaction qualifies as an "investment contract"</h2>
+<pre>
+1. An investment of money
+2. In a common enterprise
+3. A reasonable expectation of profit
+4. Derived from the effort of others
+</pre>
 
 </body>
 <!--script src="js/voting.js" defer></script-->
