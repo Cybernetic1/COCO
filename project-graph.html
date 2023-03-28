@@ -23,7 +23,8 @@ by the function toggleSidePane() in project-graph.js -->
 <div id="viz"></div>
 
 <!-- side panel for input data -->
-<div id="side-pane" style="width:300px; display:none; padding:5px; z-index:0; pointer-events:none">
+<!-- the attribute "pointer-events:none" allows side panel close button to work even when it's partly covered by the side panel, but it renders the side panel non-functional -->
+<div id="side-pane" style="width:300px; display:none; padding:5px; z-index:0; background-color:White;">
 	<label>Status:</label><br>
 	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
 	<label class="colorKey" for="in-progress">in progress</label><br>
