@@ -1,0 +1,26 @@
+ssh root@43.139.21.60
+password is given by 诗和远方
+
+cd ..
+cd web/COCO
+
+ps -C node					# find our server
+ps [PID]					# see if COMMAND = node server.js
+
+# from local dir, push also to Gitee:
+# from: https://cloud.tencent.com/developer/article/1925584
+git push -f git@gitee.com:Cybernetic1/COCO.git
+
+# check which repository we're using, Github or Gitee?
+git remote -v
+
+# in remote server:
+git pull
+
+kill [PID]					# kill old server
+rm nohup.out				# delete old logs
+nohup node server.js &		# start new server
+exit						# server will continue to run
+
+# if terminal does not output keystokes:
+stty sane
