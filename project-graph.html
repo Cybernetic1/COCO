@@ -25,8 +25,9 @@ by the function toggleSidePane() in project-graph.js -->
 <!-- side panel for input data -->
 <!-- the attribute "pointer-events:none" allows side panel close button to work even when it's partly covered by the side panel, but it renders the side panel non-functional -->
 <div id="side-pane" style="width:300px; display:none; padding:5px; z-index:0; background-color:White;">
+	<span id="SidePaneButton" onclick="toggleSidePane()" style="float:right">🞀</span>
 	<label>Status:</label><br>
-	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
+	<input type="radio" id="in-progress" name="status" value="IN-progress" onclick="changeStatus(this)">
 	<label class="colorKey" for="in-progress">in progress</label><br>
 	<input type="radio" id="finished" name="status" value="finished" onclick="changeStatus(this)">
 	<label class="colorKey" for="finished">finished</label><br>
@@ -59,12 +60,12 @@ by the function toggleSidePane() in project-graph.js -->
 	<label>Authors:</label><br>
 	<div id="authors"></div>
 </div>
+<span id="SidePaneButton2" onclick="toggleSidePane()" style="float:left;">🞂</span>
 
 <!-- top row of Graph Editing buttons -->
 <div style="display:inline-block; float:right; background-color:White; z-index:9">
 <table>
 <tr style="text-align:center; height:14px; line-height:50%">
-		<td></td>
 		<td><label class="small">help</label></td>
 		<td><label class="small">lang</label></td>
 		<td><label class="small">load<br>JSON</label></td>
@@ -78,7 +79,6 @@ by the function toggleSidePane() in project-graph.js -->
 		<td><label class="small">delete<br>Edge</label></td>
 </tr>
 <tr class="viz-buttons">
-		<td><span id="SidePaneButton" onclick="toggleSidePane()">◀</span></td>
 		<td><button onclick="help()">？</button></td>
 		<td><button id="lang" value="ZH" onclick="switchLang()" style="font-size:17px;">Eng</button></td>
 		<td><button onclick="loadJSON()">📁</button></td>

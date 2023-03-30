@@ -143,11 +143,11 @@ function toggleSidePane() {
 
 	if (pane.style.display == "none") {
 		pane.style.display = "inline-block";
-		document.getElementById("SidePaneButton").innerText = "◀";
+		document.getElementById("SidePaneButton2").style.display = "none";
 		}
 	else {
 		pane.style.display = "none";
-		document.getElementById("SidePaneButton").innerText = "▶";
+		document.getElementById("SidePaneButton2").style.display = "inline-block";
 		}
 	}
 
