@@ -14,7 +14,9 @@ async function help() {
 
 // **** This is called on iFrame loading
 function resizeIframe(obj) {
-	techClick2.play();
+	techClick2.play().catch(function (error) {
+		// console.log("cannot play sound without user click first");
+		});
 	obj.style.height = 0;
 	// console.log("height:", obj.contentWindow.document.body.scrollHeight);
 	obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';

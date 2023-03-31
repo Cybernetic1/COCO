@@ -58,8 +58,22 @@ nodes: nodes,
 edges: edges
 };
 
-var lang = document.getElementById("lang").value;		// Default language ("ZH" or "EN")
-$('[lang="EN"]').hide();
+// Sound files
+const techClick = new Audio('sounds/tech-click.wav');
+const techClick2 = new Audio('sounds/tech-click2.wav');
+const techFail = new Audio('sounds/tech-fail.wav');
+
+// Default language ("ZH" or "EN") ?
+var lang = document.getElementById("lang").value;
+const url = window.location.href;
+// console.log("URL", url);
+var regex = new RegExp('[?&]lang(=([^&#]*)|&|#|$)');
+var params = regex.exec(url);
+// console.log(params);
+if (params && params[2] && params[2].toUpperCase() == "EN")
+	switchLang();
+else
+	$('[lang="EN"]').hide();
 
 // Returns a node's label in the language in 'lang' variable
 function get_label_in_lang(node) {
@@ -129,14 +143,9 @@ var network = new vis.Network(viz, data, options);
 var pane = document.getElementById("side-pane");
 pane.style.display = "none";
 
-// Sound files
-const techClick = new Audio('sounds/tech-click.wav');
-const techClick2 = new Audio('sounds/tech-click2.wav');
-const techFail = new Audio('sounds/tech-fail.wav');
-
 function toggleSidePane() {
 	techClick2.play().catch(function (error) {
-		// console.log("Chrome cannot play sound without user interaction first");
+		// console.log("cannot play sound without user click first");
 		});
 	viz.style.height = window.innerHeight -40 + "px";
 	viz.style.width = window.innerWidth -16 + "px";
@@ -690,7 +699,9 @@ async function switchLang() {
 		const i = parseInt(id);
 		data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
 		});
-	techClick2.play();
+	techClick2.play().catch(function (error) {
+		// console.log("cannot play sound without user click first");
+		});
 	}
 
 // **** Read from Git to extract authors
