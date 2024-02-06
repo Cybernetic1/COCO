@@ -293,7 +293,7 @@ function onClick(params) {
 					.toString() +'px';
 				}
 			else {	// no votes, allow users to start a poll
-				voting.style.display = "none";
+				voting.style.display = "inline-block";
 				const butt = document.getElementById('voting');
 				butt.onclick = function () {
 					node.votes = new Array();
