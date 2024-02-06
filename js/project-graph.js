@@ -294,7 +294,7 @@ function onClick(params) {
 				}
 			else {	// no votes, allow users to start a poll
 				voting.style.display = "none";
-				const butt = document.getElementById('voting');
+				const butt = document.getElementById('startVote');
 				butt.onclick = function () {
 					node.votes = new Array();
 					createPoll();
