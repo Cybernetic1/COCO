@@ -8,20 +8,22 @@ var scores = [];
 const n = sliders.length;
 
 // **** Initialize sliders values
-if (!window.votes || window.votes.length == 0) {
-	window.votes = new Array();
-	for (j = 0; j < n; ++j) {
-		scores[j] = window.votes[j] = 1000.0 / n;
-		sliders[j].value = Math.round(scores[j]);
-		outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+(function init_sliders() {
+	if (!window.votes || window.votes.length == 0) {
+		window.votes = new Array();
+		for (j = 0; j < n; ++j) {
+			scores[j] = window.votes[j] = 1000.0 / n;
+			sliders[j].value = Math.round(scores[j]);
+			outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+			}
 		}
-	}
-else
-	for (j = 0; j < n; ++j) {
-		sliders[j].value = window.votes[j];
-		scores[j] = window.votes[j];
-		outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
-		}
+	else
+		for (j = 0; j < n; ++j) {
+			sliders[j].value = window.votes[j];
+			scores[j] = window.votes[j];
+			outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+			}
+	}) ();
 
 var total = 0.0;
 for (const score of scores)

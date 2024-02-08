@@ -1,5 +1,4 @@
 // TO-DO:
-// * multi-page Help
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
 //	- Vote results saved on private server (as JSON) are each user's
@@ -12,13 +11,15 @@
 //		can be forgotten.  Except we may keep voting records permanently.
 //	- So the crux of it is to design merging algorithms
 //	- Each person has name, email, Github ID
-// * Drop-down menu to add authors
 
 // NOT URGENT:
 // * Cannot click side-pane button when covered by side-pane
 // * Allow bi-lingual task details
 
 // DONE:
+// * some votes become NaN after add new author
+// * Drop-down menu to add authors
+// * multi-page Help
 // * Save graph as Git directory tree
 // * Per-Task Voting - with a pop-up window
 // * Allow remote users to save Project Graph with ID postfix
@@ -232,6 +233,8 @@ function onClick(params) {
 					if (node.authors == null)
 						node.authors = new Array();
 					node.authors.push([span.value, span.title]);
+					if (node.votes != null)
+						node.votes.push(0);
 					span.setAttribute('disabled', '');	// for an added author
 					techClick2.play();
 					addAuthorButton();		// call itself to add button
@@ -293,12 +296,13 @@ function onClick(params) {
 					.toString() +'px';
 				}
 			else {	// no votes, allow users to start a poll
-				voting.style.display = "inline-block";
-				const butt = document.getElementById('voting');
-				butt.onclick = function () {
-					node.votes = new Array();
-					createPoll();
-					}
+				voting.style.display = "none";
+				document.getElementById('startVote').onclick = function () {
+					if (('authors' in node) && !('votes' in node)) {
+						node.votes = new Array();
+						createPoll();
+						}
+					};
 				}
 			} )();	// end of function, and function call
 
