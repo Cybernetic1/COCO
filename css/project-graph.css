@@ -47,8 +47,10 @@ label.small {	/* small texts at bottom of buttons */
 }
 
 #Node12, #Edge {		/* box containing Nodes ① ② and Edge */
-	background-color: White;
-	border: 2px solid #DDD;
+	background-color: #EEE;
+	border-radius: 7px;
+	/* border: 2px solid #DDD; */
+	margin: 10px;
 	padding: 10px;
 	color: Black;
 	font-size: 22px;
@@ -58,7 +60,7 @@ label.small {	/* small texts at bottom of buttons */
 #Node12 span {
 	width: 90px;
 	height: 25px;
-	/* background-color: White; */
+	background-color: White;
 	color: Black;
 	font-size: 20px;
 	border:2px solid #BBB;
@@ -69,7 +71,7 @@ label.small {	/* small texts at bottom of buttons */
 #Edge span {
 	width: 90px;
 	height: 25px;
-	background-color: White;
+	/* background-color: #EEE; */
 	color: Black;
 	font-size: 20px;
 	/* text-decoration: underline; */
@@ -133,7 +135,7 @@ input[type='author'][disabled] {
 #voting {
 	width: clamp(40ch, 60%, 90ch);	/* minimum, ideal, maximum */
 	/* border:2px solid #DDD; */
-	background-color:White;
+	background-color: #EEE;
 	color:Blue;
 	padding:5px;
 }
