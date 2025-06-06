@@ -117,32 +117,36 @@ var options = {
 		color: '#CDF',
 		shape: 'box',
 		widthConstraint: { minimum: 30, maximum: 150 },
-		},
+	},
 	edges: {
 		arrows: {
-			to: {
-				enabled: true,
-				// type: "arrow",
-				// scaleFactor: 1,
-				}
-			},
+			to: { enabled: true }
+		},
 		color: {
 			color: '#AAA',
 			highlight:'#000',
 			inherit: false,
 			opacity:1.0
-			}
-		},
-	/* interaction: {
-		hover: true
-		}, */
-	};
+		}
+	},
+	interaction: {
+		hover: true,
+		dragNodes: true, // Enable node repositioning (restore node dragging)
+		dragView: true    // <--- Restore panning so Vis.js drag events fire
+	},
+	physics: {
+		enabled: true // <--- Enable physics (elastic layout) at all times
+	}
+};
 
 var viz = document.getElementById("viz");
 var network = new vis.Network(viz, data, options);
 
 var pane = document.getElementById("side-pane");
 pane.style.display = "none";
+
+// $("SidePaneButton").trigger('click');
+document.getElementById("SidePaneButton").click();
 
 function toggleSidePane() {
 	techClick2.play().catch(function (error) {
@@ -161,174 +165,139 @@ function toggleSidePane() {
 		}
 	}
 
-// $("SidePaneButton").trigger('click');
-document.getElementById("SidePaneButton").click();
+// Make sure toggleSidePane is global
+window.toggleSidePane = toggleSidePane;
 
-var clicked_id_1 = -1;
-var clicked_id_2 = -1;
-var clicked_name_1 = "none";
-var clicked_name_2 = "none";
-var clicked_edge = -1;
-var node1 = document.getElementById("Node1");
-var node2 = document.getElementById("Node2");
+// --- Drag-to-link with Ctrl key implementation ---
+let dragSourceNodeId = null;
+let dragToLinkActive = false;
 
-// On clicking a node on Vis.js canvas
-function onClick(params) {
-	// console.log("selectNode Event:", params);
-	// console.log("Selected node=", params['nodes'][0]);
+// Highlight hovered node for feedback (use bold font, not color)
+network.on("hoverNode", function(params) {
+	nodes.update({ id: params.node, font: { bold: true } });
+});
+network.on("blurNode", function(params) {
+	nodes.update({ id: params.node, font: { bold: false } });
+});
 
-	if (params['nodes'].length > 0) {			// a node is clicked
-		// shift node ① to ②
-		clicked_id_2 = clicked_id_1;
-		clicked_name_2 = clicked_name_1;
-		node2.style.backgroundColor = node1.style.backgroundColor;
-		clicked_id_1 = params['nodes'][0];
-		clicked_edge = -1;
-		console.log("node ID =", clicked_id_1);
-		var node = data.nodes.get(clicked_id_1);
-		clicked_name_1 = get_label_in_lang(node);
+// Listen for mousedown to start drag-to-link if Ctrl is pressed
+viz.addEventListener('mousedown', function(e) {
+	const rect = viz.getBoundingClientRect();
+	const x = e.clientX - rect.left;
+	const y = e.clientY - rect.top;
+	const nodeId = network.getNodeAt({x, y});
+	if (nodeId !== undefined && e.ctrlKey) {
+		dragSourceNodeId = nodeId;
+		dragToLinkActive = true;
+		network.body.container.style.cursor = "crosshair";
+		// Prevent panning and node dragging when Ctrl is held and node is clicked
+		network.setOptions({ interaction: { ...options.interaction, dragView: false, dragNodes: false } });
+		// Disable physics for the whole network during drag-to-link
+		network.setOptions({ physics: { enabled: false } });
+		e.preventDefault();
+		return false;
+	}
+});
 
-		// display details of nodes ① ②:
-		node1.innerText = clicked_name_1;
-		node1.style.backgroundColor = node.color;
-		node2.innerText = clicked_name_2;
-		// radio button:
-		if ('status' in node)
-			document.getElementById(node.status).checked = true;
-		else
-			document.getElementById('in-progress').checked = true;
-		document.getElementById("TaskNameEN").value = node.labelEN;
-		document.getElementById("TaskNameZH").value = node.labelZH ?? "";
-
-		if ('details' in node)
-			document.getElementById("Details").value = node.details;
-		else
-			document.getElementById("Details").value = "";
-
-		const divAuthors = document.getElementById("authors");
-		divAuthors.innerHTML = "";
-		if ('authors' in node) {
-			for (const author of node.authors) {
-				const span = document.createElement('input');
-				span.value = author[0];
-				span.title = author[1];
-				span.setAttribute('type', 'author');
-				span.setAttribute('disabled', '');		// for an added author, changes color
-				divAuthors.appendChild(span);
-				}
-			}
-
-		// Add a button to add authors;  this function needs to call itself:
-		(function addAuthorButton() {
-			const span = document.createElement('input');
-			span.setAttribute('type', 'author');
-			span.value = '⊕ name [, e-mail]';
-			span.onclick = (event) => {
-				span.value = "";			// clear input field
-				};
-			span.addEventListener('keyup', (event) => {
-				// when finished entering the author name / e-mail:
-				if (event.key === "Enter") {
-					[span.value, ...span.title] = span.value.split(/,\s*/);
-					if (node.authors == null)
-						node.authors = new Array();
-					node.authors.push([span.value, span.title]);
-					if (node.votes != null)
-						node.votes.push(0);
-					span.setAttribute('disabled', '');	// for an added author
-					techClick2.play();
-					addAuthorButton();		// call itself to add button
-					}
-				});
-			divAuthors.appendChild(span);	// add the button
-			})();
-
-		// Create HTML element vote slider
-		(function createPoll() {
-			const voting = document.getElementById('voting');
-			if ('votes' in node) {
-				voting.replaceChildren();	// remove all vote-sliders
-				window.votes = node.votes;
-				for (const author of node.authors) {
-					const div = document.createElement('div');
-					div.classList.add('slidecontainer');
-					const name = document.createElement('p');
-					name.classList.add('name');
-					name.innerText = author[0];
-					div.appendChild(name);
-					const slider = document.createElement('input');
-					slider.classList.add('slider');
-					slider.setAttribute('type', 'range');
-					slider.setAttribute('min', '0');
-					slider.setAttribute('max', '1000');
-					slider.setAttribute('value', '0');
-					div.appendChild(slider);
-					const score = document.createElement('pre');
-					score.classList.add('score');
-					score.innerText = '0';
-					div.appendChild(score);
-					voting.appendChild(div);
-					}
-				// Create HTML element for "total" vote count
-				const div = document.createElement('div');
-				div.classList.add('slidecontainer');
-				const name = document.createElement('p');
-				name.classList.add('name');
-				name.innerText = "Total";
-				div.appendChild(name);
-				const score = document.createElement('pre');
-				score.classList.add('score');
-				score.innerText = '100';
-				score.setAttribute('id', 'total');
-				div.appendChild(score);
-				voting.appendChild(div);
-				$.getScript("js/voting.js", function() {
-					console.log("voting.js loaded and executed.");
-					});
-				// Record votes values into node.votes
-				// 'click' is programmatically called from voting.js
-				document.getElementById("total").onclick = function() {
-					node.votes = window.votes;
-					};
-				voting.style.display = "block";
-				voting.style.right = "6px";
-				voting.style.bottom = (50 - window.innerHeight)
-					.toString() +'px';
-				}
-			else {	// no votes, allow users to start a poll
-				voting.style.display = "none";
-				document.getElementById('startVote').onclick = function () {
-					if (('authors' in node) && !('votes' in node)) {
-						node.votes = new Array();
-						createPoll();
-						}
-					};
-				}
-			} )();	// end of function, and function call
-
-		// show Nodes ① ② and hide Edge:
-		document.getElementById("Edge").style.display = "none";
-		document.getElementById("Node12").style.display = "inline-block";
-		techClick.play();
-		}
-	else if (params['edges'].length > 0) {		// an edge is clicked
-		// console.log("Selected edge=", params);
-		clicked_edge = params['edges'][0];
-		var edge = data.edges.get(clicked_edge);
-		document.getElementById("EdgeNameEN").value = ('label' in edge) ? edge.label : "";
-		document.getElementById("Node12").style.display = "none";
-		document.getElementById("Edge").style.display = "inline-block";
-		document.getElementById("Edge1").innerText = "Edge: [" + edge.from.toString() + "] ⟶ [" + edge.to.toString() + "]";
-		techClick.play();
-		}
-	else {										// clicked on white space
-		clicked_edge = -1;
-		document.getElementById("Edge").style.display = "none";
-		document.getElementById("Node12").style.display = "inline-block";
+// Listen for mousemove to highlight possible target node (use bold font, not color)
+viz.addEventListener('mousemove', function(e) {
+	if (dragToLinkActive && dragSourceNodeId !== null) {
+		const rect = viz.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const y = e.clientY - rect.top;
+		const targetNodeId = network.getNodeAt({x, y});
+		// Optionally highlight target node (not source)
+		if (targetNodeId !== undefined && targetNodeId !== dragSourceNodeId) {
+			nodes.update({ id: targetNodeId, font: { bold: true } });
 		}
 	}
+});
 
+// Listen for mouseup to finish drag-to-link
+viz.addEventListener('mouseup', function(e) {
+	if (dragToLinkActive && dragSourceNodeId !== null) {
+		const rect = viz.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const y = e.clientY - rect.top;
+		const targetNodeId = network.getNodeAt({x, y});
+		if (targetNodeId !== undefined && targetNodeId !== dragSourceNodeId) {
+			data.edges.add({ from: dragSourceNodeId, to: targetNodeId });
+			techClick2.play();
+		}
+		dragSourceNodeId = null;
+		dragToLinkActive = false;
+		network.body.container.style.cursor = "";
+		// Restore panning and node dragging after drag-to-link
+		network.setOptions({ interaction: { ...options.interaction, dragView: true, dragNodes: true } });
+		// Re-enable physics for the network
+		network.setOptions({ physics: { enabled: true } });
+	}
+});
+// --- End of Drag-to-link with Ctrl key implementation ---
+
+// Track the currently selected node and edge for deletion
+let selectedNodeId = null;
+let selectedEdgeId = null;
+
+// On clicking a node or edge on Vis.js canvas
+function onClick(params) {
+	// Prevent playing techClick if drag-to-link is active
+	if (dragToLinkActive) return;
+	if (params['nodes'].length > 0) {
+		selectedNodeId = params['nodes'][0];
+		selectedEdgeId = null;
+		techClick.play();
+	} else if (params['edges'].length > 0) {
+		selectedEdgeId = params['edges'][0];
+		selectedNodeId = null;
+		techClick.play();
+	} else {
+		selectedNodeId = null;
+		selectedEdgeId = null;
+	}
+}
 network.on("click", onClick);
+
+// Listen for Delete key to delete selected node or edge with confirmation
+window.addEventListener('keydown', function(e) {
+	if (e.key === 'Delete' || e.key === 'Del') {
+		if (selectedNodeId !== null) {
+			if (confirm('Delete node #' + selectedNodeId + ' and all its edges?')) {
+				data.nodes.remove({id: selectedNodeId});
+				selectedNodeId = null;
+				techClick2.play();
+			}
+			e.preventDefault();
+		} else if (selectedEdgeId !== null) {
+			if (confirm('Delete edge #' + selectedEdgeId + '?')) {
+				data.edges.remove({id: selectedEdgeId});
+				selectedEdgeId = null;
+				techClick2.play();
+			}
+			e.preventDefault();
+		}
+	}
+});
+
+// Track the currently selected node for addNode
+// let selectedNodeId = null;
+
+// On clicking a node or edge on Vis.js canvas
+// function onClick(params) {
+// 	if (params['nodes'].length > 0) {
+// 		selectedNodeId = params['nodes'][0];
+// 		// Node clicked: show node details (if you want to keep this part)
+// 		const node = data.nodes.get(selectedNodeId);
+// 		// ...show node details logic if needed...
+// 		techClick.play();
+// 	} else if (params['edges'].length > 0) {
+// 		// Edge clicked: show edge details (if you want to keep this part)
+// 		const edge = data.edges.get(params['edges'][0]);
+// 		// ...show edge details logic if needed...
+// 		techClick.play();
+// 	}
+// }
+// network.on("click", onClick);
 
 function addAuthor(event) {
 	techClick2.play();
@@ -341,32 +310,72 @@ const  git_modal = document.getElementById("Git_modal");
 const node_modal = document.getElementById("Node_modal");
 const help_modal = document.getElementById("Help_modal");
 
-// Clicking "X" or "Cancel" closes the modal
-function close_json_modal() { json_modal.style.display = "none"; };
-function close_git_modal()  { git_modal.style.display = "none"; };
-function close_node_modal() { node_modal.style.display = "none"; };
-function close_help_modal() { help_modal.style.display = "none"; };
+// --- Ensure JSON file list is always refreshed when modal is shown ---
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'style' && json_modal.style.display === 'block') {
+            listJSONfiles();
+        }
+    });
+});
+observer.observe(json_modal, { attributes: true });
 
-// When user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-	if (event.target == json_modal) json_modal.style.display = "none";
-	if (event.target == git_modal)  git_modal.style.display = "none";
-	if (event.target == node_modal) node_modal.style.display = "none";
-	if (event.target == help_modal) help_modal.style.display = "none";
-	};
+// Attach OK and Enter key handlers only once
+(function setupJSONModalHandlers() {
+    const okHandler = function () {
+        var name = document.getElementById("JSONdropDown").value;
+        if (name == "none")
+            name = document.getElementById("JSONfileName").value;
+
+        const remoteUser = document.querySelector(
+            'input[name="remoteUser"]:checked');
+        const tag = remoteUser ? remoteUser.value : "";
+        if (name.endsWith(".json"))
+            name = name.slice(0,-5) + tag + ".json";
+        else if (name.endsWith(tag))
+            name = name + ".json";
+        else
+            name = name + tag + ".json";
+        console.log("Loading file:", name);
+        $.ajax({
+                method: "GET",
+                url: "/loadJSON/" + name,
+                cache: false,
+                success: function(data0) {
+
+                network.destroy();
+                nodes = new vis.DataSet(data0.nodes);
+                edges = new vis.DataSet(data0.edges);
+                data.nodes = nodes;
+                data.edges = edges;
+                init_nodes();
+                network = new vis.Network(viz, data, options);
+                update_node_index();
+                network.on("click", onClick);
+
+                json_modal.style.display = "none";
+                techClick2.play();
+                } });
+    };
+    document.getElementById("json_modal_OK").onclick = okHandler;
+    document.getElementById("JSONfileName").addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            okHandler();
+        }
+    });
+})();
 
 async function addNode() {
 	// Open modal window to ask for Node labels:
 	node_modal.style.display = "block";
 	techClick2.play();
 	document.getElementById("node_modal_OK").onclick = function() {
-
 		const tasknameEN = document.getElementById("nameEN").value;
 		if (tasknameEN == "" || tasknameEN == "???") {
 			document.getElementById("nameEN").value = "???";
 			techFail.play();
 			return;
-			}
+		}
 		const tasknameZH = document.getElementById("nameZH").value;
 		const taskname = ((lang == 'ZH') && (tasknameZH != "")) ? tasknameZH : tasknameEN;
 		data.nodes.add({id : node_index,
@@ -374,14 +383,17 @@ async function addNode() {
 			labelEN: tasknameEN,
 			...(tasknameZH != "") && { labelZH: tasknameZH },
 			color: nodeColors['in-progress'],
-			});
-		data.edges.add({from: node_index, to: clicked_id_1});
-		console.log("Added node", tasknameEN, "to node #", clicked_id_1);
-		node_index++;
-		node_modal.style.display = "none";		// close modal window
-		techClick2.play();
+		});
+		if (selectedNodeId !== null) {
+			data.edges.add({from: node_index, to: selectedNodeId});
 		}
+		console.log("Added node", tasknameEN, "to node #", selectedNodeId);
+		node_index++;
+		node_modal.style.display = "none"; // close modal window
+		techClick2.play();
+		// No need to manually call network.stabilize() or toggle physics
 	}
+}
 
 async function delNode() {
 	data.nodes.remove({id: clicked_id_1});
@@ -392,12 +404,6 @@ async function delNode() {
 async function delEdge() {
 	data.edges.remove({id: clicked_edge});
 	console.log("Deleted edge #", clicked_edge);
-	techClick2.play();
-	}
-
-async function linkNodes() {
-	data.edges.add({from: clicked_id_2, to: clicked_id_1});
-	console.log("Linked node #", clicked_id_2, "as SubTask to node #", clicked_id_1);
 	techClick2.play();
 	}
 
@@ -544,49 +550,9 @@ async function loadJSON() {
 	// Open modal window and ask for filename
 	json_modal.style.display = "block";
 	techClick2.play();
-	listJSONfiles();
 	ifRemoteUser();
-	// Wait for modal window to be clicked OK, then do:
-	document.getElementById("json_modal_OK").onclick = function () {
-
-		var name = document.getElementById("JSONdropDown").value;
-		if (name == "none")
-			name = document.getElementById("JSONfileName").value;
-
-		const remoteUser = document.querySelector(
-			'input[name="remoteUser"]:checked');
-		const tag = remoteUser ? remoteUser.value : "";
-		if (name.endsWith(".json"))
-			name = name.slice(0,-5) + tag + ".json";
-		else if (name.endsWith(tag))
-			name = name + ".json";
-		else
-			name = name + tag + ".json";
-		console.log("Loading file:", name);
-		$.ajax({
-				method: "GET",
-				url: "/loadJSON/" + name,
-				cache: false,
-				success: function(data0) {
-
-			network.destroy();
-			// data0 seems already parsed as JSON by the server
-			// No need to do:  var data1 = JSON.parse(data0);
-			// console.log(data0);
-			nodes = new vis.DataSet(data0.nodes);
-			edges = new vis.DataSet(data0.edges);
-			data.nodes = nodes;
-			data.edges = edges;
-			init_nodes();		// set lang, colors, ... from existing data
-			network = new vis.Network(viz, data, options);
-			update_node_index();
-			network.on("click", onClick);
-
-			json_modal.style.display = "none";		// close window
-			techClick2.play();
-			} });
-		};
-	}
+	// listJSONfiles() is now called by the MutationObserver when modal is shown
+}
 
 async function saveDirectory() {
 	// Currently disallow remote users to write directly to global Git dir
@@ -719,16 +685,39 @@ $.ajax({
 	const uniqs = Array.from(new Set(authors));
 	const div = document.getElementById("authors");
 	for (const author of uniqs) {
-		if (author == '')
-			break;
-		// console.log("add Git author:", author);
+		if (author.trim() == "")
+			continue;
 		const span = document.createElement('input');
-		const [email, ...name] = author.split(',');
-		span.value = name;
-		span.title = email;
+		span.value = author;
 		span.setAttribute('type', 'author');
-		span.setAttribute('disabled', '');
-        div.appendChild(span);
-        //div.appendChild(document.createElement('br'));
+		span.setAttribute('disabled', '');		// for an added author, changes color
+		div.appendChild(span);
 		}
-	} });
+		// Add a button to add authors;  this function needs to call itself:
+		(function addAuthorButton() {
+			const span = document.createElement('input');
+			span.setAttribute('type', 'author');
+			span.value = '⊕ name [, e-mail]';
+			span.onclick = (event) => {
+				span.value = "";			// clear input field
+				};
+			span.addEventListener('keyup', (event) => {
+				// when finished entering the author name / e-mail:
+				if (event.key === "Enter") {
+					[span.value, ...span.title] = span.value.split(/,\s*/);
+					$.ajax({
+						method: "POST",
+						url: "/addGitAuthor/",
+						data: JSON.stringify({ name: span.value, email: span.title }),
+						contentType: "application/json",
+						success: function(resp) {
+							techClick2.play();
+							addAuthorButton();		// call itself to add button
+							}
+						});
+					}
+				});
+			div.appendChild(span);	// add the button
+			})();
+		}
+	});

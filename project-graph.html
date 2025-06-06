@@ -73,11 +73,8 @@ by the function toggleSidePane() in project-graph.js -->
 		<td><label class="small">save<br>JSON</label></td>
 		<td><label class="small">load<br>Git dir</label></td>
 		<td><label class="small">save<br>Git dir</label></td>
-		<td><label class="small">clear</label></td>
+		<td><label class="small">clear<br>all</label></td>
 		<td><label class="small">add<br>Node</label></td>
-		<td><label class="small">delete<br>Node</label></td>
-		<td><label class="small">link<br>Nodes</label></td>
-		<td><label class="small">delete<br>Edge</label></td>
 </tr>
 <tr class="viz-buttons">
 		<td><button onclick="help()">？</button></td>
@@ -88,22 +85,10 @@ by the function toggleSidePane() in project-graph.js -->
 		<td><button onclick="saveDirectory()"><span style="color:red;">↘📁</span></button></td>
 		<td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button></td>
 		<td><button onclick="addNode()">+ⓝ</button></td>
-		<td><button onclick="delNode()"><span style="color:red;">-ⓝ</span></button></td>
-		<td><button onclick="linkNodes()">➁⇢➀</button></td>
-		<td><button onclick="delEdge()"><span style="color:red;">⨯⇢</span></button></td>
 </tr>
 </table>
 </div>
 
-<!-- icons for indicating last 2 clicked nodes -->
-<div id="Node12" style="right:0; top:80px;">
-② <span id="Node2">none</span>
-⇢ ① <span id="Node1">none</span>
-</div>
-<div id="Edge" style="display:none; right:0; top:80px;">
-<span id="Edge1">none</span>
-</div>
-<br>
 <!-- for displaying voting UI -->
 <div id="voting" style="display:none;"></div>
 

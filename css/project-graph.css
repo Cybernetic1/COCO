@@ -10,14 +10,52 @@
 
 /* These 2 lines causes side-pane to overlap on top of viz canvas */
 #container { position: relative; }
-#viz, #side-pane, #voting, #Node12, #Edge {
+#viz, #side-pane, #voting {
 	position: absolute;
 	}
 
 #viz {		/* the Vis.js canvas */
 	background-color: White;
 	z-index: -1;
-	}
+	user-select: none !important;
+	-webkit-user-select: none !important;
+	-ms-user-select: none !important;
+	-moz-user-select: none !important;
+	/* Prevent selection highlight in Firefox during drag */
+	-moz-user-select: none;
+	/* Prevent selection highlight in Safari/iOS */
+	-webkit-touch-callout: none;
+	/* Prevent selection highlight in Edge/IE */
+	-ms-touch-action: none;
+	touch-action: none;
+}
+
+/* Prevent selection highlight for everything inside #container */
+#container {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+body, html {
+	-webkit-user-select: none !important;
+	-moz-user-select: none !important;
+	-ms-user-select: none !important;
+	user-select: none !important;
+}
+
+#viz, #container, *:focus {
+	outline: none !important;
+}
+
+* { outline: none !important; }	/* Uncomment this line to disable all outlines */
+
+/* Focus styles for accessibility */
+:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
 
 label[disabled] {
 	color: Gray;
@@ -45,40 +83,6 @@ label.small {	/* small texts at bottom of buttons */
 	height: 36px;
 	padding: 0 2px;
 }
-
-#Node12, #Edge {		/* box containing Nodes ① ② and Edge */
-	background-color: #EEE;
-	border-radius: 7px;
-	/* border: 2px solid #DDD; */
-	margin: 10px;
-	padding: 10px;
-	color: Black;
-	font-size: 22px;
-	z-index: 0;
-	}
-
-#Node12 span {
-	width: 90px;
-	height: 25px;
-	background-color: White;
-	color: Black;
-	font-size: 20px;
-	border:2px solid #BBB;
-	border-radius: 10px;
-	padding: 5px;
-	}
-
-#Edge span {
-	width: 90px;
-	height: 25px;
-	/* background-color: #EEE; */
-	color: Black;
-	font-size: 20px;
-	/* text-decoration: underline; */
-	/* border:2px solid Black; */
-	/* border-radius: 10px; */
-	padding: 5px;
-	}
 
 /******************* for 'Status' radio buttons ******************/
 input[name='status'] {
@@ -200,4 +204,19 @@ input[type='author'][disabled] {
 	color: #000;
 	text-decoration: none;
 	cursor: pointer;
+}
+
+/* Remove styles for Node1, Node2, Node12, Edge, and any manual link UI */
+#Node1, #Node2, #Node12, #Edge {
+    display: none !important;
+}
+
+/* Remove or hide any CSS related to the 'link Nodes' button */
+#linkNodes {
+    display: none !important;
+}
+
+/* Remove or hide any CSS related to the delete node and delete edge buttons */
+#delNode, #delEdge {
+    display: none !important;
 }
