@@ -90,3 +90,8 @@ function snowDrawing() {
 	// rabbit
 	ctx.drawImage(rabbit, r(0.7*W, 500), r(.8*H));
 	}
+
+function close_help_modal() {
+	document.getElementById('Help_modal').style.display = 'none';
+}
+window.close_help_modal = close_help_modal;
