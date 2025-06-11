@@ -3,3 +3,6 @@
 /python/.env
 /node_modules/
 nohup.out
+# Ignore environment variable files containing secrets
+.env
+.env.*
