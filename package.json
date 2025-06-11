@@ -23,5 +23,15 @@
   "bugs": {
     "url": "https://github.com/Cybernetic1/COCO/issues"
   },
-  "homepage": "https://github.com/Cybernetic1/COCO#readme"
+  "homepage": "https://github.com/Cybernetic1/COCO#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "passport": "^0.7.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "passport-wechat": "^2.0.4",
+    "sqlite3": "^5.1.7"
+  }
 }

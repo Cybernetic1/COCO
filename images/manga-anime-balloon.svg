@@ -1,0 +1,23 @@
+<!-- Manga/Anime Balloon SVG Icon (200x250px) -->
+<svg width="200" height="250" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Balloon body -->
+  <ellipse cx="100" cy="120" rx="70" ry="90" fill="#fffbe6" stroke="#7c4a03" stroke-width="4"/>
+  <!-- Balloon highlight -->
+  <ellipse cx="80" cy="90" rx="18" ry="28" fill="#fff" fill-opacity="0.7"/>
+  <!-- Balloon string -->
+  <path d="M100 210 Q110 230 90 240" stroke="#b77c00" stroke-width="3" fill="none"/>
+  <!-- Manga face (anime style) -->
+  <ellipse cx="100" cy="140" rx="38" ry="32" fill="#fff" stroke="#7c4a03" stroke-width="3"/>
+  <!-- Eyes -->
+  <ellipse cx="86" cy="145" rx="7" ry="10" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <ellipse cx="114" cy="145" rx="7" ry="10" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <ellipse cx="86" cy="147" rx="3" ry="4" fill="#7c4a03"/>
+  <ellipse cx="114" cy="147" rx="3" ry="4" fill="#7c4a03"/>
+  <!-- Blush -->
+  <ellipse cx="76" cy="155" rx="4" ry="2" fill="#f9d776"/>
+  <ellipse cx="124" cy="155" rx="4" ry="2" fill="#f9d776"/>
+  <!-- Smile -->
+  <path d="M90 160 Q100 170 110 160" stroke="#b77c00" stroke-width="2" fill="none"/>
+  <!-- Hair (anime style) -->
+  <path d="M62 130 Q100 110 138 130 Q120 115 100 120 Q80 115 62 130 Z" fill="#b77c00"/>
+</svg>

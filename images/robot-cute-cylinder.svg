@@ -1,0 +1,18 @@
+<!-- Futuristic Minimalistic Cute Robot with 3D Cylinder Head, No Mouth, No Antenna (200x250px) -->
+<svg width="200" height="250" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 3D Cylinder Head -->
+  <ellipse cx="100" cy="65" rx="48" ry="22" fill="#fff" stroke="#7c4a03" stroke-width="3"/>
+  <rect x="52" y="65" width="96" height="48" rx="30" fill="#fff" stroke="#7c4a03" stroke-width="3"/>
+  <ellipse cx="100" cy="113" rx="48" ry="18" fill="#f7fafd" stroke="#7c4a03" stroke-width="2"/>
+  <!-- Eyes -->
+  <ellipse cx="80" cy="90" rx="8" ry="10" fill="#1aad19"/>
+  <ellipse cx="120" cy="90" rx="8" ry="10" fill="#1aad19"/>
+  <!-- Body -->
+  <rect x="60" y="130" width="80" height="70" rx="24" fill="#f7fafd" stroke="#7c4a03" stroke-width="3"/>
+  <!-- Arms -->
+  <rect x="40" y="150" width="18" height="8" rx="4" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <rect x="142" y="150" width="18" height="8" rx="4" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <!-- Legs -->
+  <rect x="78" y="200" width="12" height="28" rx="5" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <rect x="110" y="200" width="12" height="28" rx="5" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+</svg>

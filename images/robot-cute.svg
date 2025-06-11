@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Simple Futuristic Minimalistic Cute Robot SVG (200x250px) -->
+
+<svg
+   width="200"
+   height="250"
+   viewBox="0 0 200 250"
+   fill="none"
+   version="1.1"
+   id="svg24"
+   sodipodi:docname="robot-cute.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs28" />
+  <sodipodi:namedview
+     id="namedview26"
+     pagecolor="#ffffff"
+     bordercolor="#cccccc"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="68.412581"
+     inkscape:cy="151.49763"
+     inkscape:window-width="1080"
+     inkscape:window-height="969"
+     inkscape:window-x="0"
+     inkscape:window-y="922"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg24"
+     showguides="false"
+     inkscape:snap-global="false" />
+  <circle
+     cx="21.147861"
+     cy="98.250511"
+     fill="#1aad19"
+     stroke="#7c4a03"
+     stroke-width="2"
+     id="circle14"
+     style="fill:#000000;stroke:none"
+     transform="rotate(-30)"
+     r="4" />
+  <path
+     style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 67.488606,74.059863 9.525255,16.498223"
+     id="path1799"
+     sodipodi:nodetypes="cc" />
+  <path
+     style="fill:none;stroke:#000000;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     d="m 113.32194,174.79767 c 0.35479,18.29299 4.55133,48.45294 4.55133,48.45294"
+     id="path1799-7-56"
+     sodipodi:nodetypes="cc" />
+  <path
+     style="color:#000000;fill:#ffffff;-inkscape-stroke:none;stroke:#000000"
+     d="m 78.035156,172.41602 c -7.143277,23.68382 1.800782,53.09375 1.800781,53.09375 l 7.683594,-2.22852 c 0,0 -7.859918,-28.54308 -1.824219,-48.55469 z"
+     id="path1799-7" />
+  <!-- Body -->
+  <path
+     id="rect2"
+     style="fill:#aaccff;stroke:#000000;stroke-width:2.6827"
+     d="m 85.577797,82.669691 c 6.353636,-2.766631 21.842553,-2.865355 28.168533,0 16.14122,7.311175 23.05317,22.866069 22.85631,41.856599 -0.32191,31.05414 0,45.20557 0,45.20557 H 62.721485 c 0,0 -0.620956,-15.79746 0,-45.20557 0.40088,-18.98543 3.097292,-33.252718 22.856312,-41.856599 z"
+     sodipodi:nodetypes="sssccss" />
+  <!-- Head -->
+  <path
+     id="rect4"
+     style="fill:#d7e3f4;stroke:#000000;stroke-width:2.4"
+     d="m 97.982784,96.204078 c 15.208026,0 27.451326,11.741252 27.451326,23.841362 0,12.10011 -12.2433,20.64136 -27.451325,20.64136 -15.208032,0 -27.451321,-8.54125 -27.451321,-20.64136 0,-12.10011 12.243289,-23.841362 27.45132,-23.841362 z"
+     sodipodi:nodetypes="sssss" />
+  <!-- Eyes -->
+  <circle
+     cx="79.232735"
+     cy="118.44168"
+     fill="#1aad19"
+     id="ellipse6"
+     style="fill:#000000;stroke-width:0.324831"
+     r="3.5999999" />
+  <circle
+     cx="110.2934"
+     cy="118.44168"
+     fill="#1aad19"
+     id="ellipse6-9"
+     style="fill:#000000;stroke-width:0.324831"
+     r="3.5999999" />
+  <!-- Smile -->
+  <!-- Antenna -->
+  <!-- Arms -->
+  <!-- Legs -->
+  <rect
+     x="-234.71645"
+     y="-124.74795"
+     width="12"
+     height="28"
+     rx="5"
+     fill="#ffffff"
+     stroke="#7c4a03"
+     stroke-width="2"
+     id="rect20-2"
+     style="fill:#ff0000;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none"
+     transform="matrix(-0.03590202,-0.99935531,-0.99935531,0.03590202,0,0)" />
+  <rect
+     x="-232.60745"
+     y="-93.328377"
+     width="12"
+     height="28"
+     rx="5"
+     fill="#ffffff"
+     stroke="#7c4a03"
+     stroke-width="2"
+     id="rect20-2-1"
+     style="fill:#ff0000;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none"
+     transform="matrix(-0.01606949,-0.99987088,-0.99987088,0.01606949,0,0)" />
+  <circle
+     cx="-149.19569"
+     cy="-3.458497"
+     fill="#1aad19"
+     stroke="#7c4a03"
+     stroke-width="2"
+     id="circle14-2"
+     style="fill:#000000;stroke:none"
+     transform="matrix(-0.8660254,-0.5,-0.5,0.8660254,0,0)"
+     r="4" />
+  <path
+     style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 130.88777,71.149065 -9.52526,16.498223"
+     id="path1799-70"
+     sodipodi:nodetypes="cc" />
+  <path
+     id="rect3030"
+     style="fill:#ff0000;stroke:#000000;stroke-width:2.69749"
+     d="m 136.50558,162.35081 v 7.81618 c 0,3.93229 -2.48595,7.09799 -5.57388,7.09799 0,0 -47.753252,6.89697 -62.907793,2 -2.938327,-0.94948 -5.573869,-3.1657 -5.573869,-7.09799 v -7.81618 c 12.705231,7.00629 74.055542,-2 74.055542,-2 z"
+     sodipodi:nodetypes="csssscc" />
+</svg>
