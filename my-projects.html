@@ -8,9 +8,9 @@
   <style>
     body { background: #f7fafd;; font-family: 'Segoe UI', sans-serif; }
     a { color: #7c4c00; }
-    .coco-header { display: flex; align-items: center; gap: 1em; margin-top: 2em; }
+    .coco-header { display: flex; align-items: center; gap: 1em; margin-top: 2em; justify-content: space-between; }
     .coco-avatar { width: 64px; height: 64px; border-radius: 50%; border: none; background: #fff; }
-    .coco-username { font-size: 1.5em; font-weight: bold; color: #7c4c00; }
+    .coco-username { font-size: 1em; font-weight: bold; color: #7c4c00; }
     .coco-logout { margin-left: auto; }
     .coco-projects { margin-top: 2em; }
     .coco-logo { height: 48px; }
@@ -46,41 +46,77 @@
     .coco-header a.coco-logout:hover {
       text-decoration: underline;
     }
+    button, .coco-btn {
+      border: 2px solid #7c4c00;
+      background: #fff;
+      color: #7c4c00;
+      border-radius: 8px;
+      font-size: 0.8em;
+      padding: 0.2em 0.2em;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    button:hover, .coco-btn:hover {
+      background: #f9e6b3;
+      color: #7c4c00;
+    }
     /* Remove any blue emphasis */
   </style>
 </head>
 <body>
-  <div class="coco-header">
+  <div class="coco-header" style="justify-content:space-between;">
     <img src="images/COCO-logo.png" style="width: 306px; height: 89px;" class="coco-logo" alt="COCO Logo">
-    <img id="user-avatar" class="coco-avatar" src="" alt="User Avatar" style="display:none;">
-    <span id="user-name" class="coco-username"></span>
-    <a href="/logout" class="coco-logout">Log out</a>
+    <div style="display:flex;align-items:center;gap:0.7em;margin-left:auto;">
+      <img id="user-avatar" class="coco-avatar" src="" alt="User Avatar" style="display:none;">
+      <span id="user-name" class="coco-username" style="cursor:pointer;position:relative;">
+        <span id="user-name-text"></span>
+        <span style="font-size:0.8em;vertical-align:middle;">&#9660;</span>
+        <div id="user-dropdown" style="display:none;position:absolute;left:0;top:1.8em;background:#fff8e1;border:1px solid #b77c00;border-radius:8px;box-shadow:0 2px 8px #f9e6b3;padding:0.5em 1.2em;z-index:10;min-width:120px;">
+          <a href="/logout" class="coco-logout" style="display:block;color:#7c4c00;text-align:left;">Log out</a>
+        </div>
+      </span>
+    </div>
   </div>
   <div class="coco-projects">
     <h1>My Projects</h1>
     <div id="project-list">(Project list coming soon...)</div>
-    <div style="margin-top:2em;">
-      <input id="new-project-name" placeholder="New project name" style="padding:0.3em;">
-      <input id="new-project-desc" placeholder="Description (optional)" style="padding:0.3em;">
-      <button id="create-project-btn">Create Project</button>
-    </div>
     <div style="margin-top:1em;">
       <button id="show-join-list-btn">Show Joinable Projects</button>
       <div id="join-list" style="margin-top:0.5em;"></div>
       <span id="join-status" style="margin-left:1em;color:#b77c00;"></span>
+    </div>
+    <div>
+      <button id="show-create-fields-btn">Create Project</button>
+      <div id="create-fields" style="display:none;margin-top:1em;">
+        <input id="new-project-name" placeholder="New project name" style="padding:0.3em;">
+        <input id="new-project-desc" placeholder="Description (optional)" style="padding:0.3em;">
+        <button id="create-project-btn">Submit</button>
+      </div>
     </div>
   </div>
   <script>
     // Fetch user info from server (injected by server.js)
     fetch('/user-info').then(r => r.json()).then(user => {
       if (user && user.name) {
-        document.getElementById('user-name').textContent = user.name;
+        document.getElementById('user-name-text').textContent = user.name;
       }
       if (user && user.avatar) {
         const avatar = document.getElementById('user-avatar');
         avatar.src = user.avatar;
         avatar.style.display = 'inline-block';
       }
+    });
+    // Dropdown logic
+    const userName = document.getElementById('user-name');
+    const userDropdown = document.getElementById('user-dropdown');
+    userName.onclick = function(e) {
+      e.stopPropagation();
+      userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+    };
+    document.body.addEventListener('click', function() {
+      userDropdown.style.display = 'none';
     });
 
     function renderProjects(projects) {
@@ -89,10 +125,23 @@
         list.textContent = '(No projects yet)';
         return;
       }
-      list.innerHTML = '<ul>' + projects.map(p => {
+      let html = '<table style="width:100%;border-collapse:collapse;margin-top:1em;">';
+      html += '<tr style="background:#cfd7db;"><th style="color:#7c4c00;padding:0.5em 0.3em;">ID</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Project Name</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Description</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Role</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Graph</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Action</th></tr>';
+      projects.forEach(p => {
         const graphUrl = `/project-graph.html?projectId=${p.id}`;
-        return `<li><b><a href="${graphUrl}" target="_blank">${p.name}</a></b> (ID: ${p.id})<br><span style="font-size:0.9em;color:#888;">${p.description||''}</span><br><span style="font-size:0.9em;color:#b77c00;">Role: ${p.userRole||'member'}</span> <button class="unjoin-btn" data-id="${p.id}" style="margin-left:1em;">Unjoin</button></li>`;
-      }).join('') + '</ul>';
+        html += `<tr style="border-bottom:1px solid #f9e6b3;">
+          <td style="padding:0.4em 0.3em;">${p.id}</td>
+          <td style="padding:0.4em 0.3em;"><b>${p.name}</b></td>
+          <td style="padding:0.4em 0.3em;font-size:0.95em;color:#888;">${p.description||''}</td>
+          <td style="padding:0.4em 0.3em;color:#b77c00;">${p.userRole||'member'}</td>
+          <td style="padding:0.4em 0.3em;"><a href="${graphUrl}" target="_blank" style="color:#7c4c00;text-decoration:underline;">View</a></td>
+          <td style="padding:0.4em 0.3em;">
+            <button class="unjoin-btn" data-id="${p.id}">Unjoin</button>
+          </td>
+        </tr>`;
+      });
+      html += '</table>';
+      list.innerHTML = html;
       // Add event listeners for unjoin buttons
       document.querySelectorAll('.unjoin-btn').forEach(btn => {
         btn.onclick = function() {
@@ -114,9 +163,16 @@
     }
 
     function loadProjects() {
-      fetch('/api/user-projects', { credentials: 'include' }).then(r => r.json()).then(data => {
-        if (Array.isArray(data)) renderProjects(data);
-      });
+      fetch('/api/user-projects', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          // If data is an array, use it directly; if object with .projects, use that
+          const projects = Array.isArray(data) ? data : (data && data.projects ? data.projects : []);
+          renderProjects(projects);
+        })
+        .catch(() => {
+          document.getElementById('project-list').textContent = 'Failed to load projects.';
+        });
     }
     loadProjects();
 
@@ -140,38 +196,49 @@
     };
 
     document.getElementById('show-join-list-btn').onclick = function() {
-      fetch('/api/joinable-projects', { credentials: 'include' }).then(r => r.json()).then(projects => {
-        const div = document.getElementById('join-list');
-        if (!projects.length) {
-          div.textContent = '(No joinable projects found)';
-          return;
-        }
-        div.innerHTML = '<ul>' + projects.map(p =>
-          `<li><b>${p.name}</b> (ID: ${p.id})<br><span style=\"font-size:0.9em;color:#888;\">${p.description||''}</span> <button class=\"join-btn\" data-id=\"${p.id}\">Join</button></li>`
-        ).join('') + '</ul>';
-        // Add event listeners for join buttons
-        document.querySelectorAll('.join-btn').forEach(btn => {
-          btn.onclick = function() {
-            const projectId = btn.getAttribute('data-id');
-            fetch('/api/join-project', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ projectId })
-            }).then(r => r.json()).then(data => {
-              const status = document.getElementById('join-status');
-              if (data && data.success) {
-                status.textContent = 'Joined!';
-                loadProjects();
-                div.textContent = '';
-              } else {
-                status.textContent = data && data.error ? data.error : 'Failed to join';
-              }
-              setTimeout(() => { status.textContent = ''; }, 2000);
-            });
-          };
+      fetch('/api/joinable-projects', { credentials: 'include' })
+        .then(r => r.json())
+        .then(projects => {
+          const div = document.getElementById('join-list');
+          if (!projects.length) {
+            div.textContent = '(No joinable projects found)';
+            return;
+          }
+          let html = '<table style="width:100%;border-collapse:collapse;margin-top:1em;">';
+          html += '<tr style="background:#cfd7db;"><th style="color:#7c4c00;padding:0.5em 0.3em;">ID</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Project Name</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Description</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Action</th></tr>';
+          projects.forEach(p => {
+            html += `<tr style="border-bottom:1px solid #f9e6b3;">
+              <td style="padding:0.4em 0.3em;">${p.id}</td>
+              <td style="padding:0.4em 0.3em;"><b>${p.name}</b></td>
+              <td style="padding:0.4em 0.3em;font-size:0.95em;color:#888;">${p.description||''}</td>
+              <td style="padding:0.4em 0.3em;"><button class=\"join-btn\" data-id=\"${p.id}\">Join</button></td>
+            </tr>`;
+          });
+          html += '</table>';
+          div.innerHTML = html;
+          // Add event listeners for join buttons
+          document.querySelectorAll('.join-btn').forEach(btn => {
+            btn.onclick = function() {
+              const projectId = btn.getAttribute('data-id');
+              fetch('/api/join-project', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ projectId })
+              }).then(r => r.json()).then(data => {
+                const status = document.getElementById('join-status');
+                if (data && data.success) {
+                  status.textContent = 'Joined!';
+                  loadProjects();
+                  div.textContent = '';
+                } else {
+                  status.textContent = data && data.error ? data.error : 'Failed to join';
+                }
+                setTimeout(() => { status.textContent = ''; }, 2000);
+              });
+            };
+          });
         });
-      });
     };
     // Remove the manual join input/button if present
     const joinProjectIdInput = document.getElementById('join-project-id');
@@ -182,11 +249,21 @@
     // Remove WeChat login button from this page if present
     const oldWechatBtn = document.querySelector('button.wechat-login-btn');
     if (oldWechatBtn) oldWechatBtn.remove();
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const showCreateBtn = document.getElementById('show-create-fields-btn');
+      const createFields = document.getElementById('create-fields');
+      if (showCreateBtn && createFields) {
+        showCreateBtn.onclick = function() {
+          createFields.style.display = (createFields.style.display === 'none' || createFields.style.display === '') ? 'block' : 'none';
+        };
+      }
+    });
   </script>
   <!-- hr style="margin:2em 0;" -->
   <div class="coco-ideas" style="max-width:800px;margin:2em auto 3em auto;padding:1.5em;background:#fff8e1;border-radius:12px;box-shadow:0 2px 8px #f9e6b3;">
     <h3 style="color:#b77c00;margin-top:0;">🌴 DAO Business Ideas & Inspiration</h3>
-    <ol style="font-size:1.1em;line-height:1.7;">
+    <ol style="font-size:0.8em;line-height:1.7;">
       <li><b>Creative Collaborative Projects</b>
         <ul>
           <li><b>Collaborative Manga or Anime Production:</b> Create a platform where artists, writers, and animators can collaborate on manga or anime projects. Members can vote on storylines, character designs, and funding for episodes, sharing profits based on contributions.</li>
@@ -224,8 +301,8 @@
         </ul>
       </li>
     </ol>
-    <div style="color:#b77c00;font-size:1em;margin-top:1em;">
-      <b>Conclusion:</b> The success of a DAO company largely depends on the level of community engagement, the clarity of governance, and the value proposition for members. Choose a business idea that aligns with your interests and expertise while fostering collaboration and shared ownership among participants. By leveraging the unique strengths of the DAO model, you can create a vibrant and innovative company that benefits all stakeholders involved.
+    <div style="color:#b77c00;margin-top:1em;">
+      The success of a DAO company largely depends on the level of community engagement, the clarity of governance, and the value proposition for members. Choose a business idea that aligns with your interests and expertise while fostering collaboration and shared ownership among participants. By leveraging the unique strengths of the DAO model, you can create a vibrant and innovative company that benefits all stakeholders involved.
     </div>
   </div>
 </body>
