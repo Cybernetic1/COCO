@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Projects - COCO</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="favicon.ico">
+  <style>
+    body { background: #f7fafd;; font-family: 'Segoe UI', sans-serif; }
+    a { color: #7c4c00; }
+    .coco-header { display: flex; align-items: center; gap: 1em; margin-top: 2em; }
+    .coco-avatar { width: 64px; height: 64px; border-radius: 50%; border: none; background: #fff; }
+    .coco-username { font-size: 1.5em; font-weight: bold; color: #7c4c00; }
+    .coco-logout { margin-left: auto; }
+    .coco-projects { margin-top: 2em; }
+    .coco-logo { height: 48px; }
+    .coco-ideas { max-width: 700px; margin: 2em auto 3em auto; padding: 1.5em; background: #fff8e1; border-radius: 12px; box-shadow: 0 2px 8px #f9e6b3; }
+    .coco-ideas h3 {
+      color: #b77c00;
+      margin-top: 0;
+      font-size: 1.25em;
+    }
+    .coco-ideas ol {
+      font-size: 1.08em;
+      line-height: 1.7;
+      margin-left: 1.2em;
+    }
+    .coco-ideas ul {
+      font-size: 0.98em;
+      line-height: 1.6;
+      margin-left: 1.2em;
+    }
+    .coco-ideas li {
+      margin-bottom: 0.4em;
+    }
+    .coco-ideas a { color: #b77c00; text-decoration: none; }
+    .coco-ideas a:hover { text-decoration: underline; }
+    b, strong, h1 { color: #7c4c00; }
+    .coco-ideas b, .coco-ideas strong { color: #7c4c00; }
+    .coco-projects b, .coco-projects strong { color: #7c4c00; }
+    .coco-header a.coco-logout {
+      color: #7c4c00 !important;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .coco-header a.coco-logout:hover {
+      text-decoration: underline;
+    }
+    /* Remove any blue emphasis */
+  </style>
+</head>
+<body>
+  <div class="coco-header">
+    <img src="images/COCO-logo.png" style="width: 306px; height: 89px;" class="coco-logo" alt="COCO Logo">
+    <img id="user-avatar" class="coco-avatar" src="" alt="User Avatar" style="display:none;">
+    <span id="user-name" class="coco-username"></span>
+    <a href="/logout" class="coco-logout">Log out</a>
+  </div>
+  <div class="coco-projects">
+    <h1>My Projects</h1>
+    <div id="project-list">(Project list coming soon...)</div>
+    <div style="margin-top:2em;">
+      <input id="new-project-name" placeholder="New project name" style="padding:0.3em;">
+      <input id="new-project-desc" placeholder="Description (optional)" style="padding:0.3em;">
+      <button id="create-project-btn">Create Project</button>
+    </div>
+    <div style="margin-top:1em;">
+      <button id="show-join-list-btn">Show Joinable Projects</button>
+      <div id="join-list" style="margin-top:0.5em;"></div>
+      <span id="join-status" style="margin-left:1em;color:#b77c00;"></span>
+    </div>
+  </div>
+  <script>
+    // Fetch user info from server (injected by server.js)
+    fetch('/user-info').then(r => r.json()).then(user => {
+      if (user && user.name) {
+        document.getElementById('user-name').textContent = user.name;
+      }
+      if (user && user.avatar) {
+        const avatar = document.getElementById('user-avatar');
+        avatar.src = user.avatar;
+        avatar.style.display = 'inline-block';
+      }
+    });
+
+    function renderProjects(projects) {
+      const list = document.getElementById('project-list');
+      if (!projects.length) {
+        list.textContent = '(No projects yet)';
+        return;
+      }
+      list.innerHTML = '<ul>' + projects.map(p => {
+        const graphUrl = `/project-graph.html?projectId=${p.id}`;
+        return `<li><b><a href="${graphUrl}" target="_blank">${p.name}</a></b> (ID: ${p.id})<br><span style="font-size:0.9em;color:#888;">${p.description||''}</span><br><span style="font-size:0.9em;color:#b77c00;">Role: ${p.userRole||'member'}</span> <button class="unjoin-btn" data-id="${p.id}" style="margin-left:1em;">Unjoin</button></li>`;
+      }).join('') + '</ul>';
+      // Add event listeners for unjoin buttons
+      document.querySelectorAll('.unjoin-btn').forEach(btn => {
+        btn.onclick = function() {
+          const projectId = btn.getAttribute('data-id');
+          fetch('/api/unjoin-project', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ projectId })
+          }).then(r => r.json()).then(data => {
+            if (data && data.success) {
+              loadProjects();
+            } else {
+              alert(data && data.error ? data.error : 'Failed to unjoin');
+            }
+          });
+        };
+      });
+    }
+
+    function loadProjects() {
+      fetch('/api/user-projects', { credentials: 'include' }).then(r => r.json()).then(data => {
+        if (Array.isArray(data)) renderProjects(data);
+      });
+    }
+    loadProjects();
+
+    document.getElementById('create-project-btn').onclick = function() {
+      const name = document.getElementById('new-project-name').value.trim();
+      const description = document.getElementById('new-project-desc').value.trim();
+      if (!name) return alert('Project name required');
+      fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      }).then(r => r.json()).then(data => {
+        if (data && data.id) {
+          document.getElementById('new-project-name').value = '';
+          document.getElementById('new-project-desc').value = '';
+          loadProjects();
+        } else {
+          alert('Failed to create project');
+        }
+      });
+    };
+
+    document.getElementById('show-join-list-btn').onclick = function() {
+      fetch('/api/joinable-projects', { credentials: 'include' }).then(r => r.json()).then(projects => {
+        const div = document.getElementById('join-list');
+        if (!projects.length) {
+          div.textContent = '(No joinable projects found)';
+          return;
+        }
+        div.innerHTML = '<ul>' + projects.map(p =>
+          `<li><b>${p.name}</b> (ID: ${p.id})<br><span style=\"font-size:0.9em;color:#888;\">${p.description||''}</span> <button class=\"join-btn\" data-id=\"${p.id}\">Join</button></li>`
+        ).join('') + '</ul>';
+        // Add event listeners for join buttons
+        document.querySelectorAll('.join-btn').forEach(btn => {
+          btn.onclick = function() {
+            const projectId = btn.getAttribute('data-id');
+            fetch('/api/join-project', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ projectId })
+            }).then(r => r.json()).then(data => {
+              const status = document.getElementById('join-status');
+              if (data && data.success) {
+                status.textContent = 'Joined!';
+                loadProjects();
+                div.textContent = '';
+              } else {
+                status.textContent = data && data.error ? data.error : 'Failed to join';
+              }
+              setTimeout(() => { status.textContent = ''; }, 2000);
+            });
+          };
+        });
+      });
+    };
+    // Remove the manual join input/button if present
+    const joinProjectIdInput = document.getElementById('join-project-id');
+    if (joinProjectIdInput) joinProjectIdInput.style.display = 'none';
+    const joinProjectBtn = document.getElementById('join-project-btn');
+    if (joinProjectBtn) joinProjectBtn.style.display = 'none';
+
+    // Remove WeChat login button from this page if present
+    const oldWechatBtn = document.querySelector('button.wechat-login-btn');
+    if (oldWechatBtn) oldWechatBtn.remove();
+  </script>
+  <!-- hr style="margin:2em 0;" -->
+  <div class="coco-ideas" style="max-width:800px;margin:2em auto 3em auto;padding:1.5em;background:#fff8e1;border-radius:12px;box-shadow:0 2px 8px #f9e6b3;">
+    <h3 style="color:#b77c00;margin-top:0;">🌴 DAO Business Ideas & Inspiration</h3>
+    <ol style="font-size:1.1em;line-height:1.7;">
+      <li><b>Creative Collaborative Projects</b>
+        <ul>
+          <li><b>Collaborative Manga or Anime Production:</b> Create a platform where artists, writers, and animators can collaborate on manga or anime projects. Members can vote on storylines, character designs, and funding for episodes, sharing profits based on contributions.</li>
+          <li><b>Open-Source Game Development:</b> Develop a video game where community members can contribute to design, coding, and storytelling. Token rewards can be given for contributions, and players can vote on game updates and expansions.</li>
+        </ul>
+      </li>
+      <li><b>Content Creation and Media</b>
+        <ul>
+          <li><b>Decentralized News Platform:</b> Launch a news website where journalists and contributors can submit articles. Readers can reward content with tokens, and contributors can vote on editorial decisions, ensuring diverse perspectives and accountability.</li>
+          <li><b>Podcasting Network:</b> Create a DAO for podcasters, allowing creators to collaborate, share resources, and vote on topics or guests. Token holders can earn rewards based on listener engagement and sponsorship deals.</li>
+        </ul>
+      </li>
+      <li><b>Tech and Software Development</b>
+        <ul>
+          <li><b>Open-Source Software Development:</b> Establish a DAO focused on developing open-source software projects. Contributors can earn tokens for code contributions, bug fixes, and feature suggestions, fostering a collaborative environment.</li>
+          <li><b>Decentralized AI Services:</b> Create a platform where AI developers can work together on models and applications. Users can vote on the direction of projects, and profits can be shared among contributors based on their input.</li>
+        </ul>
+      </li>
+      <li><b>Community and Social Impact</b>
+        <ul>
+          <li><b>Local Cooperative Businesses:</b> Start a community-focused restaurant or bakery where local members can invest, vote on menu items, and participate in decision-making. Profits can be reinvested in the community or shared among members.</li>
+          <li><b>Sustainability Projects:</b> Launch a DAO focused on environmental initiatives, such as community gardens or renewable energy projects. Members can propose and vote on projects, and funds can be allocated based on community needs.</li>
+        </ul>
+      </li>
+      <li><b>Education and Learning</b>
+        <ul>
+          <li><b>Decentralized Learning Platform:</b> Create a DAO for online education where instructors can offer courses, and students can vote on topics and course formats. Participants can earn tokens for teaching, providing feedback, or completing courses.</li>
+          <li><b>Skill-Sharing Network:</b> Develop a platform where individuals can share skills and knowledge. Members can propose workshops or learning sessions, and the community can vote on which ones to fund and promote.</li>
+        </ul>
+      </li>
+      <li><b>Health and Wellness</b>
+        <ul>
+          <li><b>Holistic Health Cooperative:</b> Start a DAO for health and wellness practitioners (e.g., nutritionists, fitness trainers, therapists) to collaborate on services. Members can vote on offerings, and profits can be shared based on participation and client feedback.</li>
+          <li><b>Mental Health Support Platform:</b> Create a community-driven platform for mental health resources and support groups. Users can contribute content, share experiences, and vote on initiatives to enhance community well-being.</li>
+        </ul>
+      </li>
+    </ol>
+    <div style="color:#b77c00;font-size:1em;margin-top:1em;">
+      <b>Conclusion:</b> The success of a DAO company largely depends on the level of community engagement, the clarity of governance, and the value proposition for members. Choose a business idea that aligns with your interests and expertise while fostering collaboration and shared ownership among participants. By leveraging the unique strengths of the DAO model, you can create a vibrant and innovative company that benefits all stakeholders involved.
+    </div>
+  </div>
+</body>
+</html>

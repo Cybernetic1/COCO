@@ -1,0 +1,27 @@
+<!-- Manga/Anime SVG Icon (200x250px) -->
+<svg width="200" height="250" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Book base -->
+  <rect x="20" y="40" width="160" height="190" rx="18" fill="#fffbe6" stroke="#7c4a03" stroke-width="4"/>
+  <!-- Book spine shadow -->
+  <rect x="20" y="40" width="32" height="190" rx="12" fill="#f9e6b3"/>
+  <!-- Manga lines -->
+  <line x1="40" y1="60" x2="170" y2="60" stroke="#b77c00" stroke-width="2"/>
+  <line x1="40" y1="80" x2="170" y2="80" stroke="#b77c00" stroke-width="2"/>
+  <line x1="40" y1="100" x2="170" y2="100" stroke="#b77c00" stroke-width="2"/>
+  <line x1="40" y1="120" x2="170" y2="120" stroke="#b77c00" stroke-width="2"/>
+  <line x1="40" y1="140" x2="170" y2="140" stroke="#b77c00" stroke-width="2"/>
+  <!-- Manga face (simple anime style) -->
+  <ellipse cx="100" cy="180" rx="38" ry="32" fill="#fff" stroke="#7c4a03" stroke-width="3"/>
+  <!-- Eyes -->
+  <ellipse cx="86" cy="185" rx="7" ry="10" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <ellipse cx="114" cy="185" rx="7" ry="10" fill="#fff" stroke="#7c4a03" stroke-width="2"/>
+  <ellipse cx="86" cy="187" rx="3" ry="4" fill="#7c4a03"/>
+  <ellipse cx="114" cy="187" rx="3" ry="4" fill="#7c4a03"/>
+  <!-- Blush -->
+  <ellipse cx="76" cy="195" rx="4" ry="2" fill="#f9d776"/>
+  <ellipse cx="124" cy="195" rx="4" ry="2" fill="#f9d776"/>
+  <!-- Smile -->
+  <path d="M90 200 Q100 210 110 200" stroke="#b77c00" stroke-width="2" fill="none"/>
+  <!-- Hair (anime style) -->
+  <path d="M62 170 Q100 140 138 170 Q120 155 100 160 Q80 155 62 170 Z" fill="#b77c00"/>
+</svg>

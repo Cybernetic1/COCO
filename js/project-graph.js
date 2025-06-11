@@ -241,19 +241,39 @@ let selectedEdgeId = null;
 
 // On clicking a node or edge on Vis.js canvas
 function onClick(params) {
-	// Prevent playing techClick if drag-to-link is active
 	if (dragToLinkActive) return;
 	if (params['nodes'].length > 0) {
 		selectedNodeId = params['nodes'][0];
 		selectedEdgeId = null;
+		const node = data.nodes.get(selectedNodeId);
+		if (node) {
+			document.getElementById("TaskNameEN").value = node.labelEN || "";
+			document.getElementById("TaskNameZH").value = node.labelZH || "";
+			document.getElementById("Details").value = node.details || "";
+			// Update status radio buttons
+			const statuses = ["in-progress", "finished", "paused", "research"];
+			statuses.forEach(status => {
+				const radio = document.getElementById(status);
+				radio.checked = (node.status === status);
+			});
+		}
 		techClick.play();
 	} else if (params['edges'].length > 0) {
 		selectedEdgeId = params['edges'][0];
 		selectedNodeId = null;
+		const edge = data.edges.get(selectedEdgeId);
+		if (edge) {
+			document.getElementById("EdgeNameEN").value = edge.label || "";
+		}
 		techClick.play();
 	} else {
 		selectedNodeId = null;
 		selectedEdgeId = null;
+		// Optionally clear the side pane fields
+		// document.getElementById("TaskNameEN").value = "";
+		// document.getElementById("TaskNameZH").value = "";
+		// document.getElementById("Details").value = "";
+		// document.getElementById("EdgeNameEN").value = "";
 	}
 }
 network.on("click", onClick);
@@ -721,3 +741,18 @@ $.ajax({
 			})();
 		}
 	});
+
+// Utility to get projectId from URL
+function getProjectIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('projectId');
+}
+
+// --- In the code that loads the graph data ---
+// Replace any hardcoded filename with:
+const projectId = getProjectIdFromUrl();
+const defaultGraphFile = projectId ? `/projects-data/${projectId}.json` : null;
+// Use defaultGraphFile as the file to load/save the graph JSON
+
+// When loading: fetch(defaultGraphFile)
+// When saving: save to defaultGraphFile
