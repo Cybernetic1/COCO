@@ -1,6 +1,8 @@
 // Simple server based on Node.js
 // ==============================
 
+require('dotenv').config();
+
 const http = require("http");
 const fs = require("fs");
 const url = require("url");
