@@ -105,10 +105,11 @@
 
         <div class="coco-login" style="margin-bottom:32px;">
             <form id="login-signup-form" style="margin-bottom:16px;">
+                <input type="hidden" name="actionType" id="actionType" value="login">
                 <input type="email" name="email" placeholder="Email" required style="width:70%;padding:8px;margin:6px 0;"><br>
                 <input type="password" name="password" placeholder="Password" required style="width:70%;padding:8px;margin:6px 0;"><br>
                 <button class="login-btn coco" type="submit" id="login-btn" style="display:inline-block;">Log In</button>
-                <button class="login-btn coco" type="button" id="signup-btn" style="display:inline-block;">Sign Up</button>
+                <button class="login-btn coco" type="submit" id="signup-btn" style="display:inline-block;">Sign Up</button>
             </form>
             <div style="margin: 16px 0; color:#bbb;">or</div>
             <a href="/auth/google" class="login-btn google">Log in with Google</a><br>
@@ -124,16 +125,24 @@
         const form = document.getElementById('login-signup-form');
         const loginBtn = document.getElementById('login-btn');
         const signupBtn = document.getElementById('signup-btn');
-        form.onsubmit = function(e) {
-            e.preventDefault();
-            form.action = '/login';
-            form.method = 'POST';
-            form.submit();
+        const actionType = document.getElementById('actionType');
+
+        loginBtn.onclick = function() {
+            actionType.value = 'login';
         };
         signupBtn.onclick = function() {
-            form.action = '/signup';
+            actionType.value = 'signup';
+        };
+
+        form.onsubmit = function(e) {
+            // Browser validation runs before this
+            if (actionType.value === 'signup') {
+                form.action = '/signup';
+            } else {
+                form.action = '/login';
+            }
             form.method = 'POST';
-            form.submit();
+            // allow normal submit
         };
     </script>
 </body>

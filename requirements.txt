@@ -1,0 +1,10 @@
+// This file lists all dependencies for the COCO Node.js server
+express
+express-session
+passport
+passport-local
+passport-google-oauth20
+passport-facebook
+sqlite3
+bcrypt
+dotenv

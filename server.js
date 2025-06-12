@@ -10,6 +10,7 @@ const path = require("path");
 const process = require('process');
 const { exec } = require("child_process");
 const { readdir } = require("fs/promises");
+const bcrypt = require('bcrypt');
 
 // --- Authentication dependencies ---
 const session = require('express-session');
@@ -32,9 +33,14 @@ app.use(express.json()); // <-- Add this line before any routes
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
   (email, password, done) => {
-    db.get('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (err, user) => {
+    db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
       if (err) return done(err);
-      return user ? done(null, user) : done(null, false);
+      if (!user) return done(null, false);
+      // Compare hashed password
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) return done(err);
+        return isMatch ? done(null, user) : done(null, false);
+      });
     });
   }
 ));
@@ -648,5 +654,33 @@ app.post('/api/remove-user', (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     res.json({ success: true });
+  });
+});
+
+// --- Signup route ---
+app.post('/signup', (req, res) => {
+  const { email, password, name } = req.body;
+  if (!email || !password) {
+    return res.status(400).send('Email and password are required.');
+  }
+  // Check if user already exists
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    if (err) return res.status(500).send('Database error.');
+    if (user) return res.status(409).send('Email already registered.');
+    // Hash password
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) return res.status(500).send('Error hashing password.');
+      db.run('INSERT INTO users (email, password, name) VALUES (?, ?, ?)', [email, hash, name || null], function(err) {
+        if (err) return res.status(500).send('Database error.');
+        // Optionally auto-login after signup
+        db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, newUser) => {
+          if (err) return res.status(500).send('Database error.');
+          req.login(newUser, (err) => {
+            if (err) return res.status(500).send('Login error.');
+            return res.redirect('/my-projects.html');
+          });
+        });
+      });
+    });
   });
 });
