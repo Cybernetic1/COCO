@@ -1306,7 +1306,7 @@
             (e1.y2 = (e1.x2 - e1.x) / t2.calibrate.ratio))
           : (e1 = t2.initial_view),
         (e5 = (ew = e1.x2 - e1.x) / (ek = e1.y2 - e1.y)),
-        eh.style.setProperty("width", ""),
+        ef.style.setProperty("width", ""),
         ey.style.setProperty("width", ""),
         _
           ? ((eb = eh.offsetWidth) < 1 && (eb = eh.parentNode.offsetWidth),
@@ -1711,10 +1711,10 @@
               "default" != r[e][s] && (eZ[e][s] = r[e][s]),
                 "yes" == r[e][s] && (eZ[e][s] = !0),
                 "no" == r[e][s] && (eZ[e][s] = !1);
-            "off" == a.state_hover_color && (eZ[e].hover_color = eZ[e].color);
-          }),
-          (eJ = {}),
-          t2.paths))
+          "off" == a.state_hover_color && (eZ[e].hover_color = eZ[e].color);
+        }),
+        (eJ = {}),
+        t2.paths))
             eJ[e] = !0;
           for (var e in t4.state_specific)
             t4.state_specific[e] &&
@@ -2150,7 +2150,7 @@
             (u = C / B),
             (f = p - a),
             (y = Math.sqrt((h = m - l) * h + f * f)),
-            (g = a + (f * (d = (c * c - u * u + y * y) / (2 * y))) / y),
+            (g = a + (f * (d = (c * c - u * u) / (2 * y))) / y),
             (b = l + (h * d) / y),
             (v = -h * (($ = Math.sqrt(c * c - d * d)) / y)),
             (_ = f * ($ / y)),
@@ -2360,7 +2360,7 @@
           : v && "out" != e.sm.type && tR();
     }
     function os(e) {
-      return { x: e.x, y: e.y, w: e.w, h: e.h };
+      return { x: e.x, y: e.y, w: e.h, h: e.h };
     }
     function oa() {
       k.sm && z && (tP.hide(), (z = !1), k.sm && t3.call(k), (ep = !1));
@@ -2378,6 +2378,13 @@
       tC("viewbox_updated", [e]), ol && ol.fitBounds(oc(e), { animate: !1 });
     }
     function om(e, t, o) {
+      // Prevent zooming for state or region clicks
+      if (e && e.sm && (e.sm.type === "state" || e.sm.type === "region")) {
+        if (window && window.console) {
+          console.log("Zoom blocked for type:", e.sm.type, e.sm.id);
+        }
+        return;
+      }
       if (!tH) {
         oa(),
           o7 && (o7.stop(), (o7 = !1)),
@@ -2420,1141 +2427,6 @@
           tC("zooming_complete", []),
           s.isFunction(o) && o();
       }
-    }
-    function ou(e) {
-      var t = "",
-        o = {};
-      for (var r in t2.paths) {
-        var n,
-          s = t2.paths[r];
-        s = Raphael._pathToAbsolute(s);
-        var a = Raphael.pathBBox(s);
-        n = a.x2 - a.x < 10 ? 10 : 1;
-        var l = Math.round(a.x * n) / n,
-          c = Math.round(a.y * n) / n,
-          p = Math.round(a.y2 * n) / n;
-        (t +=
-          "'" +
-          r +
-          "':{x: " +
-          l +
-          ",y:" +
-          c +
-          ",x2:" +
-          Math.round(a.x2 * n) / n +
-          ",y2:" +
-          p +
-          "},"),
-          (o[r] = a);
-      }
-      return (
-        (t = t.substring(0, t.length - 1)),
-        (t += "}"),
-        e || console.log("The new state_bbox_array is: \n\n{" + t),
-        o
-      );
-    }
-    function o8(e) {
-      var t = e.sm.description,
-        o =
-          '<a id="xpic_sm_' +
-          g +
-          '" href="#"><img src="data:image/svg+xml,%3Csvg%20enable-background%3D%22new%200%200%20256%20256%22%20height%3D%22256px%22%20id%3D%22Layer_1%22%20version%3D%221.1%22%20viewBox%3D%220%200%20256%20256%22%20width%3D%22256px%22%20xml%3Aspace%3D%22preserve%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Cpath%20d%3D%22M137.051%2C128l75.475-75.475c2.5-2.5%2C2.5-6.551%2C0-9.051s-6.551-2.5-9.051%2C0L128%2C118.949L52.525%2C43.475%20%20c-2.5-2.5-6.551-2.5-9.051%2C0s-2.5%2C6.551%2C0%2C9.051L118.949%2C128l-75.475%2C75.475c-2.5%2C2.5-2.5%2C6.551%2C0%2C9.051%20%20c1.25%2C1.25%2C2.888%2C1.875%2C4.525%2C1.875s3.275-0.625%2C4.525-1.875L128%2C137.051l75.475%2C75.475c1.25%2C1.25%2C2.888%2C1.875%2C4.525%2C1.875%20%20s3.275-0.625%2C4.525-1.875c2.5-2.5%2C2.5-6.551%2C0-9.051L137.051%2C128z%22%2F%3E%3C%2Fsvg%3E" style="width: 100%" alt="Close" border="0" /></a>',
-        r = '<a style="line-height: 1.5" id="xpic_sm_' + g + '">X</a>',
-        n = ea ? r : o;
-      n = '<div class="xmark_sm">' + n + "</div>";
-      var a = e.sm.url ? e.sm.url : "",
-        l = a,
-        c = "javascript:" == l.substring(0, 11),
-        p = s.replaceAll(l, "'", '"'),
-        m = U
-          ? 'return (function(e){window.open("' +
-            a +
-            '","_blank"); return false})()'
-          : c
-            ? 'return (function(){window.location.href="' +
-              a +
-              '"; return false;})()'
-            : 'return (function(){window.top.location.href="' +
-              a +
-              '"; return false;})()';
-      c && (m = "(function(){" + p + "})()");
-      var u = e.sm.description_mobile
-        ? e.sm.description_mobile
-        : '<div class="tt_mobile_sm"><a tabindex="0" onkeydown="if (event.keyCode == 13) this.click()" class="btn_simplemaps" onClick=\'' +
-          m +
-          "'>" +
-          e.sm.link_text +
-          "</a></div>";
-      e.sm.on_click || ((n = ""), (u = "")),
-        "" != e.sm.url || e.sm.description_mobile || (u = "");
-      var d =
-        "" == t ? (d = "") : '<div class="tt_custom_sm"; />' + t + "</div>";
-      return (
-        '<div class="tt_sm"><div>' +
-        (e.sm.hide_name
-          ? ""
-          : '<div class="tt_name_sm">' + e.sm.name + "</div>") +
-        n +
-        '<div style="clear: both;"></div></div>' +
-        d +
-        u +
-        "</div></div>"
-      );
-    }
-    function od(e, t) {
-      var o = e.sm.zooming_dimensions;
-      if (o.w > t.sm.zooming_dimensions.w) return !1;
-      var r = t.sm.bbox,
-        n = { x: r.x * e3, y: r.y * e3, x2: r.x2 * e3, y2: r.y2 * e3 },
-        s = o.x + o.w / 2,
-        a = o.y + o.h / 2;
-      return !!(s > n.x) && !!(a > n.y) && !!(s < n.x2) && !!(a < n.y2);
-    }
-    function of(e, t) {
-      var o = t.hover ? "_hover" : "",
-        r = g + "_pattern_" + e.sm.id + o,
-        n = document.getElementById(r);
-      n && s.delete_element(n);
-      var a = ef.firstChild,
-        c = a.namespaceURI,
-        p = a.querySelector("defs"),
-        m = document.createElementNS(c, "pattern"),
-        u = e.sm.id;
-      (m.id = r), m.setAttribute("patternUnits", "objectBoundingBox");
-      var d = document.createElementNS(c, "image"),
-        f = document.createElementNS(c, "rect"),
-        h = t.image_color ? t.image_color : t.color;
-      f.setAttribute("fill", "#ffffff"),
-        f.setAttribute("opacity", t.bg_opacity),
-        d.setAttributeNS(
-          "http://www.w3.org/1999/xlink",
-          "xlink:href",
-          t.image_url,
-        ),
-        m.appendChild(f),
-        m.appendChild(d),
-        p.appendChild(m),
-        a.appendChild(p);
-      var y = t.image_position,
-        v = "auto" == t.image_size,
-        _ = "repeat" == y,
-        b = "manual" == y,
-        x = "center" == y,
-        w = Raphael.pathBBox(t2.paths[u]),
-        k = w.x2 - w.x,
-        z = w.y2 - w.y,
-        P = k / z;
-      return (
-        Raphael._preload(t.image_url, function () {
-          var e,
-            o,
-            r,
-            n = this.offsetWidth,
-            s = this.offsetHeight,
-            a = n / s,
-            c =
-              ((r = t.image_size),
-              v
-                ? _ || b
-                  ? (r =
-                      a > 1 ? (n > k ? 1 : n / k) : s > z ? 1 / P : s / z / P)
-                  : x && ((r = a / P), a > P || (r = 1 / r))
-                : r > 1 && (r = (t.image_size * l) / k),
-              r),
-            p = k * c,
-            u = p / a,
-            y = 0,
-            g = 0;
-          if (
-            (_
-              ? ((e = c), (o = (c * P) / a))
-              : b
-                ? ((e = 1), (o = 1), (y = t.image_x * k), (g = t.image_y * z))
-                : x &&
-                  ((e = 1), (o = 1), (y = 0.5 * (k - p)), (g = 0.5 * (z - u))),
-            f.setAttribute("x", 0),
-            f.setAttribute("y", 0),
-            f.setAttribute("width", k),
-            f.setAttribute("height", z),
-            f.setAttribute("fill", h),
-            f.setAttribute("opacity", "1"),
-            m.setAttribute("y", 0),
-            m.setAttribute("x", 0),
-            m.setAttribute("y", 0),
-            m.setAttribute("width", e),
-            m.setAttribute("height", o),
-            d.setAttribute("x", y),
-            d.setAttribute("y", g),
-            d.setAttribute("width", p),
-            $)
-          ) {
-            var w = y + 0.5 * p,
-              E = g + 0.5 * u;
-            d.setAttribute(
-              "transform",
-              "rotate(-" + $ + "," + w + "," + E + ")",
-            );
-          }
-          d.setAttribute("height", u);
-        }),
-        'url("#' + m.id + '")'
-      );
-    }
-    t6.get_latlng_bounds = oc;
-    var oh = !1;
-    function oy(e) {
-      e || ((tc = {}), (tp = {})), (oh = t2.state_bbox_array);
-      var t = K * e3 * l * 1.25;
-      for (var r in ((tl = function (e) {
-        var r = !tp[e],
-          n = eZ[e];
-        !n.path &&
-          (n.geojson_value || n.feature || "geojson" == n.type) &&
-          (n.path = tX(n, oh, eZ, e, "state"));
-        var s = n.path ? n.path : t2.paths[e],
-          c = r ? eP.path(s) : tp[e];
-        r && (c.sm = { id: e }),
-          ea || c.node.setAttribute("class", "sm_state sm_state_" + e);
-        var p = {
-            fill: n.color,
-            opacity: n.opacity,
-            stroke: n.border_color,
-            cursor: "pointer",
-            "stroke-opacity": 1,
-            "stroke-width": t,
-            "stroke-linejoin": "round",
-          },
-          m = n.border_hover_color ? n.border_hover_color : a.border_color,
-          u = n.border_hover_size ? n.border_hover_size : K,
-          d = u * e3 * l * 1.25,
-          f = {
-            opacity: n.hover_opacity,
-            fill: n.hover_color,
-            stroke: m,
-            "stroke-width": d,
-          };
-        if (((c.sm.image = !1), n.image_url && !ea)) {
-          var h = {
-              hover: !1,
-              image_url: n.image_url,
-              image_size: n.image_size,
-              image_position: n.image_position,
-              image_x: n.image_x,
-              image_y: n.image_y,
-              image_color: n.image_color,
-              bg_opacity: n.image_background_opacity,
-            },
-            y = of(c, h);
-          if (((c.sm.image = !0), (p.fill = y), n.image_hover_url)) {
-            var h = {
-                hover: !0,
-                image_url: n.image_hover_url,
-                image_size: n.image_hover_size,
-                image_position: n.image_hover_position,
-                image_x: n.image_hover_x,
-                image_y: n.image_hover_y,
-                image_color: n.image_hover_color,
-                bg_opacity: n.image_background_opacity,
-              },
-              y = of(c, h);
-            f.fill = y;
-          } else f.fill = y;
-        }
-        n.inactive && (p.cursor = "default"),
-          n.image_source &&
-            ((c.sm.ignore_hover = !0),
-            (p.fill = "url(" + o + n.image_source + ")")),
-          (n.border_hover_color || n.border_hover_size) && n.emphasize
-            ? (c.sm.emphasizable = !0)
-            : (c.sm.emphasizable = !1),
-          (c.sm.border_hover_size = u),
-          c.attr(p),
-          c.transform(eC),
-          (c.sm.attributes = p),
-          (c.sm.over_attributes = f),
-          (c.sm.description = n.description),
-          (c.sm.adjacent_attributes = { "fill-opacity": W }),
-          (c.sm.hide = n.hide),
-          (c.sm.display = n.display),
-          (c.sm.link_text = n.link_text),
-          (c.sm.hide_label = n.hide_label),
-          (c.sm.hide_name = n.hide_name),
-          r && (c.sm.region = !1),
-          (c.sm.name = n.name ? n.name : t2.names[e]),
-          c.sm.name || (c.sm.name = e),
-          (c.sm.url = n.url),
-          (c.sm.inactive = n.inactive),
-          (c.sm.on_click = tj(n.popup)),
-          (c.sm.popup_off = tB(n.popup)),
-          (c.sm.labels = []),
-          (c.sm.zp = n.zoom_percentage),
-          (c.sm.zoomable = n.zoomable),
-          (c.sm.level = n.level),
-          (c.sm.description_mobile = n.description_mobile),
-          (c.sm.type = "state"),
-          (c.sm.hide_labels = n.hide_label),
-          (c.sm.content = o8(c));
-        var $ = oh[e];
-        $ || ($ = Raphael.pathBBox(s));
-        var v = { x: $.x, x2: $.x2, y: $.y, y2: $.y2 };
-        (c.sm.bbox = v),
-          (c.sm.bbox.width = v.x2 - v.x),
-          (c.sm.bbox.height = v.y2 - v.y),
-          (c.sm.pulse_speed = n.pulse_speed),
-          (c.sm.pulse_size = n.pulse_size),
-          (c.sm.pulse_color = n.pulse_color ? n.pulse_color : n.border_color),
-          c.sm.hide ? c.hide() : r && e2.push(c),
-          r && ((tp[e] = c), eF.push(c));
-      }),
-      eJ))
-        tl(r);
-      tl[-1], eF.hide();
-    }
-    function o$() {
-      eB.attr({ fill: a.background_color, "fill-opacity": X, stroke: "none" });
-    }
-    var ov = !1;
-    function o_(e) {
-      if ((e || (tm = {}), P))
-        for (var t in P) {
-          var o = eG[t],
-            r = P[t],
-            n = e ? tm[t] : eP.set();
-          if (!e) {
-            if (((n.sm = {}), (n.sm.states = []), tm[t])) {
-              console.log("Duplicate Regions");
-              continue;
-            }
-            for (var a = [], l = 0; l < r.states.length; l++) {
-              var c = r.states[l],
-                p = tp[c];
-              if (!p) {
-                console.log(c + " does not exist");
-                continue;
-              }
-              if (p.sm.region) {
-                console.log(p.sm.name + " already assigned to a region");
-                continue;
-              }
-              (p.sm.region = t),
-                n.sm.states.push(c),
-                (ea && p.sm.ignore_hover && (o.color || o.hover_color)) ||
-                  n.push(p),
-                a.push(p.sm.bbox);
-            }
-            o.x &&
-              o.y &&
-              o.x2 &&
-              o.y2 &&
-              (a = [{ x: o.x, y: o.y, x2: o.x2, y2: o.y2 }]),
-              (n.sm.bbox = s.bbox_union(a));
-          }
-          var m = { "fill-opacity": o.opacity, cursor: "pointer" },
-            u = { "fill-opacity": o.hover_opacity };
-          o.color && (m.fill = o.color),
-            o.hover_color && (u.fill = o.hover_color),
-            o.inactive && (m.cursor = "default"),
-            (n.sm.attributes = m),
-            (n.sm.name = r.name),
-            (n.sm.description = o.description),
-            (n.sm.description_mobile = o.description_mobile),
-            (n.sm.url = o.url),
-            (n.sm.labels = eP.set()),
-            (n.sm.on_click = tj(o.popup)),
-            (n.sm.over_attributes = u),
-            (n.sm.hide_name = o.hide_name),
-            (n.sm.adjacent_attributes = { "fill-opacity": W }),
-            (n.sm.zoomable = o.zoomable),
-            (n.sm.popup_off = tB(o.popup)),
-            (n.sm.zp = o.zoom_percentage),
-            (n.sm.inactive = o.inactive),
-            (n.sm.type = "region"),
-            (n.sm.id = t),
-            (n.sm.content = o8(n)),
-            e || (eO.push(n), (tm[t] = n)),
-            (n.sm.zooming_dimensions = tG(n));
-        }
-      if (!e) {
-        tm[-1] = {};
-        var d = tm[-1];
-        (d.sm = {}), (d.sm.type = "out"), (d.sm.zp = 1);
-        var f = s.clone(e1);
-        if (
-          ((f.width = f.x2 - f.x),
-          (f.height = f.y2 - f.y),
-          (d.sm.bbox = f),
-          (d.sm.zooming_dimensions = tG(d)),
-          (tu = d),
-          "object" == typeof b
-            ? (((t8 = {}).sm = { type: "manual", zp: 1, bbox: b }),
-              (t8.sm.zooming_dimensions = tG(t8)),
-              (b = -1),
-              (x = !1))
-            : -1 == b ||
-              b in tm ||
-              (b in tp
-                ? ((ov = tp[b]), (x = !1))
-                : console.log(
-                    "The initial_zoom is not the id of a region or state",
-                  ),
-              (b = -1)),
-          y)
-        ) {
-          tm[-2] = {};
-          var h = tm[-2];
-          h.sm = { type: "manual", zp: 1 };
-          var $ = tG(tm[b]),
-            v = $.w,
-            _ = $.h,
-            g = $.w * (y - 1) * 0.5,
-            w = $.h * (y - 1) * 0.5;
-          h.sm.zooming_dimensions = {
-            x: $.x - g,
-            y: $.y - w,
-            w: v * y,
-            h: _ * y,
-            r: y,
-          };
-        }
-      }
-    }
-    function og(e) {
-      var t = e.getBBox(!0);
-      if (ea) {
-        var o = e._getBBox(!0);
-        t.height = o.height;
-      }
-      var r = 0.5 * t.width,
-        n = 0.5 * t.height,
-        s = e.sm.point0;
-      return {
-        x: s.x - r,
-        y: s.y - n,
-        x2: s.x + r,
-        y2: s.y + n,
-        width: t.width,
-        height: t.height,
-      };
-    }
-    function o0() {
-      for (var e in (s.clear_sets([eD, e4, eI]),
-      (td = {}),
-      (ty = {}),
-      (tf = {}),
-      (th = function (e) {
-        var t = e9[e],
-          o = !1,
-          r = !1;
-        if (e9.hasOwnProperty(e)) {
-          var n = !td[e],
-            c = eP.set(),
-            p = { x: 1 * t.x, y: 1 * t.y },
-            m = {},
-            u = !1,
-            d = !1;
-          if (
-            ("state" == t.parent_type
-              ? (u = tp[t.parent_id])
-              : "region" == t.parent_type
-                ? (u = tm[t.parent_id])
-                : "location" == t.parent_type && (u = t$[t.parent_id]),
-            !t.x && !t.y && u)
-          ) {
-            if ("location" == u.sm.type)
-              (r = !0),
-                (m.x = u.sm.x),
-                (m.y = u.sm.y),
-                (p = u.sm.point0),
-                (o = !0),
-                u.sm.auto_size && (d = !0);
-            else if ("state" == u.sm.type) {
-              var f = u.sm.bbox;
-              if (f.cx && f.cy)
-                var h = S,
-                  y = j;
-              else
-                var h = (f.x + f.x2) / 2,
-                  y = (f.y + f.y2) / 2;
-              (t.x = h), (t.y = y), (m.x = h), (m.y = y), (p = { x: h, y: y });
-            }
-          }
-          if ((t.parent_type, !u)) {
-            console.log("The following object does not exist: " + e);
-            return;
-          }
-          if (("Not Named" == t.name && u && (t.name = u.sm.id), n)) {
-            if (!r) {
-              var $ = s.rotate([t.x, t.y], eC);
-              m = { x: $[0], y: $[1] };
-            }
-            var v = eP.text(m.x, m.y, t.name);
-            td[e] = v;
-          } else var v = td[e];
-          (v.sm = {}),
-            (v.sm.hide = t.hide),
-            u && (u.sm.hide_label || u.sm.hide) && (v.sm.hide = !0),
-            (v.sm.parent = u),
-            u.sm.labels.push(v),
-            u.sm.region && tm[u.sm.region].sm.labels.push(v);
-          var _ = {
-              "stroke-width": 0,
-              fill: t.color,
-              "font-size": t.size,
-              "font-weight": "bold",
-              cursor: "pointer",
-              "font-family": t.font_family,
-              "text-anchor": t.anchor,
-              opacity: t.opacity,
-            },
-            g = { fill: t.hover_color, opacity: t.hover_opacity },
-            b = { fill: t.color, opacity: t.opacity };
-          if (
-            (u.sm.inactive && (_.cursor = "default"),
-            v.attr(_),
-            (v.sm.attributes = _),
-            (v.sm.over_attributes = g),
-            (v.sm.out_attributes = b),
-            (v.sm.type = "label"),
-            (v.sm.id = e),
-            (v.sm.scale = o || t.scale),
-            (v.sm.scale_limit = t.scale_limit),
-            (v.sm.x = m.x),
-            (v.sm.y = m.y),
-            (v.sm.level = s.to_float(u.sm.level) + 0.1),
-            (v.sm.point0 = p),
-            (v.sm.line_x = t.line_x),
-            (v.sm.line_y = t.line_y),
-            (v.sm.line = !1),
-            (v.sm.rotate = t.rotate),
-            v.transform(ox(v, e3)),
-            t.display
-              ? (v.sm.display = t.display)
-              : "region" == t.parent_type
-                ? (v.sm.display = "out")
-                : "location" == t.parent_type
-                  ? (v.sm.display = u.sm.display)
-                  : (v.sm.display = a.labels_display
-                      ? a.labels_display
-                      : "all"),
-            (v.sm.display_ids = !!t.display_ids && t.display_ids),
-            (t.line || t.pill || d) && (v.sm.bbox = og(v)),
-            "auto" == t.display && "state" == t.parent_type)
-          ) {
-            (v.sm.display = 1e-4), v.sm.bbox || (v.sm.bbox = og(v));
-            var x = [
-                0.99, 0.501, 0.251, 0.1251, 0.06251, 0.031251, 0.0156255,
-                0.00781275,
-              ],
-              w = t2.paths[u.sm.id],
-              k = u.sm.bbox;
-            for (var z in x) {
-              var P = x[z],
-                E = og(v),
-                A = E.width * P * 0.5,
-                C = E.height * P * 0.5,
-                S = 0.5 * (E.x2 + E.x),
-                j = 0.5 * (E.y2 + E.y),
-                h = S - A,
-                B = S + A,
-                y = j - C,
-                T = j + C,
-                I = h > k.x && B < k.x2,
-                F = y > k.y && T < k.y2;
-              if (I && F) {
-                var O = Raphael.isPointInsidePath(w, h, y),
-                  L = Raphael.isPointInsidePath(w, B, y),
-                  M = Raphael.isPointInsidePath(w, h, T),
-                  N = Raphael.isPointInsidePath(w, B, T),
-                  D = O && L && M && N,
-                  R = E.width / P < ew;
-                if (D && R) {
-                  v.sm.display = P;
-                  break;
-                }
-              }
-              if (!v.sm.scale) break;
-            }
-          }
-          if (t.line) {
-            var q = ob(v),
-              H = eP.path(q),
-              V = t.line_size * l * e3 * 1.25,
-              W = {
-                stroke: t.line_color,
-                cursor: "pointer",
-                "stroke-width": V,
-              };
-            H.attr(W),
-              (H.sm = {}),
-              (H.sm.type = "label"),
-              (v.sm.pill = !1),
-              (H.sm.size = t.line_size),
-              (H.sm.id = e),
-              (H.sm.level = t.level),
-              (v.sm.line = H),
-              e4.push(H),
-              c.push(H);
-          }
-          if ("state" == u.sm.type && t.pill) {
-            var X = v.sm.bbox,
-              Y = 1.45 * X.width,
-              Q = t.width ? t.width : Y,
-              Z = 1.15 * X.height,
-              h = v.sm.x - 0.5 * Q,
-              y = v.sm.y - 0.5 * Z,
-              U = "auto" != t.pill_radius ? t.pill_radius : Z / 5;
-            if (ty[e]) var G = ty[e];
-            else {
-              var G = eP.rect(h, y, Q, Z, U);
-              ty[e] = G;
-            }
-            if (
-              (G.transform(ox(v, e3)),
-              (G.sm = {}),
-              (G.sm.parent = u),
-              (G.sm.level = u.sm.level),
-              (G.sm.attributes = s.clone(u.sm.attributes)),
-              u.sm.image && (G.sm.attributes.fill = eZ[u.sm.id].color),
-              (G.sm.over_attributes = s.clone(u.sm.over_attributes)),
-              u.sm.image &&
-                (G.sm.over_attributes.fill = eZ[u.sm.id].hover_color),
-              (G.sm.adjacent_attributes = s.clone(u.sm.adjacent_attributes)),
-              G.attr(G.sm.attributes),
-              s.x_in_array(v.sm.display, ["state", "all"]) &&
-                (u.sm.bbox = s.bbox_union([u.sm.bbox, v.sm.bbox])),
-              s.x_in_array(v.sm.display, ["region", "all"]) && u.sm.region)
-            ) {
-              var J = tm[u.sm.region];
-              (J.sm.bbox = s.bbox_union([J.sm.bbox, v.sm.bbox])),
-                (J.sm.zooming_dimensions = !1),
-                (J.sm.zooming_dimensions = tG(J));
-            }
-            (v.sm.pill = G), eI.push(G), c.push(G), c.push(v);
-          } else c.push(v);
-          if (
-            (("out" != v.sm.display && "all" != v.sm.display) || v.sm.hide
-              ? c.hide()
-              : eA.push(c),
-            "location" != v.sm.parent.sm.type || v.sm.line || e7.push(c),
-            eD.push(c),
-            (tf[e] = c),
-            ea || v.node.setAttribute("class", "sm_label sm_label_" + e),
-            d)
-          ) {
-            var K =
-                ((a.location_auto_padding
-                  ? 1 + 2 * a.location_auto_padding
-                  : 1.3) *
-                  v.sm.bbox.width) /
-                l,
-              ee = v.sm.parent,
-              et = ee.sm.labels,
-              eo = ee.sm.shape_type;
-            "triangle" == eo ? (K *= 1.3) : "star" == eo && (K *= 2);
-            var ei = ee.sm.id;
-            (eU[ei].size = K), tv(ei);
-            var ee = t$[ei];
-            (v.sm.parent = ee),
-              (ee.sm.labels = et),
-              ee.sm.labels.push(v),
-              (ee.sm.auto_size = !0);
-          }
-        }
-      }),
-      e9))
-        th(e);
-      eD.hide();
-    }
-    function ob(e) {
-      var t = e.sm.bbox,
-        o = t.x2 - t.x,
-        r = t.y2 - t.y,
-        n = e.sm.scale ? ez : 1,
-        a = 0.5 * (1 - n) * o,
-        l = 0.5 * (1 - n) * r,
-        c = e.sm.line_x,
-        p = e.sm.line_y,
-        m = !c || !p,
-        u = e.sm.parent.sm.type;
-      if ("location" == u && m)
-        (c = e.sm.parent.sm.point0.x), (p = e.sm.parent.sm.point0.y);
-      else if ("state" == u && m) {
-        var d = e.sm.parent.sm.bbox;
-        (c = 0.5 * (d.x2 + d.x)), (p = 0.5 * (d.y2 + d.y));
-      }
-      var f = { x: c, y: p },
-        h = [];
-      h.push({ x: t.x2 - a, y: 0.5 * (t.y + t.y2) }),
-        h.push({ x: t.x + a, y: 0.5 * (t.y + t.y2) }),
-        h.push({ x: 0.5 * (t.x + t.x2), y: t.y + l }),
-        h.push({ x: 0.5 * (t.x + t.x2), y: t.y2 - l });
-      var y = {};
-      for (var $ in h) {
-        var v = h[$],
-          _ = s.distance(v, f);
-        (0 == $ || _ < y.distance) &&
-          ((y.label = v), (y.location = f), (y.distance = _));
-      }
-      return s.linePath(y.label.x, y.label.y, y.location.x, y.location.y);
-    }
-    function ox(e, t, o, r, n, s) {
-      var a = void 0 === r ? e.sm.x : r,
-        l = void 0 === n ? e.sm.y : n;
-      return (
-        void 0 === o && (o = "0,0"),
-        void 0 === s && (s = e.sm.rotate),
-        "t " + o + " s" + t + "," + t + "," + a + "," + l + "r" + s
-      );
-    }
-    var o3 = {
-      triangle: "M -0.57735,.3333 .57735,.3333 0,-.6666 Z",
-      diamond: "M 0,-0.5 -0.4,0 0,0.5 0.4,0 Z",
-      marker:
-        "m-.015-.997c-.067 0-.13.033-.18.076-.061.054-.099.136-.092.219-.0001.073.034.139.068.201.058.104.122.206.158.32.021.058.039.117.058.175.006.009.011-.004.011-.009.037-.125.079-.249.144-.362.043-.08.095-.157.124-.244.022-.075.016-.161-.026-.229-.048-.08-.134-.136-.227-.146-.013-.0001-.027-.0001-.04-.0001z",
-      heart:
-        "m-.275-.5c-.137.003-.257.089-.3.235-.073.379.348.539.58.765.202-.262.596-.33.576-.718-.017-.086-.065-.157-.13-.206-.087-.066-.208-.089-.311-.05-.055.02-.106.053-.143.098-.065-.081-.169-.127-.272-.125",
-      star: "m0-.549c-.044.126-.084.252-.125.379-.135.0001-.271.0001-.405.002.108.078.216.155.323.233-.002.029-.016.057-.023.085-.032.099-.066.199-.097.298.049-.031.095-.068.143-.101.062-.044.124-.089.185-.133.109.077.216.158.326.233-.04-.127-.082-.253-.123-.379.109-.079.219-.156.327-.236-.135-.0001-.27-.002-.405-.003-.042-.126-.081-.252-.125-.377",
-    };
-    function ow(e) {
-      for (var t in I) o3[t] = I[t];
-      var r = [];
-      for (var t in o3) r.push(t);
-      for (var t in (s.clear_sets([eL]),
-      (t$ = {}),
-      (tv = function (e) {
-        var t = "center",
-          n = eU[e];
-        if ("image" != n.type)
-          var a = {
-              "stroke-width": n.border * e3 * l,
-              stroke: n.border_color,
-              fill: n.color,
-              opacity: n.opacity,
-              cursor: "pointer",
-            },
-            c = {
-              "stroke-width": n.hover_border * e3 * l,
-              stroke: n.border_color,
-              fill: n.hover_color,
-              opacity: n.hover_opacity,
-              cursor: "pointer",
-            };
-        else {
-          t = n.image_position;
-          var a = { cursor: "pointer" },
-            c = { cursor: "pointer" };
-        }
-        n.inactive && (a.cursor = "default");
-        var p = eU[e].type,
-          m = n.size * l;
-        if (n.x && n.y) {
-          var u = {};
-          (u.x = n.x), (u.y = n.y);
-        } else var u = tZ(n.lat, n.lng);
-        var d = s.rotate([u.x, u.y], eC),
-          f = { x: d[0], y: d[1] };
-        if ("auto" == n.size) {
-          var h = { sm: {} };
-          (h.sm.display = n.display),
-            (h.sm.auto_size = !0),
-            (h.sm.type = "location"),
-            (h.sm.hide_label = !1),
-            (h.sm.labels = []),
-            (h.sm.point0 = u),
-            (h.sm.x = f.x),
-            (h.sm.y = f.y),
-            (h.sm.shape_type = p),
-            (h.sm.id = e),
-            (t$[e] = h);
-          return;
-        }
-        if ("circle" == p)
-          var y = eP.circle(f.x, f.y, 0.5 * m),
-            $ = {
-              x: f.x - 0.5 * m * ez,
-              y: f.y - 0.5 * m * ez,
-              x2: f.x + 0.5 * m * ez,
-              y2: f.y + 0.5 * m * ez,
-            };
-        else if (s.x_in_array(p, r)) {
-          var v = m,
-            _ = "S" + v + "," + v + ",0,0 T" + f.x + "," + f.y,
-            g = Raphael.transformPath(o3[p], _).toString() + "Z";
-          "marker" == p && (t = "bottom-center");
-          var $ = Raphael.pathBBox(g),
-            y = eP.path(g);
-        } else if ("path" == p && eU[e].path) {
-          var $ = Raphael.pathBBox(g),
-            y = eP.path(eU[e].path);
-          n.scale = !1;
-        } else if ("geojson" == p) {
-          var g = tX(eU[e], te, eU, e, "location"),
-            $ = Raphael.pathBBox(g);
-          n.scale = !1;
-          var y = eP.path(g);
-        } else if ("image" == p) {
-          var b = n.image_url ? n.image_url : o + n.image_source,
-            y = eP.image(b, 0, 0);
-          (a.src = b), (y.sm = {});
-          var $ = !1;
-          if (
-            (Raphael._preload(b, function () {
-              var e = this.width / this.height,
-                o = m,
-                r = o * e,
-                n = f.x - r / 2,
-                s = "bottom-center" == t ? f.y - o : f.y - o / 2;
-              y.attr({ height: o, width: r, x: n, y: s }),
-                (y.sm.bbox = { x: n, y: s, x2: n + r, y2: s + o });
-            }),
-            n.image_hover_url || n.image_hover_source)
-          ) {
-            var x = n.image_hover_url
-              ? n.image_hover_url
-              : o + n.image_hover_source;
-            c.src = x;
-          }
-        } else
-          var w = m,
-            k = w,
-            z = f.x - k / 2,
-            P = f.y - w / 2,
-            y = eP.rect(z, P, k, w),
-            $ = { x: z, y: P, x2: z + k, y2: P + ex };
-        (y.sm = {}),
-          (y.sm.image = "image" == p),
-          (y.sm.attributes = a),
-          y.attr(a),
-          (y.sm.link_text = n.link_text),
-          (y.sm.original_transform = eC),
-          (y.sm.over_attributes = c),
-          (y.sm.id = e),
-          (y.sm.name = n.name),
-          (y.sm.scale = n.scale),
-          (y.sm.scale_limit = n.scale_limit),
-          (y.sm.position = t),
-          (y.sm.url = n.url),
-          (y.sm.type = "location"),
-          (y.sm.shape_type = p),
-          (y.sm.description = n.description),
-          (y.sm.description_mobile = n.description_mobile),
-          (y.sm.inactive = n.inactive),
-          (y.sm.on_click = tj(n.popup)),
-          (y.sm.popup_off = tB(n.popup)),
-          (y.sm.pulse = n.pulse),
-          (y.sm.level = n.level),
-          "bottom" == n.position && (y.sm.level = -1),
-          (y.sm.pulse_speed = n.pulse_speed),
-          (y.sm.pulse_size = n.pulse_size),
-          (y.sm.pulse_color = n.pulse_color ? n.pulse_color : n.color),
-          (y.sm.x = f.x),
-          (y.sm.y = f.y),
-          (y.sm.point0 = u),
-          (y.sm.bbox = $),
-          (y.sm.labels = []),
-          (y.sm.size = m),
-          (y.sm.hide = n.hide),
-          (y.sm.hide_name = n.hide_name),
-          (y.sm.display = n.display),
-          (y.sm.display_ids = !!n.display_ids && n.display_ids),
-          y.transform(ox(y, ez * e3)),
-          ("region" == y.sm.display || "state" == y.sm.display || n.hide) &&
-            y.hide(),
-          (y.sm.content = o8(y)),
-          eL.push(y),
-          (t$[e] = y),
-          ea || y.node.setAttribute("class", "sm_location sm_location_" + e);
-      }),
-      te))
-        tv(t);
-    }
-    function ok(e) {
-      if (!e.sm) return e;
-      var t = t6.zoom_level,
-        o = t6.zoom_level_id,
-        r = !!e.sm.region && tm[e.sm.region];
-      if (!r) return e;
-      if ("out" == t) return r;
-      if ("region" == t) return o == r.sm.id ? e : r;
-      if ("state" == t) return tp[o].sm.region === r.sm.id ? e : r;
-      if ("manual" == t)
-        return ez > r.sm.zooming_dimensions.r || !r.sm.zoomable ? r : e;
-    }
-    function o1(e) {
-      var t = t6.zoom_level,
-        o = t6.zoom_level_id;
-      if ("state" == t) return o != e.sm.id;
-      if ("region" != t) return !1;
-      var r = !!e.sm.region && tm[e.sm.region];
-      return !r || (o != r.sm.id && void 0);
-    }
-    var oz = function (e, t, o, r) {
-        void 0 == o && (o = !1),
-          void 0 == r && (r = !1),
-          r ||
-            (r =
-              "over" == t
-                ? e.sm.over_attributes
-                : "adjacent" == t
-                  ? e.sm.adjacent_attributes
-                  : e.sm.attributes),
-          !o || e.sm.image ? e.attr(r) : e.animate(r, q);
-      },
-      o5 = function (e, t, o) {
-        if ((void 0 == o && (o = !1), "state" == o))
-          var r,
-            n = e.sm.parent;
-        else if ("region" == o) var n = tm[e.sm.parent.sm.region];
-        else var n = ok(e.sm.parent);
-        if (
-          ((r =
-            "over" == t
-              ? s.clone(n.sm.over_attributes)
-              : "adjacent" == t
-                ? s.clone(n.sm.adjacent_attributes)
-                : s.clone(n.sm.attributes)),
-          n.sm.image && "state" == n.sm.type)
-        ) {
-          var a = eZ[n.sm.id];
-          "over" == t ? (r.fill = a.hover_color) : (r.fill = a.color);
-        }
-        oz(e, t, !1, r);
-      };
-    function oP(e, t, o, r) {
-      if (e.sm.labels) {
-        var n;
-        e.sm.labels.forEach(function (e) {
-          if (e.sm) {
-            var n = e.sm.pill;
-            "over" == t
-              ? (e.stop(), oz(e, "over"), n && o5(n, "over"))
-              : ("reset" == t || "out" == t) &&
-                (oz(e, "out"),
-                n && (o5(n, "out", r), o && o5(n, "adjacent", r)));
-          }
-        });
-      }
-    }
-    var o6 = !1,
-      o4 = function (e, t) {
-        if (!e.sm || !e) {
-          s.isFunction(t) && t();
-          return;
-        }
-        var o = !!e.sm.image || (!!em && !!v);
-        if ((tP.hide(), o1(e)))
-          e.sm.ignore_hover || e.animate(e.sm.attributes, q, r),
-            e.animate(e.sm.adjacent_attributes, q, r),
-            oP(e, "out", !0);
-        else {
-          if (
-            (ea && "location" == e.sm.type && "image" == e.sm.shape_type) ||
-            !e ||
-            !e.sm
-          )
-            return;
-          e.sm.ignore_hover ||
-            (o
-              ? (e.attr(e.sm.attributes), r())
-              : e.animate(e.sm.attributes, q, r)),
-            oP(e, "out");
-        }
-        function r() {
-          s.isFunction(t) && t();
-        }
-      },
-      o2 = !1,
-      o7 = !1;
-    function oE(e) {
-      if (e.touches) {
-        var t = e.changedTouches ? e.changedTouches[0] : e.touches[0];
-        return { x: t.clientX, y: t.clientY };
-      }
-      var o = el ? e.clientY + document.documentElement.scrollTop : e.pageY;
-      return {
-        x: el ? e.clientX + document.documentElement.scrollLeft : e.pageX,
-        y: o,
-      };
-    }
-    var oA = function () {
-        oa();
-      },
-      oC = {};
-    function oS() {
-      var e = [eF, eL, eD, e4, eI];
-      all = [];
-      for (var t = 0; t < e.length; t++)
-        for (var o = 0; o < e[t].length; o++)
-          if (e[t][o].length > 0)
-            for (var r = 0; r < e[t][o].length; r++) all.push(e[t][o][r]);
-          else all.push(e[t][o]);
-      var n = (function e(t) {
-          for (var o = {}, r = 0; r < t.length; r++) {
-            var n = t[r],
-              a = n.sm.level.toString();
-            o[a] || (o[a] = []), o[a].push(n);
-          }
-          var l = [];
-          for (var a in o) o.hasOwnProperty(a) && l.push(s.to_float(a));
-          l.sort(function (e, t) {
-            return t - e;
-          });
-          for (var c = [], p = {}, m = 0; m < l.length; m++) {
-            for (var u = o[l[m]], d = eP.set(), f = 0; f < u.length; f++)
-              d.push(u[f]);
-            d.push(eP.circle(0, 0, 0));
-            var h = l[m].toString();
-            d.items.reverse(), (p[h] = d), c.push(d);
-          }
-          return [c, p];
-        })(all),
-        a = n[0];
-      oC = n[1];
-      for (var t = 0; t < a.length; t++) a[t].toBack();
-      ej.toBack();
-    }
-    function oj(e) {
-      !e &&
-        (ec
-          ? (eF.mouseup(tb), ej.mouseup(oA), eq.mouseup(tz), ej.mouseup(oQ))
-          : (eF.hover(tx, t3),
-            eF.click(tb),
-            ej.click(oA),
-            eq.click(tz),
-            ej.hover(oQ, oQ)),
-        _ &&
-          (function e() {
-            var t;
-            function o() {
-              oB();
-            }
-            (t5 = function () {
-              clearTimeout(t), (t = setTimeout(o, 200));
-            }),
-              window.addEventListener
-                ? (window.addEventListener("resize", t5, !1),
-                  window.addEventListener("orientationchange", t5, !1))
-                : (window.attachEvent("resize", t5, !1),
-                  window.attachEvent("orientationchange", t5, !1)),
-              ea &&
-                (document.body.onresize = function () {
-                  o();
-                });
-          })(),
-        v &&
-          (eF.touchstart(tb),
-          eF.touchend(tb),
-          eq.touchend(t1),
-          (function e() {
-            function t(e) {
-              var t = oE(e),
-                s = t.x,
-                a = t.y,
-                l = (r - s) * o.r,
-                c = (n - a) * o.r,
-                p = 5 * o.r;
-              return (
-                (Math.abs(l) > p || Math.abs(c) > p) && (tV = !0),
-                { x: o.x + l, y: o.y + c, w: o.w, h: o.h, r: o.r }
-              );
-            }
-            var o,
-              r,
-              n,
-              a = !1;
-            function l(e) {
-              if (z) return !1;
-              e.preventDefault ? e.preventDefault() : (e.returnValue = !1),
-                (o = { x: ta.x, y: ta.y, w: ta.w, h: ta.h, r: ta.w / ew / e3 }),
-                (a = !0);
-              var t = oE(e);
-              (r = t.x), (n = t.y), tP.hide(), tP.pos(e);
-            }
-            function c(e) {
-              if (a && (!e.touches || !(e.touches.length > 1))) {
-                var o = t(e);
-                eP.setViewBox(o.x, o.y, o.w, o.h), op(o);
-              }
-            }
-            function p(e) {
-              if (!a || !tV) {
-                (tV = !1), (a = !1);
-                return;
-              }
-              var o = t(e);
-              eP.setViewBox(o.x, o.y, o.w, o.h),
-                (ta = o),
-                ((tu = { sm: {} }).sm.zooming_dimensions = ta),
-                (tu.sm.type = "manual"),
-                (a = !1),
-                setTimeout(function () {
-                  tV = !1;
-                }, 1),
-                tR();
-            }
-            s.addEvent(ef, "mousedown", l),
-              s.addEvent(ef, "mousemove", c),
-              s.addEvent(ef, "mouseup", p),
-              s.addEvent(ef, "mouseleave", p),
-              s.addEvent(ef, "touchstart", l),
-              s.addEvent(ef, "touchmove", c),
-              s.addEvent(ef, "touchend", p);
-          })(),
-          (function e() {
-            var t = !1;
-            function o(e) {
-              if (!tH && e.touches && e.touches.length > 1) {
-                tW = !0;
-                var o,
-                  r,
-                  n,
-                  a =
-                    ((r = {
-                      x: (o = e).touches[0].pageX,
-                      y: o.touches[0].pageY,
-                    }),
-                    (n = { x: o.touches[1].pageX, y: o.touches[1].pageY }),
-                    s.distance(r, n));
-                if (t) {
-                  var l = a - t;
-                  Math.abs(l) > 10 && (l > 0 ? eX() : eY(), (t = a));
-                } else t = a;
-              }
-            }
-            s.addEvent(ey, "touchstart", o),
-              s.addEvent(ey, "touchmove", o),
-              s.addEvent(ey, "touchend", function e(o) {
-                (t = !1),
-                  setTimeout(function () {
-                    tW = !1;
-                  }, 100);
-              });
-          })()),
-        (eh.mouseIsOver = !1),
-        (eh.onmouseover = function () {
-          this.mouseIsOver = !0;
-        }),
-        (eh.onmouseout = function () {
-          this.mouseIsOver = !1;
-        }),
-        (eh.onwheel = function (e) {
-          eh.mouseIsOver &&
-            v &&
-            E &&
-            (e.preventDefault(), e.deltaY < 0 ? eX() : eY());
-        }),
-        s.addEvent(document, "keyup", function e(t) {
-          "auto" == f &&
-            (ey.contains(document.activeElement)
-              ? ev.style.setProperty("display", "block")
-              : ev.style.setProperty("display", "none"));
-        })),
-        eL.hover(tx, t3),
-        eL.click(tb),
-        eD.hover(tw, tk),
-        eD.click(t0),
-        v && (eL.touchend(tb), eL.touchstart(tb), eD.touchend(t0));
     }
     function oB() {
       if (!(eh.offsetWidth < 1)) {
@@ -3631,27 +2503,7 @@
         eE.show(),
         e || !y || ov || t8 || om(tm[b]);
     }
-    function oI(e) {
-      tS(),
-        tq(),
-        oy(!0),
-        o_(!0),
-        ow(!0),
-        o0(),
-        o$(),
-        or(tu, !0),
-        oS(),
-        oj(!0),
-        oB(),
-        oT(!0),
-        on(tu),
-        il(),
-        oN(!0),
-        tC("refresh_complete", []),
-        tF(!0),
-        s.isFunction(e) && e();
-    }
-    function oF(n) {
+    function oI(n) {
       var p,
         j,
         B,
@@ -3899,69 +2751,68 @@
               tM.appendChild(t);
           }
         })(),
-        en ||
-          (function e() {
-            if (!tU) {
-              var t = p([
-                  "borderRadius",
-                  "MozBorderRadius",
-                  "WebkitBorderRadius",
-                ]),
-                o = em ? 2 * er : er,
-                r = eb / 2 > 250 ? eb / 2 : 250;
-              tr = et || r;
-              var n = p(["boxShadow", "MozBoxShadow", "WebkitBoxShadow"]),
-                a = n
-                  ? n +
-                    ": " +
-                    3 * ei +
-                    "px " +
-                    3 * ei +
-                    "px " +
-                    4 * ei +
-                    "px rgba(0,0,0,.5);"
-                  : "";
-              if ((ei < 0.01 && (a = ""), em)) {
-                var l = /(\d+)(px|em|rem)(.*)/g.exec(es);
-                es = parseFloat(l[1]) * e8 + l[2] + l[3];
-              }
-              var c =
-                ".tt_mobile_sm{margin-top: .4em;} .tt_sm{" +
-                (t ? t + ": " + o + "px;" : "") +
-                a +
-                "z-index: 1000000; background-color: " +
-                ee +
-                "; padding: .6em; opacity:" +
-                eo +
-                "; font: " +
-                es +
-                "; color: black;} .tt_name_sm{float: left; font-weight: bold} .tt_custom_sm{overflow: hidden;}";
+        (function e() {
+          if (!tU) {
+            var t = p([
+                "borderRadius",
+                "MozBorderRadius",
+                "WebkitBorderRadius",
+              ]),
+              o = em ? 2 * er : er,
+              r = eb / 2 > 250 ? eb / 2 : 250;
+            tr = et || r;
+            var n = p(["boxShadow", "MozBoxShadow", "WebkitBoxShadow"]),
+              a = n
+                ? n +
+                  ": " +
+                  3 * ei +
+                  "px " +
+                  3 * ei +
+                  "px " +
+                  4 * ei +
+                  "px rgba(0,0,0,.5);"
+                : "";
+            if ((ei < 0.01 && (a = ""), em)) {
+              var l = /(\d+)(px|em|rem)(.*)/g.exec(es);
+              es = parseFloat(l[1]) * e8 + l[2] + l[3];
+            }
+            var c =
+              ".tt_mobile_sm{margin-top: .4em;} .tt_sm{" +
+              (t ? t + ": " + o + "px;" : "") +
+              a +
+              "z-index: 1000000; background-color: " +
+              ee +
+              "; padding: .6em; opacity:" +
+              eo +
+              "; font: " +
+              es +
+              "; color: black;} .tt_name_sm{float: left; font-weight: bold} .tt_custom_sm{overflow: hidden;}";
+            (c +=
+              ".btn_simplemaps{color: black;text-decoration: none;background: #ffffff;display: inline-block;padding: .5em .5em;margin: 0; width: 100%; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; line-height: 1.43;text-align: center;white-space: nowrap;vertical-align: middle;-ms-touch-action: manipulation;touch-action: manipulation;cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;border: 1px solid;border-radius: .3em;}    .btn_simplemaps:hover{  text-decoration: underline;}"),
               (c +=
-                ".btn_simplemaps{color: black;text-decoration: none;background: #ffffff;display: inline-block;padding: .5em .5em;margin: 0; width: 100%; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; line-height: 1.43;text-align: center;white-space: nowrap;vertical-align: middle;-ms-touch-action: manipulation;touch-action: manipulation;cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;border: 1px solid;border-radius: .3em;}    .btn_simplemaps:hover{  text-decoration: underline;}"),
-                (c +=
-                  ".xmark_sm{float: " +
-                  (ea ? "left" : "right") +
-                  "; margin-left: .5em; cursor: pointer; line-height: 0px; width: 1.3em !important;}"),
-                s.new_style(c),
-                (tU = !0);
-            }
-            function p(e) {
-              for (var t = document.documentElement, o = 0; o < e.length; o++)
-                if (e[o] in t.style) {
-                  var r = e[o];
-                  return (r = (r = (r = (r = (r = r.replace(
-                    "borderRadius",
-                    "border-radius",
-                  )).replace("MozBorderRadius", "-moz-border-radius")).replace(
-                    "WebkitBorderRadius",
-                    "-webkit-border-radius",
-                  )).replace("boxShadow", "box-shadow")).replace(
-                    "MozBoxShadow",
-                    "-moz-box-shadow",
-                  )).replace("WebkitBoxShadow", "-webkit-box-shadow");
-                }
-            }
-          })(),
+                ".xmark_sm{float: " +
+                (ea ? "left" : "right") +
+                "; margin-left: .5em; cursor: pointer; line-height: 0px; width: 1.3em !important;}"),
+              s.new_style(c),
+              (tU = !0);
+          }
+          function p(e) {
+            for (var t = document.documentElement, o = 0; o < e.length; o++)
+              if (e[o] in t.style) {
+                var r = e[o];
+                return (r = (r = (r = (r = (r = r.replace(
+                  "borderRadius",
+                  "border-radius",
+                )).replace("MozBorderRadius", "-moz-border-radius")).replace(
+                  "WebkitBorderRadius",
+                  "-webkit-border-radius",
+                )).replace("boxShadow", "box-shadow")).replace(
+                  "MozBoxShadow",
+                  "-moz-box-shadow",
+                )).replace("WebkitBoxShadow", "-webkit-box-shadow");
+              }
+          }
+        })(),
         (tP =
           ((X = (W = s.findPos(ef))[0]),
           (Q = W[1]),
@@ -4508,86 +3359,89 @@
                 }
               }
             }),
-            (e = !1),
-(tb = function (t) {
-  if (!tH && !tV && !tW) {
-    var o = ok(this);
-    if (
-      o &&
-      o.sm &&
-      !o.sm.inactive &&
-      ((o.sm.on_click && !o.sm.popup_off) || !e)
-    ) {
-      tN();
-      var r = !!t && "touchstart" == t.type;
-      if (
-        (em &&
-          !r &&
-          ((e = !0),
-          setTimeout(function () {
-            e = !1;
-          }, 500)),
-        e || oa(),
-        oH(o, t),
-        !t6.ignore_clicks)
-      ) {
-        if (
-          ((ep = o.sm.on_click),
-          !t ||
-            ((!z || "touchend" != t.type) &&
-              (z || "touchstart" != t.type)))
-        ) {
-          // Always show popup (do not zoom)
-          k != o &&
-            k &&
-            ((n = o),
-            (s = k),
-            "state" != n.sm.type ||
-              "region" != s.sm.type ||
-              s.sm.id != n.sm.region) &&
-            o4(k),
-            t && tP.pos(t),
-            tP.show(o),
-            (z = !0),
-            oP(o, "over"),
-            t_(o),
-            (ea &&
-              "location" == o.sm.type &&
-              "image" == o.sm.shape_type) ||
-              o.sm.ignore_hover ||
-              o.attr(o.sm.over_attributes),
-            (k = o);
-          var n,
-            s,
-            a = document.getElementById("xpic_sm_" + g);
-          a &&
-            (a.onclick = function () {
-              return (
-                tP.hide(),
-                (z = !1),
-                k.sm && t3.call(k),
-                (ep = !1),
-                tC("close_popup", []),
-                !1
-              );
+            (tb = function (t) {
+              // Record pointer down position if this is a down event
+              if (t && (t.type === 'mousedown' || t.type === 'touchstart')) {
+                var pos = getEventPos(t);
+                lastPointerDown.x = pos.x;
+                lastPointerDown.y = pos.y;
+                lastPointerType = t.type;
+                return; // Don't show popup on down
+              }
+              // On up/end, check if movement is small
+              if (t && (t.type === 'mouseup' || t.type === 'touchend')) {
+                var pos = getEventPos(t);
+                if (lastPointerDown.x !== null && lastPointerDown.y !== null) {
+                  var dx = Math.abs(pos.x - lastPointerDown.x);
+                  var dy = Math.abs(pos.y - lastPointerDown.y);
+                  if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
+                    // Considered a drag, do not show popup
+                    lastPointerDown.x = lastPointerDown.y = null;
+                    return;
+                  }
+                }
+                lastPointerDown.x = lastPointerDown.y = null;
+              }
+              if (!tH && !tV && !tW) {
+                var o = ok(this);
+                if (
+                  o &&
+                  o.sm &&
+                  !o.sm.inactive &&
+                  ((o.sm.on_click && !o.sm.popup_off) || !e)
+                ) {
+                  tN();
+                  var r = !!t && "touchstart" == t.type;
+                  if (
+                    (em &&
+                      !r &&
+                      ((e = !0),
+                      setTimeout(function () {
+                        e = !1;
+                      }, 500)),
+                    e || oa(),
+                    oH(o, t),
+                    !t6.ignore_clicks)
+                  ) {
+                    // Always show popup (do not zoom or navigate)
+                    k != o &&
+                      k &&
+                      ((n = o),
+                      (s = k),
+                      "state" != n.sm.type ||
+                        "region" != s.sm.type ||
+                        s.sm.id != n.sm.region) &&
+                      o4(k),
+                      t && tP.pos(t),
+                      tP.show(o),
+                      (z = !0),
+                      oP(o, "over"),
+                      t_(o),
+                      (ea &&
+                        "location" == o.sm.type &&
+                        "image" == o.sm.shape_type) ||
+                        o.sm.ignore_hover ||
+                        o.attr(o.sm.over_attributes),
+                      (k = o);
+                    var n,
+                      s,
+                      a = document.getElementById("xpic_sm_" + g);
+                    a &&
+                      (a.onclick = function () {
+                        return (
+                          tP.hide(),
+                          (z = !1),
+                          k.sm && t3.call(k),
+                          (ep = !1),
+                          tC("close_popup", []),
+                          !1
+                        );
+                      }),
+                      oq(o, t);
+                  }
+                }
+              }
             }),
-            oq(o, t);
-        } else {
-          var l = o.sm.url;
-          if ("" != l && !it) {
-            var c = "javascript" == l.substring(0, 10);
-            !U || c
-              ? c
-                ? (window.location.href = l)
-                : (window.top.location.href = l)
-              : (window.open(l, "_blank"), tP.hide());
-          }
-          oq(o, t), o4(o);
-        }
-      }
-    }
-  }
-}),
             (t1 = function (e) {
               if (
                 (void 0 === e && (e = !1),
@@ -4614,8 +3468,6 @@
             (tz = function () {
               t1();
             }),
-            oj(),
-            oT(),
             (function e() {
               ev.style.setProperty("right", "0em"),
                 ev.style.setProperty("top", "0em");
@@ -4727,8 +3579,13 @@
               l = n[1],
               c = tu.sm.zooming_dimensions,
               p = (c.r * eb) / e3,
-              m = (c.r * ex) / e3,
-              u = c.x / e3 + (p * (o - a)) / eb,
+              m = (c.r * ex) / e3;
+            (function (e) {
+              var t = e.sm.zooming_dimensions;
+              return t.w > 1.5 * eb || t.h > 1.5 * ex;
+            })(tu) &&
+              ((p = (1.5 * eb) / c.r), (m = (1.5 * ex) / c.r));
+            var u = c.x / e3 + (p * (o - a)) / eb,
               d = c.y / e3 + (m * (r - l)) / ex,
               f =
                 "You clicked on\nx: " +
@@ -4800,22 +3657,36 @@
       if ((o2 && t3.call(o2), w)) (w = !1), !ep && (tP.hide(), (z = !1));
     }
     function oZ(e, t, o) {
-      if ((void 0 === o && (o = function () {}), "state" == e)) var r = tp[t];
-      else if ("region" == e) var r = tm[t];
-      else var r = t$[t];
+      if (void 0 === o) o = function () {};
+      var r;
+      if (e === "state") r = tp[t];
+      else if (e === "region") r = tm[t];
+      else r = t$[t];
       var n = r.sm.on_click,
         s = tu.sm.zooming_dimensions;
-      if ("location" != e) {
-        var a = r.sm.bbox,
-          l = (a.x + a.x2) * 0.5,
-          c = (a.y + a.y2) * 0.5;
-        (l *= e3), (c *= e3);
-      } else
-        var l = r.sm.x,
-          c = r.sm.y;
+      var l, c;
+      if (e === "location") {
+        l = r.sm.x;
+        c = r.sm.y;
+      } else {
+        var a = r.sm.bbox;
+        l = (a.x + a.x2) * 0.5 * e3;
+        c = (a.y + a.y2) * 0.5 * e3;
+      }
       var p = (l - s.x) / ez,
-        m = (c - s.y) / ez,
-        d = p > 1.1 * eb || m > 1.1 * ex,
+        m = (c - s.y) / ez;
+      // PATCH: Never zoom for state/country clicks, only show popup
+      if (e === "state" || e === "region") {
+        (w = !0);
+        n ? tb.call(r) : tx.call(r);
+        tP.reset_pos(p, m, r);
+        u = !0;
+        w = !1;
+        o();
+        return true;
+      }
+      // For locations, keep original logic
+      var d = p > 1.1 * eb || m > 1.1 * ex,
         f = !r.sm.region && "region" == t6.zoom_level;
       return d || f
         ? oW("-1", function () {

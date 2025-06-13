@@ -10,7 +10,7 @@ var simplemaps_worldmap_mapdata={
 	//State defaults
 	  state_description: "",
     state_color: "#88A4BC",
-    state_hover_color: "#3B729F",
+    state_hover_color: "#FFFF00",
     state_url: "",
     border_size: 0.5,
     border_color: "#ffffff",
@@ -40,6 +40,8 @@ var simplemaps_worldmap_mapdata={
    
 	//Zoom settings
 	  manual_zoom: "yes",
+    zoom: "no",
+    all_states_zoomable: "no",
     back_image: "no",
     arrow_box: "no",
     navigation_size: "40",
