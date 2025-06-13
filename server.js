@@ -28,6 +28,7 @@ app.use(session({ secret: 'your-secret', resave: false, saveUninitialized: false
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json()); // <-- Add this line before any routes
+app.use(express.urlencoded({ extended: true })); // <-- Add this to support HTML form submissions
 
 // --- Local strategy (email/password) ---
 passport.use(new LocalStrategy(
@@ -414,11 +415,11 @@ app.use(express.static(__dirname));
 
 // Attach your custom reqHandler for legacy/project routes
 app.use(async (req, res, next) => {
-  // Let Express handle /api/* and /auth/* routes
-  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) {
+  // Let Express handle /api/*, /auth/*, and all POST requests
+  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/') || req.method !== 'GET') {
     return next();
   }
-  // Only handle requests not already handled by express.static
+  // Only handle GET requests not already handled by express.static
   await reqHandler(req, res);
 });
 
@@ -667,10 +668,13 @@ app.post('/signup', (req, res) => {
   db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
     if (err) return res.status(500).send('Database error.');
     if (user) return res.status(409).send('Email already registered.');
+    // Set default avatar and name
+    const defaultAvatar = '/images/coconut.png';
+    const userName = email;
     // Hash password
     bcrypt.hash(password, 10, (err, hash) => {
       if (err) return res.status(500).send('Error hashing password.');
-      db.run('INSERT INTO users (email, password, name) VALUES (?, ?, ?)', [email, hash, name || null], function(err) {
+      db.run('INSERT INTO users (email, password, name, avatar) VALUES (?, ?, ?, ?)', [email, hash, userName, defaultAvatar], function(err) {
         if (err) return res.status(500).send('Database error.');
         // Optionally auto-login after signup
         db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, newUser) => {
@@ -682,5 +686,34 @@ app.post('/signup', (req, res) => {
         });
       });
     });
+  });
+});
+
+// --- Signup form page (GET) ---
+app.get('/signup', (req, res) => {
+  res.send(`
+    <html>
+      <head><title>Sign Up</title></head>
+      <body>
+        <h2>Sign Up</h2>
+        <form method="POST" action="/signup">
+          <label>Email: <input type="email" name="email" required></label><br>
+          <label>Password: <input type="password" name="password" required></label><br>
+          <label>Name: <input type="text" name="name"></label><br>
+          <button type="submit">Sign Up</button>
+        </form>
+      </body>
+    </html>
+  `);
+});
+
+// --- API: Get project graph filename by project ID ---
+app.get('/api/project-graph-filename/:id', (req, res) => {
+  const projectId = parseInt(req.params.id, 10);
+  if (!projectId) return res.status(400).json({ error: 'Missing or invalid project ID' });
+  db.get('SELECT source_filename FROM projects WHERE id = ?', [projectId], (err, row) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (!row || !row.source_filename) return res.status(404).json({ error: 'Not found' });
+    res.json({ filename: row.source_filename });
   });
 });

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Map Example</title>
+    <script src="js/mapdata.js"></script>
+    <script src="js/worldmap.js"></script>
+    <style>
+      html, body {
+        width: 100%;
+		height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      body {
+        width: 100%;
+        height: 100%;
+      }
+      /* Legend for 5 colors */
+      #color-legend {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+        background: rgba(255,255,255,0.9);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 12px 18px 12px 12px;
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+        z-index: 1000;
+      }
+      #color-legend .legend-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      #color-legend .legend-color {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        margin-right: 10px;
+        border: 1px solid #bbb;
+        box-sizing: border-box;
+      }
+      #color-legend .legend-label {
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+	<body>
+		<div>
+			<h1 style="text-align: center;">World Political Alignment</h1>
+			<div style="max-width: 100%; max-height: 100%; position: relative;">
+				<div id="map"></div>
+			</div>
+		</div>
+    <!-- Legend for 5 colors -->
+    <div id="color-legend">
+      <div class="legend-row"><span class="legend-color" style="background:blue"></span><span class="legend-label">pro-West or USA</span></div>
+      <div class="legend-row"><span class="legend-color" style="background:red"></span><span class="legend-label">pro-China or Russia</span></div>
+      <div class="legend-row"><span class="legend-color" style="background:green"></span><span class="legend-label">Islamic</span></div>
+      <div class="legend-row"><span class="legend-color" style="background:cyan"></span><span class="legend-label">Neutral</span></div>
+      <div class="legend-row"><span class="legend-color" style="background:orange"></span><span class="legend-label">Emerging power</span></div>
+    </div>
+	</body>
+</html>

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="335.93985"
    height="87.075111"
    viewBox="0 0 88.884085 23.038623"
    version="1.1"
    id="svg8"
-   inkscape:version="1.0.2 (1.0.2+r75+1)"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    sodipodi:docname="COCO-logo.svg"
    inkscape:export-filename="/home/yky/latex/humanities/COCO-logo.png"
    inkscape:export-xdpi="196"
-   inkscape:export-ydpi="196">
+   inkscape:export-ydpi="196"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -27,13 +27,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
-     inkscape:cx="163.6206"
-     inkscape:cy="69.024038"
+     inkscape:cx="145.48722"
+     inkscape:cy="126.39534"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1055"
+     inkscape:window-width="1080"
+     inkscape:window-height="1895"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -44,7 +44,8 @@
      showborder="false"
      scale-x="2"
      units="px"
-     inkscape:document-rotation="0" />
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -73,6 +74,18 @@
        rx="6.5852318"
        inkscape:export-xdpi="196"
        inkscape:export-ydpi="196" />
+    <rect
+       style="fill:#cfd7db;fill-opacity:1;stroke:#cfd7db;stroke-width:2.68515;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4600-2"
+       width="20.243956"
+       height="20.237112"
+       x="76.126282"
+       y="131.9702"
+       ry="6.4271798"
+       rx="0"
+       inkscape:export-xdpi="196"
+       inkscape:export-ydpi="196"
+       inkscape:export-filename="/home/yky/misc-programs/COCO/images/coconut.png" />
     <path
        id="path3778-3"
        style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:2.11666656;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -209,6 +222,53 @@
          style="fill:#b0bec5;fill-opacity:1;stroke:#b0bec5;stroke-width:0.132292;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 94.784393,132.09204 -0.631423,1.66042 2.829219,-1.7198 0.350792,-1.75396 z"
          id="path925-3"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
+       id="g953-3"
+       transform="translate(-8.9674791,14.615524)"
+       inkscape:export-xdpi="196"
+       inkscape:export-ydpi="196"
+       inkscape:export-filename="/home/yky/misc-programs/COCO/images/coconut.png">
+      <path
+         id="path39-5-6"
+         style="fill:#6c4b40;fill-opacity:1;stroke:#6c4b40;stroke-width:0.133089;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         transform="matrix(0.70343254,-0.71076203,0.70343254,0.71076203,0,0)"
+         d="m -19.085226,165.51461 c -3.034995,1.03962 -6.762123,0.1575 -9.333273,-2.49913 -2.57115,-2.65662 -3.088194,-6.73433 -1.084378,-9.82979 1.915933,-2.9597 6.318303,-4.93749 9.889503,-3.9074"
+         sodipodi:nodetypes="cssc" />
+      <ellipse
+         style="opacity:1;fill:#8c6d62;fill-opacity:1;stroke:#8c6d62;stroke-width:0.133169;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="path39-7"
+         cx="-20.258287"
+         cy="157.47061"
+         rx="5.8443842"
+         ry="8.1978168"
+         transform="matrix(0.70343254,-0.71076203,0.70343254,0.71076203,0,0)" />
+      <ellipse
+         style="fill:#f9f9f9;fill-opacity:1;stroke:#f9f9f9;stroke-width:0.1141;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="path39-6-5"
+         cx="-21.847721"
+         cy="157.73476"
+         rx="4.7425566"
+         ry="7.3872285"
+         transform="matrix(0.71094217,-0.70325048,0.71094217,0.70325048,0,0)" />
+      <ellipse
+         style="fill:#cfd7db;fill-opacity:1;stroke:#cfd7db;stroke-width:0.0809642;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="path39-6-7-3"
+         cx="-27.018265"
+         cy="154.25183"
+         rx="2.8684196"
+         ry="5.5557919"
+         transform="matrix(0.61061983,-0.79192387,0.73335971,0.67984081,0,0)" />
+      <path
+         style="fill:#cfd7db;fill-opacity:1;stroke:#cfd7db;stroke-width:0.132292;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 95.860152,129.35586 -0.872621,1.87089 -0.203138,0.86529 2.548588,-1.81334 z"
+         id="path925-5"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         style="fill:#b0bec5;fill-opacity:1;stroke:#b0bec5;stroke-width:0.132292;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 94.784393,132.09204 -0.631423,1.66042 2.829219,-1.7198 0.350792,-1.75396 z"
+         id="path925-3-6"
          sodipodi:nodetypes="ccccc" />
     </g>
   </g>
