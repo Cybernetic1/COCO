@@ -1356,7 +1356,7 @@
         (eS = "s" + e3 + "," + e3 + ",0,0"), (eC = $ ? eS + e0 : eS);
       }
     }
-    function tF(e) {
+    function tF() {
       if (
         t4.legend &&
         t4.legend.entries &&
@@ -2136,8 +2136,8 @@
           z = o(t),
           P = o(r),
           E = o(n),
-          A = s.distance(k, z),
-          C = s.distance(k, P),
+          A = s.distance(k, z) / B,
+          C = s.distance(k, P) / B,
           S = s.distance(z, P),
           j = s.distance(t, r),
           B = S / j,
