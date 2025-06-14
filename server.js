@@ -456,39 +456,38 @@ db.serialize(() => {
     FOREIGN KEY(userId) REFERENCES users(id),
     FOREIGN KEY(projectId) REFERENCES projects(id)
   )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    room TEXT,
+    user TEXT,
+    text TEXT,
+    time INTEGER
+  )`);
 });
 
-// Determine if server is local or remote
-const os = require("os");
-var address = "127.0.0.1";
-if (os.hostname() == 'VM-12-17-centos')		// Sherry's brother's hostname
-	address = "0.0.0.0";
+// --- API: Page chat (persistent, per-page) ---
+app.get('/api/chat', (req, res) => {
+  const room = req.query.room;
+  if (!room) return res.status(400).json({ error: 'Missing room' });
+  db.all('SELECT user, text, time FROM chat_messages WHERE room = ? ORDER BY time ASC LIMIT 100', [room], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ messages: rows });
+  });
+});
 
-app.listen(8383, address, () => {
-	console.log('Server running at', address + ':8383');
-	} );
-
-if (address == "127.0.0.1") {
-	// Beep sound to signify local server is being started
-	var shell = require('child_process').exec;
-	shell("beep", function(err, stdout, stderr) {});
-}
-
-/*
-// Clean filename of any unwanted chars
-// allowing Chinese chars etc to remain
-// (This function is unused and has buggy RegEx syntax)
-function clean_name(name) {
-	const regex = RegExp('[/\\?%*:|\"<>\x7F\x00-\x1F]', 'g');
-	var result = "";
-		for (let ch of name) {
-			if (regex.exec(ch)[0] == null)
-				result += ch;
-			else
-				result += '%' + ('0' + ch.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
-	return result;
-	}
-*/
+app.post('/api/chat', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  const room = req.query.room;
+  const text = req.body.text && req.body.text.trim();
+  if (!room || !text) return res.status(400).json({ error: 'Missing room or text' });
+  const user = req.user.name || req.user.email || 'User';
+  const time = Date.now();
+  db.run('INSERT INTO chat_messages (room, user, text, time) VALUES (?, ?, ?, ?)', [room, user, text, time], function(err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true });
+  });
+});
 
 // --- API: List joinable projects (not already joined by user) ---
 app.get('/api/joinable-projects', (req, res) => {
@@ -716,4 +715,40 @@ app.get('/api/project-graph-filename/:id', (req, res) => {
     if (!row || !row.source_filename) return res.status(404).json({ error: 'Not found' });
     res.json({ filename: row.source_filename });
   });
+});
+
+// --- Save a JSON file to a specified directory ---
+app.post('/saveJSON/:dir/:filename', (req, res) => {
+  const allowedDirs = ['project-graphs', 'project-trees'];
+  const dir = req.params.dir;
+  const filename = path.basename(req.params.filename);
+  if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
+  const filePath = path.join(__dirname, dir, filename);
+  const buffer = [];
+  req.on('data', chunk => buffer.push(chunk));
+  req.on('end', () => {
+    fs.writeFile(filePath, Buffer.concat(buffer), err => {
+      if (err) return res.status(500).send('Failed to save file');
+      res.send('OK');
+    });
+  });
+});
+
+// --- Load a JSON file from a specified directory ---
+app.get('/loadJSON/:dir/:filename', (req, res) => {
+  const allowedDirs = ['project-graphs', 'project-trees'];
+  const dir = req.params.dir;
+  const filename = path.basename(req.params.filename);
+  if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
+  const filePath = path.join(__dirname, dir, filename);
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) return res.status(404).send('File not found');
+    res.type('json').send(data);
+  });
+});
+
+// Start the Express server
+const PORT = process.env.PORT || 8383;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });

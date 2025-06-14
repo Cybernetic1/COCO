@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Hierarchy Map</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .map-node {
+      display: inline-block;
+      margin: 0.5em;
+      padding: 0.5em 1em;
+      background: #fff8e1;
+      border: 3px solid #b77c00;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+    }
+    .map-node:hover {
+      border: 3px solid red;
+      background: #ffd4df !important;
+    }
+    .map-children {
+      margin-left: 2em;
+      display: block;
+    }
+    #node-modal {
+      display: none;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 2px solid #b77c00;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #f9e6b3;
+      padding: 2em 2em 1.5em 2em;
+      z-index: 1000;
+      min-width: 300px;
+    }
+    #node-modal input {
+      width: 90%;
+      margin-bottom: 1em;
+      padding: 0.4em;
+      border-radius: 6px;
+      border: 1px solid #b77c00;
+    }
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+    .menu-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:hover { background: #f0f0f0; }
+  </style>
+  <script src="js/project-map.js" defer></script>
+</head>
+<body>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1.5em; margin-bottom:0.5em;">
+    <h1 style="text-align:left;color:#7c4c00; margin:0;">Project Hierarchy Map</h1>
+    <div style="background-color:White; z-index:9;">
+      <div style="position:relative; display:inline-block;">
+        <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:1.5px solid #888;">
+          <span style="display:inline-block; font-size:22px; line-height:1;">&#9776;</span>
+        </button>
+        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:140px; box-shadow:0 2px 8px #888; z-index:100;">
+          <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
+          <div class="menu-item" onclick="readJSONMap(); hideMenuDropdown();">Read JSON map</div>
+          <div class="menu-item" onclick="saveJSONMap(); hideMenuDropdown();">Save JSON map</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="map-container" style="margin:2em auto;max-width:900px;"></div>
+  <hr style="width:95%;margin:2.5% auto 1.2em auto;border:0;border-top:2px solid #b77c00;">
+  <div id="page-chat" style="width:95%;margin:0 auto 0 auto;">
+    <h3 style="color:#7c4c00;margin-top:0;margin-bottom:0.7em;">Page Chat</h3>
+    <div id="chat-messages" style="min-height:120px;max-height:220px;overflow-y:auto;margin-bottom:1em;background:#fff;border-radius:0;padding:0.7em 1em;border:1px solid #e0c080;"></div>
+    <form id="chat-form" style="display:flex;gap:0.5em;">
+      <input id="chat-input" type="text" placeholder="Type a message..." autocomplete="off" style="flex:1;padding:0.5em;border-radius:6px;border:1px solid #b77c00;">
+      <button type="submit" style="background:#b77c00;color:#fff;border:none;border-radius:6px;padding:0.5em 1.2em;font-weight:bold;">Send</button>
+    </form>
+  </div>
+  <div id="modal-overlay"></div>
+  <div id="node-modal">
+    <h2>Edit Node</h2>
+    <label>Label:<br><input id="modal-node-label" type="text"></label><br>
+    <button id="modal-save-btn">Save</button>
+    <button id="modal-cancel-btn">Cancel</button>
+  </div>
+  <script>
+    function toggleMenuDropdown() {
+      var d = document.getElementById('menuDropdown');
+      d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+    }
+    function hideMenuDropdown() {
+      document.getElementById('menuDropdown').style.display = 'none';
+    }
+    // Hide dropdown if clicking outside
+    window.addEventListener('mousedown', function(e) {
+      var menu = document.getElementById('menuDropdown');
+      var btn = document.getElementById('menuButton');
+      if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
