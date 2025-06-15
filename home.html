@@ -120,7 +120,7 @@
         const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
         // Make speed inversely proportional to font size (bigger text flows slower)
         // You can tweak the multiplier for desired effect
-        const speed = 0.05 + (maxFontSize - fontSize) * 0.25;
+        const speed = 0.1 + (maxFontSize - fontSize) * 0.25;
         const color = randomColor();
         drops.push({ x, y, quoteIdx, speed, fontSize, color });
       }
@@ -242,7 +242,7 @@
   </script>
   <audio id="bg-music" loop style="display:none">
     <source src="sounds/futuristic.ogg" type="audio/ogg">
-    <source src="sounds/futuristic.aiff" type="audio/aiff">
+    <source src="sounds/futuristic.mp3" type="audio/mp3">
     Your browser does not support the audio element.
   </audio>
   <script>
