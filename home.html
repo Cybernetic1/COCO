@@ -124,7 +124,7 @@
         const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
         // Make speed inversely proportional to font size (bigger text flows slower)
         // You can tweak the multiplier for desired effect
-        const speed = 0 + (maxFontSize * 1.5 - fontSize) * 0.25 + Math.random() * 1.5;
+        const speed = 0 + (maxFontSize - fontSize) * 0.25;
         const color = randomColor();
         drops.push({ x, y, quoteIdx, speed, fontSize, color });
       }
