@@ -29,11 +29,15 @@
       width: 100vw;
       text-align: center;
       font-size: 4em;
-      color: #111;
-      font-family: sans-serif;
-      font-weight: bold;
-      z-index: 10;
-      text-shadow: 0 2px 8px #fff, 0 0 2px #fff;
+      color: #fff;
+      /* Multi-layered, visible, sophisticated drop shadow for light background */
+      text-shadow:
+        0 2px 8px #00e0ff,
+        0 0 2px #00e0ff,
+        0 4px 16px #000a,
+        0 8px 32px #000a,
+        2px 2px 8px #000a,
+        -2px 2px 8px #000a;
       pointer-events: none;
       user-select: none;
       transform: translateY(-50%);
