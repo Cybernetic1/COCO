@@ -66,7 +66,8 @@
         const x = Math.random() * (width - maxFontSize * 2);
         const y = Math.random() * height - Math.random() * height;
         const quoteIdx = Math.floor(Math.random() * sciFiQuotes.length);
-        const speed = 4 + Math.random() * 4; // 4-8 px per frame
+        // Increase the speed range for faster flow, but keep variation
+        const speed = 10 + Math.random() * 10; // 10-20 px per frame
         const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
         const color = randomColor();
         drops.push({ x, y, quoteIdx, speed, fontSize, color });
@@ -117,7 +118,8 @@
           drop.x = Math.random() * (width - maxFontSize * 2);
           drop.y = -Math.random() * height;
           drop.quoteIdx = Math.floor(Math.random() * sciFiQuotes.length);
-          drop.speed = 4 + Math.random() * 4;
+          // Increase the speed range for respawned drops as well
+          drop.speed = 10 + Math.random() * 10;
           drop.fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
           drop.color = randomColor();
         }
@@ -133,6 +135,41 @@
       svg.setAttribute('height', height);
       initDrops();
     });
+
+    // Fetch and extract sentences from sci-fi-texts/ files
+    async function fetchSentences(file, lang) {
+      const response = await fetch(`sci-fi-texts/${file}`);
+      const text = await response.text();
+      if (lang === 'english') {
+        // Split by sentence-ending punctuation
+        return text.match(/[^.!?\n]+[.!?]+/g) || [];
+      } else if (lang === 'chinese') {
+        // Split by Chinese sentence-ending punctuation
+        return text.match(/[^。！？\n]+[。！？]/g) || [];
+      } else if (lang === 'japanese') {
+        // Split by Japanese sentence-ending punctuation
+        return text.match(/[^。！？\n]+[。！？]/g) || [];
+      }
+      return [];
+    }
+
+    async function loadSciFiQuotes() {
+      // Pick representative files for each language
+      const englishFile = '1984.txt';
+      const chineseFile = '衛斯理 頭髮.txt';
+      const japaneseFile = 'わたしを離さないで.txt';
+      const [en, zh, ja] = await Promise.all([
+        fetchSentences(englishFile, 'english'),
+        fetchSentences(chineseFile, 'chinese'),
+        fetchSentences(japaneseFile, 'japanese')
+      ]);
+      // Mix all sentences together for the rain effect
+      sciFiQuotes.length = 0;
+      sciFiQuotes.push(...en, ...zh, ...ja);
+      initDrops();
+    }
+
+    loadSciFiQuotes();
   </script>
 </body>
 </html>
