@@ -352,7 +352,8 @@
     let currentLang = 'en';
     const fgTextDiv = document.getElementById('foreground-text');
     const langBtn = document.getElementById('lang-switch');
-    langBtn.addEventListener('click', () => {
+    langBtn.addEventListener('click', switchLang);
+    function switchLang() {
       if (currentLang === 'cn') {
         fgTextDiv.innerHTML = enText;
         fgTextDiv.style.fontSize = '2.5em';
@@ -364,8 +365,8 @@
         langBtn.textContent = 'English';
         currentLang = 'cn';
       }
-    });
-    langBtn.click(); // Initialize with Chinese text
+    }
+    switchLang(); // Initialize with Chinese text
   </script>
 </body>
 </html>
