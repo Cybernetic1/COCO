@@ -70,15 +70,10 @@
   </style>
 </head>
 <body>
+  <button id="lang-switch" style="position:fixed;top:16px;left:16px;z-index:10;font-size:1.2em;padding:0.4em 1em;border-radius:8px;border:none;background:#e0f7fa;color:#222;box-shadow:0 2px 8px #00e0ff;cursor:pointer;">English</button>
   <img id="bg-img" src="images/cyan-background.jpg" alt="background" />
   <svg id="bg-svg"></svg>
   <div id="foreground-text">
-    我們的目標是<br>
-    建立未來世界的民主<br>
-    和人工智能服務<br>
-    消除種族歧視和極權主義<br>
-    我們相信人類的未來<br>
-    是自由、平等和尊重的
   </div>
   <svg id="matrix-svg"></svg>
   <script>
@@ -125,7 +120,7 @@
         const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
         // Make speed inversely proportional to font size (bigger text flows slower)
         // You can tweak the multiplier for desired effect
-        const speed = 0 + (maxFontSize - fontSize) * 0.25;
+        const speed = 0.05 + (maxFontSize - fontSize) * 0.25;
         const color = randomColor();
         drops.push({ x, y, quoteIdx, speed, fontSize, color });
       }
@@ -349,6 +344,28 @@
     }
     window.addEventListener('resize', updateBgRotation);
     updateBgRotation();
+  </script>
+  <script>
+    // --- Language switch logic for foreground text ---
+    const cnText = `我們的目標是<br>建立未來世界的民主<br>和人工智能服務<br>消除種族歧視和極權主義<br>我們的核心價值是<br>自由、真理、平等`;
+    const enText = `Our goal is to build<br>democracy for the future world<br>with AI services<br>eliminating racism and totalitarianism<br>Our core values are<br>freedom, truth, and equality`;
+    let currentLang = 'en';
+    const fgTextDiv = document.getElementById('foreground-text');
+    const langBtn = document.getElementById('lang-switch');
+    langBtn.addEventListener('click', () => {
+      if (currentLang === 'cn') {
+        fgTextDiv.innerHTML = enText;
+        fgTextDiv.style.fontSize = '2.5em';
+        langBtn.textContent = '中文';
+        currentLang = 'en';
+      } else {
+        fgTextDiv.innerHTML = cnText;
+        fgTextDiv.style.fontSize = '4em';
+        langBtn.textContent = 'English';
+        currentLang = 'cn';
+      }
+    });
+    langBtn.click(); // Initialize with Chinese text
   </script>
 </body>
 </html>
