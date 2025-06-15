@@ -194,17 +194,8 @@
     async function fetchSentences(file, lang) {
       const response = await fetch(`sci-fi-texts/${file}`);
       const text = await response.text();
-      if (lang === 'english') {
-        // Split by sentence-ending punctuation
-        return text.match(/[^.!?\n]+[.!?]+/g) || [];
-      } else if (lang === 'chinese') {
-        // Split by Chinese sentence-ending punctuation
-        return text.match(/[^。！？\n]+[。！？]/g) || [];
-      } else if (lang === 'japanese') {
-        // Split by Japanese sentence-ending punctuation
-        return text.match(/[^。！？\n]+[。！？]/g) || [];
-      }
-      return [];
+      // Each line is a sentence; filter out empty lines
+      return text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     }
 
     // --- Dynamically load and randomize sci-fi sentences from all files in sci-fi-texts/ ---
@@ -214,7 +205,7 @@
         '1984.txt',
         '衛斯理 頭髮.txt',
         'わたしを離さないで.txt',
-        'neuromancer.txt',
+        'Neuromancer.txt',
         'Do_Androids_Dream_of_Electric_Sheep.txt',
         // 'HG Wells - War of the Worlds.txt'
         // Add more filenames here as you add them to sci-fi-texts/
