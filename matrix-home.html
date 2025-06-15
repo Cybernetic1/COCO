@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Matrix Rain Home</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #a3e4f5;
+      /* background: #d8f7ff; */
+      overflow: hidden;
+    }
+    body {
+      width: 100vw;
+      height: 100vh;
+    }
+    svg {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0; left: 0;
+    }
+  </style>
+</head>
+<body>
+  <svg id="matrix-svg"></svg>
+  <script>
+    // Famous science fiction quotes
+    const sciFiQuotes = [
+
+];
+
+    const svg = document.getElementById('matrix-svg');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+
+    // Fewer sentences for sparser effect
+    const minFontSize = 20;
+    const maxFontSize = 36;
+    const numSentences = Math.floor(width / (minFontSize * 4));
+    // Each drop is an object: { x, y, quoteIdx, speed, fontSize }
+    let drops = [];
+    function randomColor() {
+      // Generate a color in white, grey, or light blue tones
+      const palette = [
+        '#baffc9', // light blue-green
+        '#e0f7fa', // very light blue
+        '#f0f8ff', // alice blue
+        '#e3e3e3', // light grey
+        '#ffffff', // white
+        '#d0e6f7', // light blue
+        '#cfd8dc', // blue-grey
+        '#f5fafd', // almost white
+        '#eaf6fb', // very pale blue
+        '#e6ecf0'  // pale grey
+      ];
+      return palette[Math.floor(Math.random() * palette.length)];
+    }
+    function initDrops() {
+      drops = [];
+      for (let i = 0; i < numSentences; i++) {
+        const x = Math.random() * (width - maxFontSize * 2);
+        const y = Math.random() * height - Math.random() * height;
+        const quoteIdx = Math.floor(Math.random() * sciFiQuotes.length);
+        const speed = 4 + Math.random() * 4; // 4-8 px per frame
+        const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
+        const color = randomColor();
+        drops.push({ x, y, quoteIdx, speed, fontSize, color });
+      }
+    }
+    initDrops();
+
+    function isAsian(text) {
+      // Returns true if the text contains CJK characters
+      return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uff00-\uffef]/.test(text);
+    }
+
+    function draw() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      for (let i = 0; i < drops.length; i++) {
+        const drop = drops[i];
+        const quote = sciFiQuotes[drop.quoteIdx];
+        if (!isAsian(quote)) {
+          // English: rotate 90deg, flow vertically
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', drop.x);
+          text.setAttribute('y', drop.y);
+          text.setAttribute('font-size', drop.fontSize);
+          text.setAttribute('fill', drop.color);
+          text.setAttribute('font-family', 'monospace');
+          text.setAttribute('transform', `rotate(90 ${drop.x} ${drop.y})`);
+          text.textContent = quote;
+          svg.appendChild(text);
+        } else {
+          // Asian: render vertically, upright characters, flow vertically
+          for (let j = 0; j < quote.length; j++) {
+            const ch = quote[j];
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', drop.x);
+            text.setAttribute('y', drop.y + j * drop.fontSize);
+            text.setAttribute('font-size', drop.fontSize);
+            text.setAttribute('fill', drop.color);
+            text.setAttribute('font-family', 'monospace');
+            text.textContent = ch;
+            svg.appendChild(text);
+          }
+        }
+        drop.y += drop.speed;
+        // For Asian, estimate height as fontSize * quote.length
+        // For English, just use fontSize
+        const quoteHeight = isAsian(quote) ? drop.fontSize * quote.length : drop.fontSize;
+        if (drop.y - quoteHeight > height) {
+          drop.x = Math.random() * (width - maxFontSize * 2);
+          drop.y = -Math.random() * height;
+          drop.quoteIdx = Math.floor(Math.random() * sciFiQuotes.length);
+          drop.speed = 4 + Math.random() * 4;
+          drop.fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
+          drop.color = randomColor();
+        }
+      }
+    }
+
+    setInterval(draw, 50);
+
+    window.addEventListener('resize', () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      svg.setAttribute('width', width);
+      svg.setAttribute('height', height);
+      initDrops();
+    });
+  </script>
+</body>
+</html>
