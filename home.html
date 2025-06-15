@@ -22,9 +22,33 @@
       position: absolute;
       top: 0; left: 0;
     }
+    #foreground-text {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      font-size: 4em;
+      color: #111;
+      font-family: sans-serif;
+      font-weight: bold;
+      z-index: 10;
+      text-shadow: 0 2px 8px #fff, 0 0 2px #fff;
+      pointer-events: none;
+      user-select: none;
+      transform: translateY(-50%);
+    }
   </style>
 </head>
 <body>
+  <div id="foreground-text">
+    我們的目標是<br>
+    建立未來世界的民主<br>
+    和人工智能服務<br>
+    消除種族歧視和極權主義<br>
+    我們相信人類的未來<br>
+    是自由、平等和尊重的
+  </div>
   <svg id="matrix-svg"></svg>
   <script>
     // Famous science fiction quotes
@@ -67,7 +91,7 @@
         const y = Math.random() * height - Math.random() * height;
         const quoteIdx = Math.floor(Math.random() * sciFiQuotes.length);
         // Increase the speed range for faster flow, but keep variation
-        const speed = 10 + Math.random() * 10; // 10-20 px per frame
+        const speed = 1 + Math.random() * 10; // 11-21 px per frame
         const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
         const color = randomColor();
         drops.push({ x, y, quoteIdx, speed, fontSize, color });
@@ -170,6 +194,20 @@
     }
 
     loadSciFiQuotes();
+  </script>
+  <audio id="bg-music" loop style="display:none">
+    <source src="sounds/futuristic.ogg" type="audio/ogg">
+    <source src="sounds/futuristic.aiff" type="audio/aiff">
+    Your browser does not support the audio element.
+  </audio>
+  <script>
+  // --- Play background music file after user interaction ---
+  const audio = document.getElementById('bg-music');
+  function startMusicOnce() {
+    audio.play();
+    window.removeEventListener('click', startMusicOnce);
+  }
+  window.addEventListener('click', startMusicOnce);
   </script>
 </body>
 </html>
