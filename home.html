@@ -121,7 +121,7 @@
         const y = Math.random() * height - Math.random() * height;
         const quoteIdx = Math.floor(Math.random() * sciFiQuotes.length);
         // Increase the speed range for faster flow, but keep variation
-        const speed = 1 + Math.random() * 10; // 11-21 px per frame
+        const speed = 3 + Math.random() * 10; // px per frame
         const fontSize = minFontSize + Math.random() * (maxFontSize - minFontSize);
         const color = randomColor();
         drops.push({ x, y, quoteIdx, speed, fontSize, color });
@@ -214,6 +214,9 @@
         '1984.txt',
         '衛斯理 頭髮.txt',
         'わたしを離さないで.txt',
+        'neuromancer.txt',
+        'Do_Androids_Dream_of_Electric_Sheep.txt',
+        // 'HG Wells - War of the Worlds.txt'
         // Add more filenames here as you add them to sci-fi-texts/
       ];
     }
