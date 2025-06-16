@@ -176,34 +176,6 @@ async function reqHandler(req, res) {
 	if (fileName === "/")
 		fileName = "/index.html";
 
-	// **** Save a JSON file
-	if (fileName.startsWith("/saveJSON/")) {
-		var fname = path.basename(url.parse(req.url).pathname);
-
-		res.writeHead(200, {
-			'Content-Type': 'text/event-stream; charset=utf-8',
-			});
-
-		const buffer = [];
-		req.on('data', chunk => buffer.push(chunk));
-		req.on('end', () => {
-			const data = Buffer.concat(buffer);
-
-			// Save to file
-			var fs = require('fs');
-			var stream = fs.createWriteStream("./project-graphs/" + fname, {encoding: 'utf8'});
-			stream.once('open', function(fd) {
-				stream.write(data);
-				stream.end();
-				});
-			console.log("Saved JSON file:", fname);
-			// console.log("log data: " + data);
-			// console.log(unescape(encodeURIComponent(data)));
-			});
-		res.end();
-		return;
-		}
-
 	// **** load a JSON file
 	if (fileName.startsWith("/loadJSON/")) {
 		var fname = path.basename(url.parse(req.url).pathname);
@@ -725,13 +697,16 @@ app.post('/saveJSON/:dir/:filename', (req, res) => {
   const filename = path.basename(req.params.filename);
   if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
   const filePath = path.join(__dirname, dir, filename);
-  const buffer = [];
-  req.on('data', chunk => buffer.push(chunk));
-  req.on('end', () => {
-    fs.writeFile(filePath, Buffer.concat(buffer), err => {
-      if (err) return res.status(500).send('Failed to save file');
-      res.send('OK');
-    });
+  // console.log('Saving JSON to', filePath);
+  // Use req.body directly (Express JSON middleware)
+  const data = JSON.stringify(req.body, null, 2);
+  fs.writeFile(filePath, data, err => {
+    if (err) {
+      console.log('Failed to save file:', filePath, err);
+      return res.status(500).send('Failed to save file');
+    }
+    console.log('File saved successfully:', filePath);
+    res.send('OK');
   });
 });
 

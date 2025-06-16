@@ -932,8 +932,8 @@ function verifyTreeIgnoringRedEdges() {
     alert('The graph (ignoring red edges) is a valid tree rooted at node 0!');
 }
 
-// --- Save project tree as JSON to server-side project-graphs/ directory ---
-function saveJSONTree() {
+// --- Save project tree as JSON to server-side project-maps/ directory ---
+function saveJSONMap() {
     // Separate edges into tree edges and red edges
     const treeEdges = [];
     const redEdges = [];
@@ -959,10 +959,11 @@ function saveJSONTree() {
         edges: treeEdges,
         links: redEdges
     };
-    const filename = prompt('Enter filename for the tree (without .json):', 'project-tree');
+    const filename = prompt('Enter filename for the map (without .json):', 'project-name');
     if (!filename) return;
     const jsonStr = JSON.stringify(exportObj, null, 2);
-    fetch(`/saveJSON/project-graphs/${encodeURIComponent(filename)}.json`, {
+	console.log("we're here", filename, jsonStr);
+    fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: jsonStr
@@ -971,6 +972,8 @@ function saveJSONTree() {
     .catch(e => alert('Network error: ' + e));
 }
 
-// Optionally, add a menu item or button to trigger saveJSONTree
-// Example: add to menu or button
-// document.getElementById('saveTreeBtn').onclick = saveJSONTree;
+// Close JSON modal
+function close_json_modal() {
+    document.getElementById("JSON_modal").style.display = "none";
+}
+window.close_json_modal = close_json_modal;

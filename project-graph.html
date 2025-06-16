@@ -78,34 +78,27 @@ by the function toggleSidePane() in project-graph.js -->
 <tr style="text-align:center; height:14px; line-height:50%">
     <td><label class="small">add<br>Node</label></td>
     <td><label class="small">clear<br>all</label></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
     <td><label class="small">menu</label></td>
 </tr>
 <tr class="viz-buttons">
-    <td><button onclick="addNode()">+ⓝ</button></td>
-    <td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button></td>
-    <td colspan="6"></td>
-    <td>
-      <!-- Menu button and dropdown -->
+    <td><button onclick="addNode()">＋</button></td>
+    <td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button>
+	<td>
+	  <!-- Menu button and dropdown -->
       <div style="position:relative; display:inline-block;">
-        <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:1.5px solid #888;">
+        <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:2px solid #888;">
           <span style="display:inline-block; font-size:22px; line-height:1;">&#9776;</span>
         </button>
-        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:180px; box-shadow:0 2px 8px #888; z-index:100;">
+        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
           <div class="menu-item" onclick="help(); hideMenuDropdown();">Help</div>
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
           <div class="menu-item" onclick="loadJSON(); hideMenuDropdown();">Load JSON graph</div>
           <div class="menu-item" onclick="saveJSON(); hideMenuDropdown();">Save JSON graph</div>
-          <div class="menu-item" onclick="saveJSONTree(); hideMenuDropdown();">Save JSON tree</div>
+          <div class="menu-item" onclick="saveJSONMap(); hideMenuDropdown();">Save JSON map</div>
           <div class="menu-item" onclick="loadDirectory(); hideMenuDropdown();">Load Git Dir</div>
           <div class="menu-item" onclick="saveDirectory(); hideMenuDropdown();">Save Git Dir</div>
           <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
-          <div class="menu-item" onclick="verifyTreeIgnoringRedEdges(); hideMenuDropdown();">Verify Tree (ignore red edges)</div>
+          <div class="menu-item" onclick="verifyTreeIgnoringRedEdges(); hideMenuDropdown();">Verify Tree<br>(ignore red links)</div>
         </div>
       </div>
     </td>
