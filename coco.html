@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>COCO Collaborative Platform</title>
+    <link rel="icon" type="image/png" href="images/COCO-logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7fafd;
+            margin: 0;
+            padding: 0;
+        }
+        .coco-header {
+            text-align: center;
+            margin-top: 60px;
+        }
+        .coco-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #7c4a03; /* coconut brown */
+            margin: 20px 0 0 0;
+            letter-spacing: 2px;
+        }
+        .coco-tagline {
+            font-size: 1.2em;
+            color: #a67c52; /* lighter coconut brown */
+            margin: 0px 0 10px 0;
+        }
+        .coco-main {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .coco-main b {
+            color: #7c4a03; /* coconut brown for bold */
+        }
+        .coco-main i {
+            color: #a67c52; /* lighter coconut brown for italic */
+        }
+        .coco-footer {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.95em;
+            margin: 60px 0 20px 0;
+        }
+        .coco-login {
+            margin-bottom: 32px;
+        }
+        .coco-login form {
+            margin-bottom: 16px;
+        }
+        .coco-login input {
+            width: 70%;
+            padding: 8px;
+            margin: 6px 0;
+        }
+        .coco-login .login-btn {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin: 4px 0;
+        }
+        .coco-login .login-btn.coco {
+            background: #7c4a03;
+            color: #fff;
+            border: 1px solid #7c4a03;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .coco-login .login-btn.google {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+        .coco-login .login-btn.facebook {
+            background: #3b5998;
+            color: #fff;
+            border-color: #3b5998;
+        }
+        .coco-login .login-btn.wechat {
+            background: #1aad19;
+            color: #fff;
+            border-color: #1aad19;
+        }
+    </style>
+</head>
+<body>
+    <div class="coco-header">
+        <img src="images/COCO-logo.png" alt="COCO Logo" class="coco-logo" style="width: 612px; height: 178px;">
+        <div class="coco-title">COCO</div>
+        <div class="coco-tagline">A Decentralized Collaborative Platform</div>
+        <!-- div class="coco-tagline" style="font-style: italic;">COllaborative CO-evolution</div -->
+    </div>
+    <div class="coco-main">
+        <p>Welcome to <b>COCO</b>!<br>
+        COCO is a collaborative platform designed to help teams and communities organize, discuss, and build projects together.<br><br>
+        </p>
+
+        <div class="coco-login" style="margin-bottom:32px;">
+            <form id="login-signup-form" style="margin-bottom:16px;">
+                <input type="email" name="email" placeholder="Email" required style="width:70%;padding:8px;margin:6px 0;"><br>
+                <input type="password" name="password" placeholder="Password" required style="width:70%;padding:8px;margin:6px 0;"><br>
+                <button class="login-btn coco" type="button" id="login-btn" style="display:inline-block;">Log In</button>
+                <button class="login-btn coco" type="button" id="signup-btn" style="display:inline-block;">Sign Up</button>
+            </form>
+            <div style="margin: 16px 0; color:#bbb;">or</div>
+            <a href="/auth/google" class="login-btn google">Log in with Google</a><br>
+            <a href="/auth/facebook" class="login-btn facebook">Log in with Facebook</a><br>
+            <a href="/auth/wechat" class="login-btn wechat">Log in with WeChat</a>
+        </div>
+    </div>
+    <div class="coco-footer">
+        &copy; 2025 COCO Collaborative Platform
+    </div>
+    <script>
+        // Improved login/signup form handling
+        const form = document.getElementById('login-signup-form');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+
+        loginBtn.onclick = function(e) {
+            form.action = '/login';
+            form.method = 'POST';
+            form.submit();
+        };
+        signupBtn.onclick = function(e) {
+            form.action = '/signup';
+            form.method = 'POST';
+            form.submit();
+        };
+    </script>
+</body>
+</html>
