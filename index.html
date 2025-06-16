@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <title>Matrix Rain Home</title>
   <style>
+    @font-face {
+    font-family: 'Alimama';
+    src: url('css/阿里妈妈东方大楷.ttf');
+    }
     html, body {
       height: 100%;
       margin: 0;
@@ -347,23 +351,32 @@
   </script>
   <script>
     // --- Language switch logic for foreground text ---
-    const cnText = `我們的目標是<br>建立未來世界的民主<br>和人工智能服務<br>消除種族歧視和極權主義<br>我們的核心價值是<br>自由、真理、平等`;
+    const cnText = `我们的目标是<br>建立未来世界的民主<br>和人工智能服务<br>消除种族歧视和极权主义<br>我们的核心价值是<br>自由、真理、平等`;
+    const twText = `我們的目標是<br>建立未來世界的民主<br>和人工智能服務<br>消除種族歧視和極權主義<br>我們的核心價值是<br>自由、真理、平等`;
     const enText = `Our goal is to build<br>democracy for the future world<br>with AI services<br>eliminating racism and totalitarianism<br>Our core values are<br>freedom, truth, and equality`;
     let currentLang = 'en';
     const fgTextDiv = document.getElementById('foreground-text');
     const langBtn = document.getElementById('lang-switch');
     langBtn.addEventListener('click', switchLang);
     function switchLang() {
-      if (currentLang === 'cn') {
-        fgTextDiv.innerHTML = enText;
-        fgTextDiv.style.fontSize = '2.5em';
-        langBtn.textContent = '中文';
-        currentLang = 'en';
-      } else {
+      if (currentLang === 'en') {
         fgTextDiv.innerHTML = cnText;
         fgTextDiv.style.fontSize = '4em';
-        langBtn.textContent = 'English';
+        fgTextDiv.style.fontFamily = 'Alimama';
+        langBtn.textContent = '繁體';
         currentLang = 'cn';
+      } else if (currentLang === 'cn') {
+        fgTextDiv.innerHTML = twText;
+        fgTextDiv.style.fontSize = '4em';
+        fgTextDiv.style.fontFamily = '';
+        langBtn.textContent = 'English';
+        currentLang = 'tw';
+      } else {
+        fgTextDiv.innerHTML = enText;
+        fgTextDiv.style.fontSize = '2.5em';
+        langBtn.textContent = '简体';
+        fgTextDiv.style.fontFamily = '';
+        currentLang = 'en';
       }
     }
     // --- Detect country by IP and set initial language ---
@@ -372,18 +385,27 @@
         const resp = await fetch('https://ipapi.co/json/');
         if (resp.ok) {
           const data = await resp.json();
-          // List of Chinese-speaking country codes
-          const chineseCountries = ['CN', 'HK', 'SG', 'TW', 'MO', 'MY'];
-          if (chineseCountries.includes(data.country)) {
+          // Simplified: CN, SG, MO, MY; Traditional: HK, TW
+          const simpCountries = ['CN', 'SG', 'MO', 'MY'];
+          const tradCountries = ['HK', 'TW'];
+          if (simpCountries.includes(data.country)) {
             currentLang = 'cn';
             fgTextDiv.innerHTML = cnText;
             fgTextDiv.style.fontSize = '4em';
+            fgTextDiv.style.fontFamily = '';
+            langBtn.textContent = '繁體';
+          } else if (tradCountries.includes(data.country)) {
+            currentLang = 'tw';
+            fgTextDiv.innerHTML = twText;
+            fgTextDiv.style.fontSize = '4em';
+            fgTextDiv.style.fontFamily = '';
             langBtn.textContent = 'English';
           } else {
             currentLang = 'en';
             fgTextDiv.innerHTML = enText;
             fgTextDiv.style.fontSize = '2.5em';
-            langBtn.textContent = '中文';
+            fgTextDiv.style.fontFamily = 'Alimama';
+            langBtn.textContent = '简体';
           }
           return;
         }
@@ -391,7 +413,7 @@
       // fallback
       switchLang();
     })();
-    switchLang(); // Initialize with Chinese text
+    switchLang(); // Initialize with Simplified Chinese text
   </script>
 </body>
 </html>
