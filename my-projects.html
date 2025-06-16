@@ -128,7 +128,7 @@
       let html = '<table style="width:100%;border-collapse:collapse;margin-top:1em;">';
       html += '<tr style="background:#cfd7db;"><th style="color:#7c4c00;padding:0.5em 0.3em;">ID</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Project Name</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Description</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Role</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Graph</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Action</th></tr>';
       projects.forEach(p => {
-        const graphUrl = `/project-graph.html?projectId=${p.id}`;
+        const graphUrl = `/project-graph.html?projectName=${encodeURIComponent(p.name)}`;
         html += `<tr style="border-bottom:1px solid #f9e6b3;">
           <td style="padding:0.4em 0.3em;">${p.id}</td>
           <td style="padding:0.4em 0.3em;"><b>${p.name}</b></td>
@@ -211,7 +211,7 @@
               <td style="padding:0.4em 0.3em;">${p.id}</td>
               <td style="padding:0.4em 0.3em;"><b>${p.name}</b></td>
               <td style="padding:0.4em 0.3em;font-size:0.95em;color:#888;">${p.description||''}</td>
-              <td style="padding:0.4em 0.3em;"><button class=\"join-btn\" data-id=\"${p.id}\">Join</button></td>
+              <td style="padding:0.4em 0.3em;"><button class=\"join-btn\" data-name=\"${encodeURIComponent(p.name)}\">Join</button></td>
             </tr>`;
           });
           html += '</table>';
@@ -219,12 +219,12 @@
           // Add event listeners for join buttons
           document.querySelectorAll('.join-btn').forEach(btn => {
             btn.onclick = function() {
-              const projectId = btn.getAttribute('data-id');
+              const projectName = btn.getAttribute('data-name');
               fetch('/api/join-project', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ projectId })
+                body: JSON.stringify({ projectName: decodeURIComponent(projectName) })
               }).then(r => r.json()).then(data => {
                 const status = document.getElementById('join-status');
                 if (data && data.success) {
@@ -240,15 +240,6 @@
           });
         });
     };
-    // Remove the manual join input/button if present
-    const joinProjectIdInput = document.getElementById('join-project-id');
-    if (joinProjectIdInput) joinProjectIdInput.style.display = 'none';
-    const joinProjectBtn = document.getElementById('join-project-btn');
-    if (joinProjectBtn) joinProjectBtn.style.display = 'none';
-
-    // Remove WeChat login button from this page if present
-    const oldWechatBtn = document.querySelector('button.wechat-login-btn');
-    if (oldWechatBtn) oldWechatBtn.remove();
 
     document.addEventListener('DOMContentLoaded', function() {
       const showCreateBtn = document.getElementById('show-create-fields-btn');

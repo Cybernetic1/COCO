@@ -65,17 +65,15 @@ const techClick2 = new Audio('sounds/tech-click2.wav');
 const techFail = new Audio('sounds/tech-fail.wav');
 
 // Default language ("ZH" or "EN") ?
-var langElem = document.getElementById("lang");
-var lang = langElem ? langElem.value : "EN";
+// Remove all references to an element with id "lang". Only keep the lang variable.
+// Initialize lang to "EN" unless there is a ?lang=... directive in the URL.
+var lang = "EN";
 const url = window.location.href;
-// console.log("URL", url);
 var regex = new RegExp('[?&]lang(=([^&#]*)|&|#|$)');
 var params = regex.exec(url);
-// console.log(params);
-if (params && params[2] && params[2].toUpperCase() == "EN")
-	switchLang();
-else
-	$('[lang="EN"]').hide();
+if (params && params[2]) {
+    lang = params[2].toUpperCase();
+}
 
 // Returns a node's label in the language in 'lang' variable
 function get_label_in_lang(node) {
@@ -770,29 +768,19 @@ async function loadDirectory() {
 	}
 
 async function switchLang() {
-	const button = document.getElementById("lang");
-	lang = button.value;
-	if (lang == "ZH") {
-		lang = "EN";
-		// NOTE: should display the language to switch to next
-		button.innerHTML = "中文";
-		}
-	else if (lang == "EN") {
-		lang = "ZH";
-		button.innerHTML = "Eng";
-		}
-	button.value = lang;
-	$('[lang="ZH"]').toggle();
-	$('[lang="EN"]').toggle();
-	// console.log("Current language:", lang);
-	data.nodes.getIds().forEach( (id) => {
-		const i = parseInt(id);
-		data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
-		});
-	techClick2.play().catch(function (error) {
-		// console.log("cannot play sound without user click first");
-		});
-	}
+    // Remove all button-related code. Only toggle lang, update UI, and update node labels.
+    lang = (lang === "ZH") ? "EN" : "ZH";
+    $('[lang="ZH"]').toggle();
+    $('[lang="EN"]').toggle();
+    // console.log("Current language:", lang);
+    data.nodes.getIds().forEach((id) => {
+        const i = parseInt(id);
+        data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
+    });
+    techClick2.play().catch(function (error) {
+        // console.log("cannot play sound without user click first");
+    });
+}
 
 // **** Read from Git to extract authors
 $.ajax({
@@ -843,19 +831,40 @@ $.ajax({
 	});
 
 // Utility to get projectId from URL
-function getProjectIdFromUrl() {
+function getProjectNameFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('projectId');
+  return params.get('projectName');
 }
 
 // --- In the code that loads the graph data ---
 // Replace any hardcoded filename with:
-const projectId = getProjectIdFromUrl();
-const defaultGraphFile = projectId ? `/projects-data/${projectId}.json` : null;
-// Use defaultGraphFile as the file to load/save the graph JSON
+const projectName = getProjectNameFromUrl();
+const defaultGraphFile = projectName ? `/project-graphs/${projectName}.json` : null;
 
-// When loading: fetch(defaultGraphFile)
-// When saving: save to defaultGraphFile
+// --- Auto-load graph if projectId is present ---
+if (defaultGraphFile) {
+    fetch(defaultGraphFile, {cache: 'no-store'})
+        .then(r => {
+            if (!r.ok) throw new Error('Not found');
+            return r.json();
+        })
+        .then(data0 => {
+            // Properly load the graph into Vis.js network
+            network.destroy();
+            nodes = new vis.DataSet(data0.nodes);
+            edges = new vis.DataSet(data0.edges);
+            data.nodes = nodes;
+            data.edges = edges;
+            init_nodes();
+            network = new vis.Network(viz, data, options);
+            update_node_index();
+            network.on("click", onClick);
+        })
+        .catch(e => {
+            // Optionally show a message if not found
+            // alert('Project graph not found for this projectId.');
+        });
+}
 
 // --- Verify tree structure ignoring red edges ---
 function verifyTreeIgnoringRedEdges() {
@@ -923,7 +932,7 @@ function verifyTreeIgnoringRedEdges() {
     alert('The graph (ignoring red edges) is a valid tree rooted at node 0!');
 }
 
-// --- Save project tree as JSON to server-side project-trees/ directory ---
+// --- Save project tree as JSON to server-side project-graphs/ directory ---
 function saveJSONTree() {
     // Separate edges into tree edges and red edges
     const treeEdges = [];
@@ -953,7 +962,7 @@ function saveJSONTree() {
     const filename = prompt('Enter filename for the tree (without .json):', 'project-tree');
     if (!filename) return;
     const jsonStr = JSON.stringify(exportObj, null, 2);
-    fetch(`/saveJSON/project-trees/${encodeURIComponent(filename)}.json`, {
+    fetch(`/saveJSON/project-graphs/${encodeURIComponent(filename)}.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: jsonStr

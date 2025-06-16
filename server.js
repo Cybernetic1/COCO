@@ -191,7 +191,7 @@ async function reqHandler(req, res) {
 
 			// Save to file
 			var fs = require('fs');
-			var stream = fs.createWriteStream("./projects-data/" + fname, {encoding: 'utf8'});
+			var stream = fs.createWriteStream("./project-graphs/" + fname, {encoding: 'utf8'});
 			stream.once('open', function(fd) {
 				stream.write(data);
 				stream.end();
@@ -214,7 +214,7 @@ async function reqHandler(req, res) {
 			"Connection"	: "keep-alive"
 			});
 
-		fs.readFile("projects-data/" + fname, "utf-8", function (err, data) {
+		fs.readFile("project-graphs/" + fname, "utf-8", function (err, data) {
 			if (err) {
 				console.log(err);
 				return err;
@@ -314,7 +314,7 @@ async function reqHandler(req, res) {
 
 	// **** Return a list of files in directory
 	if (fileName.startsWith("/fileList/")) {
-		fs.readdir("./projects-data/", (err, files) => {
+		fs.readdir("./project-graphs/", (err, files) => {
 			if (err) {
 				console.log(err);
 				return err;
@@ -720,7 +720,7 @@ app.get('/api/project-graph-filename/:id', (req, res) => {
 
 // --- Save a JSON file to a specified directory ---
 app.post('/saveJSON/:dir/:filename', (req, res) => {
-  const allowedDirs = ['project-graphs', 'project-trees'];
+  const allowedDirs = ['project-graphs', 'project-maps'];
   const dir = req.params.dir;
   const filename = path.basename(req.params.filename);
   if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
@@ -737,7 +737,7 @@ app.post('/saveJSON/:dir/:filename', (req, res) => {
 
 // --- Load a JSON file from a specified directory ---
 app.get('/loadJSON/:dir/:filename', (req, res) => {
-  const allowedDirs = ['project-graphs', 'project-trees'];
+  const allowedDirs = ['project-graphs', 'project-maps'];
   const dir = req.params.dir;
   const filename = path.basename(req.params.filename);
   if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
