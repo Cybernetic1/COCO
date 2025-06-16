@@ -366,6 +366,31 @@
         currentLang = 'cn';
       }
     }
+    // --- Detect country by IP and set initial language ---
+    (async function detectCountryAndSetLang() {
+      try {
+        const resp = await fetch('https://ipapi.co/json/');
+        if (resp.ok) {
+          const data = await resp.json();
+          // List of Chinese-speaking country codes
+          const chineseCountries = ['CN', 'HK', 'SG', 'TW', 'MO', 'MY'];
+          if (chineseCountries.includes(data.country)) {
+            currentLang = 'cn';
+            fgTextDiv.innerHTML = cnText;
+            fgTextDiv.style.fontSize = '4em';
+            langBtn.textContent = 'English';
+          } else {
+            currentLang = 'en';
+            fgTextDiv.innerHTML = enText;
+            fgTextDiv.style.fontSize = '2.5em';
+            langBtn.textContent = '中文';
+          }
+          return;
+        }
+      } catch (e) {}
+      // fallback
+      switchLang();
+    })();
     switchLang(); // Initialize with Chinese text
   </script>
 </body>
