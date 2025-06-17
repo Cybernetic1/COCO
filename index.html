@@ -196,7 +196,7 @@
         drop.y += drop.speed;
         // For Asian, estimate height as fontSize * quote.length
         // For English, just use fontSize
-        const quoteHeight = isAsian(quote) ? drop.fontSize * drop.quote.length : drop.fontSize;
+        const quoteHeight = isAsian(quote) ? drop.fontSize * quote.length : drop.fontSize;
         if (drop.y - quoteHeight > height) {
           drop.x = Math.random() * (width - maxFontSize * 2);
           drop.y = -Math.random() * height;
