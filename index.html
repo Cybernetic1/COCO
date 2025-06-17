@@ -93,7 +93,7 @@
 		display: flex;
 		flex-direction: row-reverse;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: flex-end;
 		width: 100vw;
 		height: 100vh;
 		margin: 0 auto;
@@ -101,7 +101,7 @@
 		position: relative;
 	}
 	body.landscape #foreground-text {
-		flex: 1 1 0;
+		flex: none;
 		text-align: right;
 		margin-right: 5vw;
 		margin-left: 0;
@@ -114,20 +114,23 @@
 		transform: none;
 		white-space: nowrap;
 		overflow-x: visible;
+		z-index: 2;
 	}
 	body.landscape #TRON-bike {
-		flex: 1 1 0;
+		flex: none;
 		max-width: 50vw;
-		max-height: 100vh;
+		max-height: 80vh;
+		width: 50vw;
+		height: auto;
 		margin-left: 0;
 		margin-right: 0;
 		align-self: center;
 		display: block;
 		position: static;
-		width: 100%;
 		top: auto;
 		margin-top: 0;
 		margin-bottom: 0;
+		z-index: 1;
 	}
   </style>
 </head>
