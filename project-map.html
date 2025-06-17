@@ -3,8 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Project Hierarchy Map</title>
-  <link rel="stylesheet" href="css/style.css">
   <style>
+    body {
+      background: #f7fafd;
+      font-family: sans-serif;
+    }
+    h1, h2 {
+	  color: #7c4c00;
+	}
     .map-node {
       display: inline-block;
       margin: 0.5em;
@@ -16,8 +22,8 @@
       position: relative;
     }
     .map-node:hover {
-      border: 3px solid red;
-      background: #ffd4df !important;
+      border: 3px solid black;
+      /* background: #fee !important; */
     }
     .map-children {
       margin-left: 2em;
@@ -64,7 +70,8 @@
 </head>
 <body>
   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1.5em; margin-bottom:0.5em;">
-    <h1 style="text-align:left;color:#7c4c00; margin:0;">Project Hierarchy Map</h1>
+    <h1 style="text-align:left; margin:0;">Title</h1>
+    <!--div style="float:left;"><h2>Project Map</h2></div-->
     <div style="background-color:White; z-index:9;">
       <div style="position:relative; display:inline-block;">
         <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:1.5px solid #888;">
@@ -79,7 +86,7 @@
     </div>
   </div>
   <div id="map-container" style="margin:2em auto;max-width:900px;"></div>
-  <hr style="width:95%;margin:2.5% auto 1.2em auto;border:0;border-top:2px solid #b77c00;">
+  <hr style="width:95%;margin:2.5% auto 1.2em auto;border:0;border-top:2px solid #b77c00; margin-top:4em;">
   <div id="page-chat" style="width:95%;margin:0 auto 0 auto;">
     <h3 style="color:#7c4c00;margin-top:0;margin-bottom:0.7em;">Page Chat</h3>
     <div id="chat-messages" style="min-height:120px;max-height:220px;overflow-y:auto;margin-bottom:1em;background:#fff;border-radius:0;padding:0.7em 1em;border:1px solid #e0c080;"></div>

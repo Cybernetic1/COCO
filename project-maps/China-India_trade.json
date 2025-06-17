@@ -1,0 +1,45 @@
+{
+  "id": 0,
+  "label": "China-India trade",
+  "children": [
+    {
+      "id": 1,
+      "label": "choose what goods to buy",
+      "children": []
+    },
+    {
+      "id": 2,
+      "label": "buy goods in China",
+      "children": [],
+      "labelEN": "buy goods in China"
+    },
+    {
+      "id": 1750137473460,
+      "label": "ship goods China → India",
+      "children": []
+    },
+    {
+      "id": 1750139030777,
+      "label": "rent a shop outlet",
+      "children": []
+    },
+    {
+      "id": 1750137515794,
+      "label": "sell goods in India",
+      "children": []
+    },
+    {
+      "id": 1750139067685,
+      "label": "recieve payments",
+      "children": []
+    }
+  ],
+  "labelEN": "China-India trade",
+  "labelZH": "中國-印度 轉口貿易",
+  "edgeLabel": "",
+  "details": "This is our first attempt at a real business, a simple test of how to collaborate in DAO.",
+  "expTokens": "",
+  "expTime": "",
+  "expWorkers": "",
+  "authors": []
+}

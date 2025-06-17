@@ -5,23 +5,45 @@
 // - Right-click on a node brings up a modal for editing
 
 // Example: minimal map data
-const mapData = {
+let projectMapRoot = {
   id: 0,
   label: 'Root',
+  percentage: 100,
   children: [
-    { id: 1, label: 'Node 1', children: [] },
-    { id: 2, label: 'Node 2', children: [] }
+    { id: 1, label: 'Node 1', percentage: 0, children: [] },
+    { id: 2, label: 'Node 2', percentage: 0, children: [] }
   ]
 };
 
-// --- Language switching logic ---
+// Try to load projectMapRoot from localStorage on page load
+if (localStorage.getItem('projectMapRoot')) {
+  try {
+    const loaded = JSON.parse(localStorage.getItem('projectMapRoot'));
+    if (loaded && typeof loaded === 'object') {
+      projectMapRoot = loaded;
+      projectName = projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+      window.projectMapRoot = projectMapRoot; // update global for debugging
+    }
+  } catch (e) {
+    console.warn('Could not parse projectMapRoot from localStorage:', e);
+  }
+}
+
+let selected_node = null; // Track selected node
 let currentLanguage = 'EN';
+let projectName = projectMapRoot.label || projectMapRoot.labelEN || '';
+
+// Make projectMapRoot available on window for debugging
+window.projectMapRoot = projectMapRoot;
+
+document.title = `${projectName}`;
+document.getElementsByTagName('h1')[0].innerHTML = document.title;
+
 function switchLang() {
   currentLanguage = (currentLanguage === 'EN') ? 'ZH' : 'EN';
   renderCurrentMap();
 }
 
-// Render map (tree structure)
 function getYellowShade(level) {
   // Returns a yellow shade: level 0 is lightest, deeper levels are darker
   // HSL: h=48 (yellow), s=100%, l from 95% (root) to 80% (level 5+)
@@ -29,87 +51,291 @@ function getYellowShade(level) {
   return `hsl(48, 100%, ${lightness}%)`;
 }
 
-function renderMap(container, node, depth = 0) {
+function renderMap(node, depth = 0) {
   const el = document.createElement('div');
   el.className = 'map-node';
   el.style.background = getYellowShade(depth);
+  // Highlight if selected (compare by id)
+  if (selected_node && selected_node.id === node.id) {
+    el.style.border = '4px solid #f00';
+    el.style.background = '#fee';
+  }
   // Show only one language label at a time
   let label = '';
   if (currentLanguage === 'ZH' && node.labelZH) label = node.labelZH;
   else if (node.labelEN) label = node.labelEN;
   else label = node.label || '';
-  el.textContent = label;
-  el.dataset.nodeId = node.id;
-  el.oncontextmenu = function(e) {
-    e.preventDefault();
-    showNodeModal(node);
-  };
-  el.onclick = function(e) {
-    // Only respond to left-click, not right-click
-    if (e.button === 0) {
-      const nodeTitle = label || 'Node';
-      // For demo, use node fields if present
-      const labelEN = node.labelEN || node.label || '';
-      const labelZH = node.labelZH || '';
-      const status = node.status || '';
-      const details = node.details || '';
-      const authors = node.authors ? node.authors.join(', ') : '';
-      const html = `<!DOCTYPE html><html lang='en'><head><title>${nodeTitle}</title>
-        <meta charset='UTF-8'>
-        <link rel="stylesheet" href="/css/style.css">
-        <style>
-          body { font-family: sans-serif; background: #fff8e1; margin:0; padding:2em; }
-          .node-details-pane { background: #fff; border-radius: 12px; box-shadow: 0 2px 16px #f9e6b3; padding: 2em; max-width: 420px; margin: 2em auto; border: 2px solid #b77c00; }
-          .node-details-pane label { font-weight: bold; color: #7c4c00; }
-          .node-details-pane input, .node-details-pane textarea { width: 95%; margin-bottom: 1em; padding: 0.4em; border-radius: 6px; border: 1px solid #b77c00; }
-          .node-details-pane textarea { min-height: 6em; }
-          .status-group { margin-bottom: 1em; }
-          .status-group label { font-weight: normal; margin-right: 1em; }
-        </style>
-      </head><body>
-        <div class='node-details-pane'>
-          <h2 style='color:#7c4c00;'>Node Details</h2>
-          <div class='status-group'>
-            <label>Status:</label><br>
-            <input type='radio' id='in-progress' name='status' value='in-progress' ${status==='in-progress'?'checked':''}> <label for='in-progress'>In Progress</label>
-            <input type='radio' id='finished' name='status' value='finished' ${status==='finished'?'checked':''}> <label for='finished'>Finished</label>
-            <input type='radio' id='paused' name='status' value='paused' ${status==='paused'?'checked':''}> <label for='paused'>Paused</label>
-            <input type='radio' id='research' name='status' value='research' ${status==='research'?'checked':''}> <label for='research'>Research</label>
-          </div>
-          <div lang='ZH'>
-            <label>工作名称（中文）：</label><br>
-            <input type='text' id='TaskNameZH' value='${labelZH}'>
-          </div>
-          <label>Task name (English):</label><br>
-          <input type='text' id='TaskNameEN' value='${labelEN}'><br>
-          <label>Details:</label><br>
-          <textarea id='Details'>${details}</textarea><br>
-          <label>Authors:</label><br>
-          <input type='text' id='Authors' value='${authors}'><br>
-        </div>
-      </body></html>`;
-      const newWin = window.open('', '_blank');
-      if (newWin) {
-        newWin.document.write(html);
-        newWin.document.close();
-      }
+
+  // Create a label container (for label and percent)
+  const labelDiv = document.createElement('div');
+  labelDiv.textContent = label;
+  labelDiv.style.display = 'block';
+  labelDiv.style.marginBottom = '2px';
+  labelDiv.style.paddingRight = '28px'; // Prevent label from overspilling menuBtn
+  labelDiv.style.wordBreak = 'break-word'; // Allow wrapping
+  el.appendChild(labelDiv);
+
+  // Add dropdown menu button
+  const menuBtn = document.createElement('button');
+  menuBtn.textContent = '☰';
+  menuBtn.title = 'Node options';
+  menuBtn.style.position = 'absolute';
+  menuBtn.style.top = '4px';
+  menuBtn.style.right = '6px';
+  menuBtn.style.color = 'brown';
+  menuBtn.style.background = 'transparent';
+  menuBtn.style.border = 'none';
+  menuBtn.style.cursor = 'pointer';
+  menuBtn.style.zIndex = 2;
+  menuBtn.onclick = function(e) {
+    e.stopPropagation();
+    // Show dropdown menu
+    let menu = document.createElement('div');
+    menu.style.position = 'absolute';
+    menu.style.background = '#fff';
+    menu.style.border = '1px solid #ccc';
+    menu.style.zIndex = 1000;
+    menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    menu.style.padding = '4px 0';
+    menu.style.minWidth = '140px';
+    // Position menu near button
+    const rect = menuBtn.getBoundingClientRect();
+    menu.style.left = (rect.right + window.scrollX) + 'px';
+    menu.style.top = (rect.bottom + window.scrollY) + 'px';
+    // Add 'Open Page' option
+    const openPage = document.createElement('div');
+    openPage.textContent = 'Open Page';
+    openPage.style.padding = '6px 16px';
+    openPage.style.cursor = 'pointer';
+    openPage.onmouseover = () => openPage.style.background = '#eee';
+    openPage.onmouseout = () => openPage.style.background = '';
+    openPage.onclick = function(ev) {
+      ev.stopPropagation();
+      window.open(`/node-page.html?id=${encodeURIComponent(node.id)}`, '_blank');
+      document.body.removeChild(menu);
+    };
+    menu.appendChild(openPage);
+    // Add 'Add Child Node' option
+    const addChild = document.createElement('div');
+    addChild.textContent = 'Add Child Node';
+    addChild.style.padding = '6px 16px';
+    addChild.style.cursor = 'pointer';
+    addChild.onmouseover = () => addChild.style.background = '#eee';
+    addChild.onmouseout = () => addChild.style.background = '';
+    addChild.onclick = function(ev) {
+      ev.stopPropagation();
+      let label = prompt('Enter label for new node:');
+      if (!label) return;
+      if (!node.children) node.children = [];
+      let newId = Date.now();
+      node.children.push({ id: newId, label: label, percentage: 0, children: [] });
+      document.body.removeChild(menu);
+      renderCurrentMap();
+      saveMapToLocalStorage();
+    };
+    menu.appendChild(addChild);
+    // Add 'Delete Node' option (except for root)
+    if (node !== projectMapRoot) {
+      const deleteNode = document.createElement('div');
+      deleteNode.textContent = 'Delete Node';
+      deleteNode.style.padding = '6px 16px';
+      deleteNode.style.cursor = 'pointer';
+      deleteNode.style.color = '#b00';
+      deleteNode.onmouseover = () => deleteNode.style.background = '#fee';
+      deleteNode.onmouseout = () => deleteNode.style.background = '';
+      deleteNode.onclick = function(ev) {
+        ev.stopPropagation();
+        // Find parent and reassign children
+        function findAndDelete(parent) {
+          if (!parent.children) return false;
+          const idx = parent.children.findIndex(child => child.id === node.id);
+          if (idx !== -1) {
+            // Move node's children to parent
+            const nodeToDelete = parent.children[idx];
+            if (nodeToDelete.children && nodeToDelete.children.length > 0) {
+              parent.children.splice(idx, 1, ...nodeToDelete.children);
+            } else {
+              parent.children.splice(idx, 1);
+            }
+            return true;
+          }
+          for (let child of parent.children) {
+            if (findAndDelete(child)) return true;
+          }
+          return false;
+        }
+        findAndDelete(projectMapRoot);
+        selected_node = null;
+        document.body.removeChild(menu);
+        renderCurrentMap();
+        saveMapToLocalStorage();
+      };
+      menu.appendChild(deleteNode);
     }
+    // Add 'Rename Node' option
+    const renameNode = document.createElement('div');
+    renameNode.textContent = 'Rename Node';
+    renameNode.style.padding = '6px 16px';
+    renameNode.style.cursor = 'pointer';
+    renameNode.onmouseover = () => renameNode.style.background = '#eee';
+    renameNode.onmouseout = () => renameNode.style.background = '';
+    renameNode.onclick = function(ev) {
+      ev.stopPropagation();
+      let newLabel = prompt('Enter new label (EN) for this node:', node.labelEN || node.label || '');
+      if (newLabel && newLabel.trim()) {
+        node.labelEN = newLabel.trim();
+        node.label = newLabel.trim();
+        renderCurrentMap();
+        saveMapToLocalStorage();
+      }
+      document.body.removeChild(menu);
+    };
+    menu.appendChild(renameNode);
+    // Add 'Move Node' option (reorder within parent)
+    if (node !== projectMapRoot) {
+      const moveNode = document.createElement('div');
+      moveNode.textContent = 'Move Node (Change Order)';
+      moveNode.style.padding = '6px 16px';
+      moveNode.style.cursor = 'pointer';
+      moveNode.onmouseover = () => moveNode.style.background = '#eee';
+      moveNode.onmouseout = () => moveNode.style.background = '';
+      moveNode.onclick = function(ev) {
+        ev.stopPropagation();
+        // Find parent and index of this node
+        function findParentAndIndex(parent) {
+          if (!parent.children) return null;
+          const idx = parent.children.findIndex(child => child.id === node.id);
+          if (idx !== -1) return { parent, idx };
+          for (let child of parent.children) {
+            const res = findParentAndIndex(child);
+            if (res) return res;
+          }
+          return null;
+        }
+        const res = findParentAndIndex(projectMapRoot);
+        if (!res) return;
+        const { parent, idx } = res;
+        const maxPos = parent.children.length;
+        let newPosStr = prompt(`Enter new position for this node (1-${maxPos}):`, (idx+1));
+        if (!newPosStr) return;
+        let newPos = parseInt(newPosStr, 10) - 1;
+        if (isNaN(newPos) || newPos < 0 || newPos >= maxPos || newPos === idx) return;
+        // Remove node from current position
+        const [movingNode] = parent.children.splice(idx, 1);
+        // Insert node at new position
+        parent.children.splice(newPos, 0, movingNode);
+        renderCurrentMap();
+        saveMapToLocalStorage();
+        document.body.removeChild(menu);
+      };
+      menu.appendChild(moveNode);
+    }
+    // Add 'Edit Percentage' option
+    const editPercent = document.createElement('div');
+    editPercent.textContent = 'Edit Percentage';
+    editPercent.style.padding = '6px 16px';
+    editPercent.style.cursor = 'pointer';
+    editPercent.onmouseover = () => editPercent.style.background = '#eee';
+    editPercent.onmouseout = () => editPercent.style.background = '';
+    editPercent.onclick = function(ev) {
+      ev.stopPropagation();
+      let val = prompt('Enter percentage (0-100):', node.percentage != null ? node.percentage : 0);
+      if (val === null) return;
+      let num = parseInt(val, 10);
+      if (isNaN(num) || num < 0 || num > 100) {
+        alert('Please enter a number between 0 and 100.');
+        return;
+      }
+      node.percentage = num;
+      renderCurrentMap();
+      saveMapToLocalStorage();
+      document.body.removeChild(menu);
+    };
+    menu.appendChild(editPercent);
+    // Remove any existing menu
+    document.querySelectorAll('.node-dropdown-menu').forEach(m => m.remove());
+    menu.className = 'node-dropdown-menu';
+    document.body.appendChild(menu);
+    // Remove menu on click outside
+    setTimeout(() => {
+      function removeMenu(ev) {
+        if (!menu.contains(ev.target)) {
+          menu.remove();
+          document.removeEventListener('mousedown', removeMenu);
+        }
+      }
+      document.addEventListener('mousedown', removeMenu);
+    }, 0);
   };
+  el.appendChild(menuBtn);
+
+  // Add a small rectangular protrusion to the root node (lower-right corner)
+  if (depth === 0) {
+    el.style.position = 'relative';
+    const protrusion = document.createElement('div');
+    protrusion.style.position = 'absolute';
+    protrusion.style.width = '28px';
+    protrusion.style.height = '50px';
+    protrusion.style.right = '20px';
+    protrusion.style.bottom = '-50px';
+    protrusion.style.background = getYellowShade(0);
+    protrusion.style.border = '4px solid #b77c00';
+    protrusion.style.borderTop = '0px';
+    protrusion.style.borderBottom = '0px';
+    // Add bold dollar sign
+    const dollar = document.createElement('p');
+    dollar.innerHTML = '↑<br>$';
+    dollar.style.fontWeight = 'bold';
+    dollar.style.fontSize = '1.3em';
+    dollar.style.color = '#7c4c00';
+    dollar.style.position = 'absolute';
+    dollar.style.bottom = '-12px';
+    dollar.style.right = '6px';
+    protrusion.appendChild(dollar);
+    el.appendChild(protrusion);
+  }
+
+  // Children
   if (node.children && node.children.length) {
     const children = document.createElement('div');
     children.className = 'map-children';
-    node.children.forEach(child => children.appendChild(renderMap(container, child, depth + 1)));
+    node.children.forEach(child => children.appendChild(renderMap(child, depth + 1)));
     el.appendChild(children);
   }
+
+  // Render percentage on a separate line BELOW the children
+  const percentLineDiv = document.createElement('div');
+  percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
+  percentLineDiv.style.fontSize = '0.85em';
+  percentLineDiv.style.color = '#7c4c00';
+  percentLineDiv.style.fontWeight = 'bold';
+  percentLineDiv.style.opacity = '0.8';
+  percentLineDiv.style.marginTop = '2px';
+  percentLineDiv.style.marginBottom = '2px';
+  el.appendChild(percentLineDiv);
+
   return el;
 }
 
-// --- Helper to re-render the current map ---
+// Save the current projectMapRoot to localStorage whenever the map is updated
+function saveMapToLocalStorage() {
+  try {
+    localStorage.setItem('projectMapRoot', JSON.stringify(projectMapRoot));
+  } catch (e) {
+    console.warn('Could not save projectMapRoot to localStorage:', e);
+  }
+}
+
 function renderCurrentMap() {
-  if (!window.currentMapRoot) return;
   const container = document.getElementById('map-container');
   container.innerHTML = '';
-  container.appendChild(renderMap(container, window.currentMapRoot, 0));
+  container.appendChild(renderMap(projectMapRoot, 0));
+  saveMapToLocalStorage(); // Save after rendering (and after any change)
+  // Always update projectName from root node
+  projectName = projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+  document.title = projectName + ' - Project Map';
+  window.projectMapRoot = projectMapRoot; // keep updated for debugging
+  window.projectName = projectName; // keep updated for debugging
 }
 
 function showNodeModal(node) {
@@ -131,44 +357,27 @@ function readJSONMap() {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
-  // Suggest project-trees/ as the default directory if possible (browser limitation)
-  // User must select from project-trees/ manually
   input.onchange = function(event) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
+      let raw = e.target.result;
       try {
-        const json = JSON.parse(e.target.result);
-        // Accepts format: { nodes: [...], edges: [...], links: [...] }
-        // Convert to treeData structure
-        const idToNode = {};
-        json.nodes.forEach(n => {
-          idToNode[n.id] = { ...n, children: [] };
-        });
-        // Add tree edges (ignore red edges/links)
-        if (json.edges) {
-          json.edges.forEach(e => {
-            if (idToNode[e.from] && idToNode[e.to]) {
-              idToNode[e.to].children.push(idToNode[e.from]);
-            }
-          });
+        const json = JSON.parse(raw);
+        // Assume json is exactly the tree structure (ProjectMapRoot)
+        if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
+          projectMapRoot = json;
+          projectName = projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+          window.projectMapRoot = projectMapRoot;
+          selected_node = null;
+          renderCurrentMap();
+          saveMapToLocalStorage();
+        } else {
+          throw new Error('Unrecognized JSON map format: root node must have id:0 and children array');
         }
-        // Find root (node with no parent)
-        const childIds = new Set();
-        if (json.edges) json.edges.forEach(e => childIds.add(e.from));
-        let root = null;
-        for (const n of json.nodes) {
-          if (!childIds.has(n.id)) {
-            root = idToNode[n.id];
-            break;
-          }
-        }
-        if (!root) root = idToNode[0] || json.nodes[0];
-        window.currentMapRoot = root;
-        renderCurrentMap();
       } catch (err) {
-        alert('Invalid JSON map file!');
+        alert('Invalid JSON map file!\n' + err);
       }
     };
     reader.readAsText(file);
@@ -176,19 +385,40 @@ function readJSONMap() {
   input.click();
 }
 // --- Save JSON map logic ---
-function saveJSONMap(mapObj, filename = 'project-map.json') {
-  // Save to project-trees/ directory by default (user will be prompted for location)
-  const jsonStr = JSON.stringify(mapObj, null, 2);
-  const blob = new Blob([jsonStr], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function() {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
-  }, 0);
+function saveJSONMap(filename) {
+  // Always use projectMapRoot as the data to save
+  let defaultName = projectName || (window.projectMapRoot && (window.projectMapRoot.labelEN || window.projectMapRoot.label)) ? (window.projectMapRoot.labelEN || window.projectMapRoot.label) : 'project-map';
+  let saveName = prompt('Enter project name for saving (will be used as filename):', defaultName);
+  if (!saveName) return;
+  // Sanitize filename
+  saveName = saveName.replace(/[^a-zA-Z0-9-_]/g, '_');
+  projectName = saveName; // Update global projectName
+  const fileName = `${saveName}.json`;
+  const jsonStr = JSON.stringify(projectMapRoot, null, 2);
+
+  // Try to save to project-maps/ via server if possible
+  fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: jsonStr
+  })
+    .then(r => r.ok ? alert('Saved to server: project-maps/' + fileName) : r.text().then(t => alert('Error: ' + t)))
+    .catch(e => {
+      // Fallback: download to user's default download folder
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      }, 0);
+      alert('Saved to local download folder as ' + fileName);
+    });
+  // Update page title after save
+  document.title = projectName + ' - Project Map';
 }
 
 // --- Save JSON map to server-side project-maps/ directory ---
@@ -198,7 +428,7 @@ function saveJSONMapServer() {
   if (!filename) return;
   // Gather tree data (assume global treeData or build from UI)
   // If you have a global treeData, use it. Otherwise, you may need to serialize from UI.
-  let mapObj = window.currentMapRoot;
+  let mapObj = projectMapRoot;
   if (!mapObj) {
     alert('No map data found!');
     return;
@@ -281,10 +511,26 @@ fetchChatMessages();
 document.addEventListener('DOMContentLoaded', function() {
   const container = document.getElementById('map-container');
   container.innerHTML = '';
-  container.appendChild(renderMap(container, mapData));
+  renderCurrentMap();
   document.getElementById('modal-cancel-btn').onclick = hideNodeModal;
   document.getElementById('modal-save-btn').onclick = function() {
     // Save logic here (update label, etc.)
+    const modal = document.getElementById('node-modal');
+    const nodeId = modal.dataset.nodeId;
+    // Update the node's label
+    const newLabel = document.getElementById('modal-node-label').value;
+    if (newLabel && newLabel.trim()) {
+      // Find the node by id and update its label
+      function updateNodeLabel(node) {
+        if (node.id == nodeId) {
+          node.label = newLabel.trim();
+          node.labelEN = newLabel.trim();
+        } else if (node.children) {
+          node.children.forEach(updateNodeLabel);
+        }
+      }
+      updateNodeLabel(projectMapRoot);
+    }
     hideNodeModal();
     renderCurrentMap();
   };
