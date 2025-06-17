@@ -15,6 +15,11 @@
       background: #fff;
       overflow: hidden;
     }
+    html {
+      text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
     body {
       width: 100vw;
       height: 100vh;
@@ -103,7 +108,7 @@
 		align-self: center;
 		width: auto;
 		position: static;
-		font-size: 3.5em !important;
+		font-size: min(3.5em, 5vw) !important;
 		/* Remove top/left/transform for landscape */
 		top: auto;
 		left: auto;
