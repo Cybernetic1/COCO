@@ -25,26 +25,6 @@
       height: 100vh;
       /* Add a background image container */
     }
-    #bg-svg {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-      user-select: none;
-      display: block;
-    }
-    svg {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-      position: absolute;
-      top: 0; left: 0;
-      pointer-events: none;
-      user-select: none;
-      z-index: 10;
-    }
     #foreground-text {
       position: absolute;
       top: 30%;
@@ -74,39 +54,27 @@
 		margin-top: 80%;
 		width: 90%;
 	}
-    #bg-img {
-      position: fixed;
-      top: 0;
-      left: 0;
-      min-width: 100vw;
-      min-height: 100vh;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: -1;
-      pointer-events: none;
-      user-select: none;
-    }
 
 	/* Landscape adjustments */
 	body.landscape #foreground-text {
 		position: absolute;
-		top: 30%;
+		top: 50%;
 		right: 5vw;
 		left: auto;
-		width: 40vw;
-		max-width: 48vw;
-		text-align: right;
+		width: max-content;
+		min-width: 40vw;
+		max-width: 90vw;
+		text-align: right !important;
 		margin: 0;
 		font-size: min(3.5em, 3.6vw) !important;
-		white-space: normal;
+		white-space: nowrap; /* Prevent wrapping */
 		z-index: 20;
 		transform: translateY(-50%);
 	}
 	body.landscape #TRON-bike {
 		position: absolute;
 		left: 5vw;
-		top: 30%;
+		top: 50%;
 		width: 40vw;
 		max-width: 48vw;
 		height: auto;
@@ -115,11 +83,12 @@
 		transform: translateY(-50%);
 		display: block;
 	}
-	/* Ensure matrix-svg is above all content and not clipped */
-	svg#matrix-svg {
-      z-index: 100 !important;
+	/* Ensure matrix-svg is below foreground text, as before */
+	#matrix-svg {
+      z-index: 10;
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
@@ -130,12 +99,10 @@
 </head>
 <body>
   <button id="lang-switch" style="position:fixed;top:16px;left:16px;z-index:10;font-size:1.2em;padding:0.4em 1em;border-radius:8px;border:none;background:#e0f7fa;color:#222;box-shadow:0 2px 8px #00e0ff;cursor:pointer;">English</button>
-  <div class="main-flex-container">
-    <div id="foreground-text"></div>
-    <img id="TRON-bike" src="images/TRON.jpg" alt="TRON" style="opacity:0.1;">
-  </div>
-  <svg id="bg-svg"></svg>
+  <div id="foreground-text"></div>
+  <img id="TRON-bike" src="images/TRON.jpg" alt="TRON" style="opacity:0.1;">
   <svg id="matrix-svg"></svg>
+
   <script>
     // Famous science fiction quotes
     const sciFiQuotes = [
@@ -147,11 +114,18 @@
     svg.setAttribute('width', width);
     svg.setAttribute('height', height);
 
-    // Fewer sentences for sparser effect
-    const minFontSize = 20;
-    const maxFontSize = 42;
-    const numSentences = Math.floor(width / (minFontSize * 4));
-    // Each drop is an object: { x, y, quoteIdx, speed, fontSize }
+    // --- DENSITY LOGIC: Denser in landscape, normal in portrait ---
+    function getNumSentences() {
+      const minFontSize = 20;
+      if (document.body.classList.contains('landscape')) {
+        return Math.floor(width / (minFontSize * 2.2)); // Denser in landscape
+      } else {
+        return Math.floor(width / (minFontSize * 4)); // Original in portrait
+      }
+    }
+    let minFontSize = 20;
+    let maxFontSize = 42;
+    let numSentences = getNumSentences();
     let drops = [];
     function randomColor() {
       // Generate a color in white, grey, or light blue tones
@@ -166,6 +140,7 @@
     }
     function initDrops() {
       drops = [];
+      numSentences = getNumSentences();
       for (let i = 0; i < numSentences; i++) {
         const x = Math.random() * (width - maxFontSize * 2);
         const y = Math.random() * height - Math.random() * height;
@@ -244,6 +219,13 @@
       svg.setAttribute('height', height);
       initDrops();
     });
+    // --- Also re-init drops on orientation/layout change ---
+    window.addEventListener('orientationchange', initDrops);
+    // Listen for class changes (portrait/landscape)
+    const observer = new MutationObserver(() => {
+      initDrops();
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
     // Fetch and extract sentences from sci-fi-texts/ files
     async function fetchSentences(file, lang) {
@@ -355,7 +337,7 @@
             currentLang = 'cn';
             fgTextDiv.innerHTML = cnText;
             fgTextDiv.style.fontSize = '4em';
-            fgTextDiv.style.fontFamily = '';
+            fgTextDiv.style.fontFamily = 'Alimama';
             langBtn.textContent = '繁體';
           } else if (tradCountries.includes(data.country)) {
             currentLang = 'tw';
@@ -367,7 +349,7 @@
             currentLang = 'en';
             fgTextDiv.innerHTML = enText;
             fgTextDiv.style.fontSize = '2.5em';
-            fgTextDiv.style.fontFamily = 'Alimama';
+            fgTextDiv.style.fontFamily = '';
             langBtn.textContent = '简体';
           }
           return;
