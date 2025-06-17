@@ -5,33 +5,60 @@
     {
       "id": 1,
       "label": "choose what goods to buy",
-      "children": []
+      "children": [
+        {
+          "id": 1750153639264,
+          "label": "determine what type of goods",
+          "percentage": 50,
+          "children": [],
+          "labelZH": "决定货品类别"
+        },
+        {
+          "id": 1750153656070,
+          "label": "find specific items",
+          "percentage": 50,
+          "children": [],
+          "labelZH": "选购具体货品"
+        }
+      ],
+      "percentage": 20,
+      "labelZH": "决定买什么货"
     },
     {
       "id": 2,
       "label": "buy goods in China",
       "children": [],
-      "labelEN": "buy goods in China"
+      "labelEN": "buy goods in China",
+      "percentage": 30,
+      "labelZH": "在中国买货"
     },
     {
       "id": 1750137473460,
       "label": "ship goods China → India",
-      "children": []
+      "children": [],
+      "percentage": 10,
+      "labelZH": "运送 China → India"
     },
     {
       "id": 1750139030777,
       "label": "rent a shop outlet",
-      "children": []
+      "children": [],
+      "percentage": 10,
+      "labelZH": "租店铺"
     },
     {
       "id": 1750137515794,
       "label": "sell goods in India",
-      "children": []
+      "children": [],
+      "percentage": 20,
+      "labelZH": "售卖货品"
     },
     {
       "id": 1750139067685,
       "label": "recieve payments",
-      "children": []
+      "children": [],
+      "percentage": 10,
+      "labelZH": "支付界面"
     }
   ],
   "labelEN": "China-India trade",
@@ -41,5 +68,6 @@
   "expTokens": "",
   "expTime": "",
   "expWorkers": "",
-  "authors": []
+  "authors": [],
+  "percentage": 100
 }

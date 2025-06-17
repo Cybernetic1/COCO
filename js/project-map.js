@@ -46,8 +46,8 @@ function switchLang() {
 
 function getYellowShade(level) {
   // Returns a yellow shade: level 0 is lightest, deeper levels are darker
-  // HSL: h=48 (yellow), s=100%, l from 95% (root) to 80% (level 5+)
-  const lightness = Math.max(95 - level * 3, 80);
+  // HSL: h=48 (yellow), s=100%, l from 95% (root) to 60% (level 5+)
+  const lightness = Math.max(95 - level * 10, 50);
   return `hsl(48, 100%, ${lightness}%)`;
 }
 
@@ -191,6 +191,24 @@ function renderMap(node, depth = 0) {
       document.body.removeChild(menu);
     };
     menu.appendChild(renameNode);
+    // Add 'Edit Chinese Label' option
+    const editChineseLabel = document.createElement('div');
+    editChineseLabel.textContent = 'Edit Chinese Label';
+    editChineseLabel.style.padding = '6px 16px';
+    editChineseLabel.style.cursor = 'pointer';
+    editChineseLabel.onmouseover = () => editChineseLabel.style.background = '#eee';
+    editChineseLabel.onmouseout = () => editChineseLabel.style.background = '';
+    editChineseLabel.onclick = function(ev) {
+      ev.stopPropagation();
+      let newLabelZH = prompt('输入中文标签 (Chinese label) for this node:', node.labelZH || '');
+      if (newLabelZH && newLabelZH.trim()) {
+        node.labelZH = newLabelZH.trim();
+        renderCurrentMap();
+        saveMapToLocalStorage();
+      }
+      document.body.removeChild(menu);
+    };
+    menu.appendChild(editChineseLabel);
     // Add 'Move Node' option (reorder within parent)
     if (node !== projectMapRoot) {
       const moveNode = document.createElement('div');
