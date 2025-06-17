@@ -13,7 +13,7 @@
       margin: 0;
       /* background: #a3e4f5; */
       background: #fff;
-      overflow: hidden;
+      /* overflow: hidden; */ /* Remove this to prevent SVG clipping */
     }
     html {
       text-size-adjust: 100%;
@@ -88,50 +88,44 @@
       user-select: none;
     }
 
-	/* Landscape flex layout for foreground-text and TRON-bike */
-	body.landscape .main-flex-container {
-		display: flex;
-		flex-direction: row-reverse;
-		align-items: center;
-		justify-content: flex-end;
-		width: 100vw;
-		height: 100vh;
-		margin: 0 auto;
-		margin-top: 10vh;
-		position: relative;
-	}
+	/* Landscape adjustments */
 	body.landscape #foreground-text {
-		flex: none;
-		text-align: right;
-		margin-right: 5vw;
-		margin-left: 0;
-		align-self: center;
-		width: auto;
-		position: static;
-		font-size: min(3.5em, 3.6vw) !important;
-		top: auto;
+		position: absolute;
+		top: 30%;
+		right: 5vw;
 		left: auto;
-		transform: none;
-		white-space: nowrap;
-		overflow-x: visible;
-		z-index: 2;
+		width: 40vw;
+		max-width: 48vw;
+		text-align: right;
+		margin: 0;
+		font-size: min(3.5em, 3.6vw) !important;
+		white-space: normal;
+		z-index: 20;
+		transform: translateY(-50%);
 	}
 	body.landscape #TRON-bike {
-		flex: none;
-		max-width: 50vw;
-		max-height: 80vh;
-		width: 50vw;
+		position: absolute;
+		left: 5vw;
+		top: 30%;
+		width: 40vw;
+		max-width: 48vw;
 		height: auto;
-		margin-left: 0;
-		margin-right: 0;
-		align-self: center;
-		display: block;
-		position: static;
-		top: auto;
-		margin-top: 0;
-		margin-bottom: 0;
+		margin: 0;
 		z-index: 1;
+		transform: translateY(-50%);
+		display: block;
 	}
+	/* Ensure matrix-svg is above all content and not clipped */
+	svg#matrix-svg {
+      z-index: 100 !important;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      user-select: none;
+      display: block;
+    }
   </style>
 </head>
 <body>
