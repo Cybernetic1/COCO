@@ -113,7 +113,7 @@ function renderMap(node, depth = 0) {
 
 		// Add 'Add Child Node' option
 		const addChild = document.createElement('div');
-		addChild.textContent = 'Add child node';
+		addChild.textContent = 'Add Child Node';
 		addChild.style.padding = '6px 16px';
 		addChild.style.cursor = 'pointer';
 		addChild.onmouseover = () => addChild.style.background = '#eee';
@@ -130,11 +130,10 @@ function renderMap(node, depth = 0) {
 		  saveMapToLocalStorage();
 		};
 		menu.appendChild(addChild);
-
 		// Add 'Delete Node' option (except for root)
 		if (node !== projectMapRoot) {
 		  const deleteNode = document.createElement('div');
-		  deleteNode.textContent = 'Delete node';
+		  deleteNode.textContent = 'Delete Node';
 		  deleteNode.style.padding = '6px 16px';
 		  deleteNode.style.cursor = 'pointer';
 		  deleteNode.style.color = '#b00';
@@ -171,7 +170,7 @@ function renderMap(node, depth = 0) {
 		}
 		// Add 'Rename Node' option
 		const renameNode = document.createElement('div');
-		renameNode.textContent = 'Rename node';
+		renameNode.textContent = 'Rename Node';
 		renameNode.style.padding = '6px 16px';
 		renameNode.style.cursor = 'pointer';
 		renameNode.onmouseover = () => renameNode.style.background = '#eee';
@@ -188,10 +187,9 @@ function renderMap(node, depth = 0) {
 		  document.body.removeChild(menu);
 		};
 		menu.appendChild(renameNode);
-		
 		// Add 'Edit Chinese Label' option
 		const editChineseLabel = document.createElement('div');
-		editChineseLabel.textContent = 'Edit Chinese label';
+		editChineseLabel.textContent = 'Edit Chinese Label';
 		editChineseLabel.style.padding = '6px 16px';
 		editChineseLabel.style.cursor = 'pointer';
 		editChineseLabel.onmouseover = () => editChineseLabel.style.background = '#eee';
@@ -207,11 +205,10 @@ function renderMap(node, depth = 0) {
 		  document.body.removeChild(menu);
 		};
 		menu.appendChild(editChineseLabel);
-
 		// Add 'Move Node' option (reorder within parent)
 		if (node !== projectMapRoot) {
 		  const moveNode = document.createElement('div');
-		  moveNode.textContent = 'Move node (change order)';
+		  moveNode.textContent = 'Move Node (Change Order)';
 		  moveNode.style.padding = '6px 16px';
 		  moveNode.style.cursor = 'pointer';
 		  moveNode.onmouseover = () => moveNode.style.background = '#eee';
@@ -247,10 +244,9 @@ function renderMap(node, depth = 0) {
 		  };
 		  menu.appendChild(moveNode);
 		}
-
 		// Add 'Edit Percentage' option
 		const editPercent = document.createElement('div');
-		editPercent.textContent = 'Edit %';
+		editPercent.textContent = 'Edit Percentage';
 		editPercent.style.padding = '6px 16px';
 		editPercent.style.cursor = 'pointer';
 		editPercent.onmouseover = () => editPercent.style.background = '#eee';
@@ -273,7 +269,7 @@ function renderMap(node, depth = 0) {
 
 		// Add 'Open Page' option
 		const openPage = document.createElement('div');
-		openPage.textContent = 'Open node page';
+		openPage.textContent = 'Open Page';
 		openPage.style.padding = '6px 16px';
 		openPage.style.cursor = 'pointer';
 		openPage.onmouseover = () => openPage.style.background = '#eee';
@@ -453,43 +449,6 @@ function saveJSONMap(filename) {
     });
   // Update page title after save
   document.title = projectName + ' - Project Map';
-}
-
-// --- Save JSON map to server-side project-maps/ directory ---
-function saveJSONMapServer() {
-  // Prompt for filename
-  const filename = prompt('Enter filename for the map (without .json):', 'project-map');
-  if (!filename) return;
-  // Gather tree data (assume global treeData or build from UI)
-  // If you have a global treeData, use it. Otherwise, you may need to serialize from UI.
-  let mapObj = projectMapRoot;
-  if (!mapObj) {
-    alert('No map data found!');
-    return;
-  }
-  // Convert tree to flat nodes/edges/links format
-  const nodes = [];
-  const edges = [];
-  function traverse(node, parentId) {
-    nodes.push({ ...node, children: undefined });
-    if (parentId !== null) {
-      edges.push({ from: node.id, to: parentId });
-    }
-    if (node.children) {
-      node.children.forEach(child => traverse(child, node.id));
-    }
-  }
-  traverse(mapObj, null);
-  const exportObj = { nodes, edges, links: [] };
-  const jsonStr = JSON.stringify(exportObj, null, 2);
-  // Send to server
-  fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: jsonStr
-  })
-    .then(r => r.ok ? alert('Saved to server!') : r.text().then(t => alert('Error: ' + t)))
-    .catch(e => alert('Network error: ' + e));
 }
 
 // --- Chat logic ---
