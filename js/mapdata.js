@@ -1065,7 +1065,7 @@ var simplemaps_worldmap_mapdata={
     },
     SY: {
       name: "Syria",
-      description: "default",
+      description: "In May 2025, Trump met with Syrian President Ahmed al-Sharaa.  Tensions still remain in Syrian-US relation due to presence of US military and anti-US armed / terrorist groups.",
       color: "default",
       hover_color: "default",
       url: "default"
@@ -1232,7 +1232,7 @@ var simplemaps_worldmap_mapdata={
       url: "default"
     },
     GF: {
-      name: "France",
+      name: "French Guiana",
       description: "default",
       color: "default",
       hover_color: "default",
@@ -1780,7 +1780,14 @@ var countries = [
 	"Seychelles",
 ];
 
-category_colors = ["blue", "red", "green", "cyan", "orange", "grey"];
+// 1 pro-West / US
+// 2 pro-China / Russia
+// 3 pro-US Muslim
+// 4 neutral
+// 5 emerging
+// 6 anti-US Muslim
+// 7 complex / neutral Muslim
+category_colors = ["blue", "red", "#0f0", "cyan", "orange", "green", "#cfc"];
 
 var political_categories = {
 // Category 1
@@ -1858,6 +1865,7 @@ var political_categories = {
 "Pitcairn Islands": 1,
 "Puerto Rico": 1,
 "French Polynesia": 1,
+"French Guiana": 1,
 // Category 2
 "Armenia": 2,
 "Azerbaijan": 2,
@@ -1882,40 +1890,41 @@ var political_categories = {
 "Vietnam": 2,
 "Dem. Rep. Korea": 2,
 "Mongolia": 2,
-// Category 3
-"Afghanistan": 3,
+// Category 3: pro-US Muslim
 "United Arab Emirates": 3,
 "Bahrain": 3,
 "Djibouti": 3,
-"Algeria": 3,
 "Egypt": 3,
-"Iran": 3,
-"Iraq": 3,
 "Jordan": 3,
-"Kazakhstan": 3,
 "Kuwait": 3,
-"Lebanon": 3,
-"Libya": 3,
 "Morocco": 3,
-"Mali": 3,
-"Mauritania": 3,
-"Malaysia": 3,
-"Niger": 3,
 "Oman": 3,
-"Pakistan": 3,
-"Palestine": 3,
-"Qatar": 3,
 "Saudi Arabia": 3,
-"Sudan": 3,
+"Qatar": 3,
+"Kazakhstan": 3,
 "South Sudan": 3,
 "Senegal": 3,
-"Syria": 3,
-"Tajikistan": 3,
-"Turkmenistan": 3,
-"Tunisia": 3,
-"Yemen": 3,
-"Somalia": 3,
-"Maldives": 3,
+// Category 6: anti-US Muslim
+"Iran": 6,
+"Libya": 6,
+"Palestine": 6,
+"Yemen": 6,
+"Sudan": 6,
+"Iraq": 6,
+// Category 7: complex / neutral Muslim
+"Afghanistan": 7,
+"Algeria": 7,
+"Lebanon": 7,
+"Malaysia": 7,
+"Mali": 7,
+"Mauritania": 7,
+"Pakistan": 7,
+"Syria": 7,
+"Tajikistan": 7,
+"Turkmenistan": 7,
+"Tunisia": 7,
+"Somalia": 7,
+"Maldives": 7,
 // Category 4
 "Argentina": 4,
 "Benin": 4,
