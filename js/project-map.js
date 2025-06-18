@@ -39,9 +39,15 @@ window.projectMapRoot = projectMapRoot;
 document.title = `${projectName}`;
 document.getElementsByTagName('h1')[0].innerHTML = document.title;
 
+// Sound files (uncomment to use)
+// const techClick = new Audio('sounds/tech-click.wav');
+const techClick2 = new Audio('sounds/tech-click2.wav');
+// const techFail = new Audio('sounds/tech-fail.wav');
+
 function switchLang() {
   currentLanguage = (currentLanguage === 'EN') ? 'ZH' : 'EN';
   renderCurrentMap();
+  techClick2.play();
 }
 
 function getYellowShade(level) {
@@ -52,287 +58,293 @@ function getYellowShade(level) {
 }
 
 function renderMap(node, depth = 0) {
-  const el = document.createElement('div');
-  el.className = 'map-node';
-  el.style.background = getYellowShade(depth);
-  // Highlight if selected (compare by id)
-  if (selected_node && selected_node.id === node.id) {
-    el.style.border = '4px solid #f00';
-    el.style.background = '#fee';
-  }
-  // Show only one language label at a time
-  let label = '';
-  if (currentLanguage === 'ZH' && node.labelZH) label = node.labelZH;
-  else if (node.labelEN) label = node.labelEN;
-  else label = node.label || '';
+	const el = document.createElement('div');
+	el.className = 'map-node';
+	el.style.background = getYellowShade(depth);
+	// Highlight if selected (compare by id)
+	if (selected_node && selected_node.id === node.id) {
+		el.style.border = '4px solid #f00';
+		el.style.background = '#fee';
+	}
+	// Show only one language label at a time
+	let label = '';
+	if (currentLanguage === 'ZH' && node.labelZH)
+		label = node.labelZH;
+	else if (node.labelEN)
+		label = node.labelEN;
+	else label = node.label || '';
 
-  // Create a label container (for label and percent)
-  const labelDiv = document.createElement('div');
-  labelDiv.textContent = label;
-  labelDiv.style.display = 'block';
-  labelDiv.style.marginBottom = '2px';
-  labelDiv.style.paddingRight = '28px'; // Prevent label from overspilling menuBtn
-  labelDiv.style.wordBreak = 'break-word'; // Allow wrapping
-  el.appendChild(labelDiv);
+	// Create a node as a container
+	const labelDiv = document.createElement('div');
+	labelDiv.textContent = label;
+	labelDiv.style.display = 'block';
+	labelDiv.style.marginBottom = '2px';
+	labelDiv.style.paddingRight = '28px'; // Prevent label from overspilling menuBtn
+	labelDiv.style.wordBreak = 'break-word'; // Allow wrapping
+	el.appendChild(labelDiv);
 
-  // Add dropdown menu button
-  const menuBtn = document.createElement('button');
-  menuBtn.textContent = '☰';
-  menuBtn.title = 'Node options';
-  menuBtn.style.position = 'absolute';
-  menuBtn.style.top = '4px';
-  menuBtn.style.right = '6px';
-  menuBtn.style.color = 'brown';
-  menuBtn.style.background = 'transparent';
-  menuBtn.style.border = 'none';
-  menuBtn.style.cursor = 'pointer';
-  menuBtn.style.zIndex = 2;
-  menuBtn.onclick = function(e) {
-    e.stopPropagation();
-    // Show dropdown menu
-    let menu = document.createElement('div');
-    menu.style.position = 'absolute';
-    menu.style.background = '#fff';
-    menu.style.border = '1px solid #ccc';
-    menu.style.zIndex = 1000;
-    menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-    menu.style.padding = '4px 0';
-    menu.style.minWidth = '140px';
-    // Position menu near button
-    const rect = menuBtn.getBoundingClientRect();
-    menu.style.left = (rect.right + window.scrollX) + 'px';
-    menu.style.top = (rect.bottom + window.scrollY) + 'px';
-    // Add 'Open Page' option
-    const openPage = document.createElement('div');
-    openPage.textContent = 'Open Page';
-    openPage.style.padding = '6px 16px';
-    openPage.style.cursor = 'pointer';
-    openPage.onmouseover = () => openPage.style.background = '#eee';
-    openPage.onmouseout = () => openPage.style.background = '';
-    openPage.onclick = function(ev) {
-      ev.stopPropagation();
-      window.open(`/node-page.html?id=${encodeURIComponent(node.id)}`, '_blank');
-      document.body.removeChild(menu);
-    };
-    menu.appendChild(openPage);
-    // Add 'Add Child Node' option
-    const addChild = document.createElement('div');
-    addChild.textContent = 'Add Child Node';
-    addChild.style.padding = '6px 16px';
-    addChild.style.cursor = 'pointer';
-    addChild.onmouseover = () => addChild.style.background = '#eee';
-    addChild.onmouseout = () => addChild.style.background = '';
-    addChild.onclick = function(ev) {
-      ev.stopPropagation();
-      let label = prompt('Enter label for new node:');
-      if (!label) return;
-      if (!node.children) node.children = [];
-      let newId = Date.now();
-      node.children.push({ id: newId, label: label, percentage: 0, children: [] });
-      document.body.removeChild(menu);
-      renderCurrentMap();
-      saveMapToLocalStorage();
-    };
-    menu.appendChild(addChild);
-    // Add 'Delete Node' option (except for root)
-    if (node !== projectMapRoot) {
-      const deleteNode = document.createElement('div');
-      deleteNode.textContent = 'Delete Node';
-      deleteNode.style.padding = '6px 16px';
-      deleteNode.style.cursor = 'pointer';
-      deleteNode.style.color = '#b00';
-      deleteNode.onmouseover = () => deleteNode.style.background = '#fee';
-      deleteNode.onmouseout = () => deleteNode.style.background = '';
-      deleteNode.onclick = function(ev) {
-        ev.stopPropagation();
-        // Find parent and reassign children
-        function findAndDelete(parent) {
-          if (!parent.children) return false;
-          const idx = parent.children.findIndex(child => child.id === node.id);
-          if (idx !== -1) {
-            // Move node's children to parent
-            const nodeToDelete = parent.children[idx];
-            if (nodeToDelete.children && nodeToDelete.children.length > 0) {
-              parent.children.splice(idx, 1, ...nodeToDelete.children);
-            } else {
-              parent.children.splice(idx, 1);
-            }
-            return true;
-          }
-          for (let child of parent.children) {
-            if (findAndDelete(child)) return true;
-          }
-          return false;
-        }
-        findAndDelete(projectMapRoot);
-        selected_node = null;
-        document.body.removeChild(menu);
-        renderCurrentMap();
-        saveMapToLocalStorage();
-      };
-      menu.appendChild(deleteNode);
-    }
-    // Add 'Rename Node' option
-    const renameNode = document.createElement('div');
-    renameNode.textContent = 'Rename Node';
-    renameNode.style.padding = '6px 16px';
-    renameNode.style.cursor = 'pointer';
-    renameNode.onmouseover = () => renameNode.style.background = '#eee';
-    renameNode.onmouseout = () => renameNode.style.background = '';
-    renameNode.onclick = function(ev) {
-      ev.stopPropagation();
-      let newLabel = prompt('Enter new label (EN) for this node:', node.labelEN || node.label || '');
-      if (newLabel && newLabel.trim()) {
-        node.labelEN = newLabel.trim();
-        node.label = newLabel.trim();
-        renderCurrentMap();
-        saveMapToLocalStorage();
-      }
-      document.body.removeChild(menu);
-    };
-    menu.appendChild(renameNode);
-    // Add 'Edit Chinese Label' option
-    const editChineseLabel = document.createElement('div');
-    editChineseLabel.textContent = 'Edit Chinese Label';
-    editChineseLabel.style.padding = '6px 16px';
-    editChineseLabel.style.cursor = 'pointer';
-    editChineseLabel.onmouseover = () => editChineseLabel.style.background = '#eee';
-    editChineseLabel.onmouseout = () => editChineseLabel.style.background = '';
-    editChineseLabel.onclick = function(ev) {
-      ev.stopPropagation();
-      let newLabelZH = prompt('输入中文标签 (Chinese label) for this node:', node.labelZH || '');
-      if (newLabelZH && newLabelZH.trim()) {
-        node.labelZH = newLabelZH.trim();
-        renderCurrentMap();
-        saveMapToLocalStorage();
-      }
-      document.body.removeChild(menu);
-    };
-    menu.appendChild(editChineseLabel);
-    // Add 'Move Node' option (reorder within parent)
-    if (node !== projectMapRoot) {
-      const moveNode = document.createElement('div');
-      moveNode.textContent = 'Move Node (Change Order)';
-      moveNode.style.padding = '6px 16px';
-      moveNode.style.cursor = 'pointer';
-      moveNode.onmouseover = () => moveNode.style.background = '#eee';
-      moveNode.onmouseout = () => moveNode.style.background = '';
-      moveNode.onclick = function(ev) {
-        ev.stopPropagation();
-        // Find parent and index of this node
-        function findParentAndIndex(parent) {
-          if (!parent.children) return null;
-          const idx = parent.children.findIndex(child => child.id === node.id);
-          if (idx !== -1) return { parent, idx };
-          for (let child of parent.children) {
-            const res = findParentAndIndex(child);
-            if (res) return res;
-          }
-          return null;
-        }
-        const res = findParentAndIndex(projectMapRoot);
-        if (!res) return;
-        const { parent, idx } = res;
-        const maxPos = parent.children.length;
-        let newPosStr = prompt(`Enter new position for this node (1-${maxPos}):`, (idx+1));
-        if (!newPosStr) return;
-        let newPos = parseInt(newPosStr, 10) - 1;
-        if (isNaN(newPos) || newPos < 0 || newPos >= maxPos || newPos === idx) return;
-        // Remove node from current position
-        const [movingNode] = parent.children.splice(idx, 1);
-        // Insert node at new position
-        parent.children.splice(newPos, 0, movingNode);
-        renderCurrentMap();
-        saveMapToLocalStorage();
-        document.body.removeChild(menu);
-      };
-      menu.appendChild(moveNode);
-    }
-    // Add 'Edit Percentage' option
-    const editPercent = document.createElement('div');
-    editPercent.textContent = 'Edit Percentage';
-    editPercent.style.padding = '6px 16px';
-    editPercent.style.cursor = 'pointer';
-    editPercent.onmouseover = () => editPercent.style.background = '#eee';
-    editPercent.onmouseout = () => editPercent.style.background = '';
-    editPercent.onclick = function(ev) {
-      ev.stopPropagation();
-      let val = prompt('Enter percentage (0-100):', node.percentage != null ? node.percentage : 0);
-      if (val === null) return;
-      let num = parseInt(val, 10);
-      if (isNaN(num) || num < 0 || num > 100) {
-        alert('Please enter a number between 0 and 100.');
-        return;
-      }
-      node.percentage = num;
-      renderCurrentMap();
-      saveMapToLocalStorage();
-      document.body.removeChild(menu);
-    };
-    menu.appendChild(editPercent);
-    // Remove any existing menu
-    document.querySelectorAll('.node-dropdown-menu').forEach(m => m.remove());
-    menu.className = 'node-dropdown-menu';
-    document.body.appendChild(menu);
-    // Remove menu on click outside
-    setTimeout(() => {
-      function removeMenu(ev) {
-        if (!menu.contains(ev.target)) {
-          menu.remove();
-          document.removeEventListener('mousedown', removeMenu);
-        }
-      }
-      document.addEventListener('mousedown', removeMenu);
-    }, 0);
-  };
-  el.appendChild(menuBtn);
+	// Add dropdown menu button
+	const menuBtn = document.createElement('button');
+	menuBtn.textContent = '☰';
+	menuBtn.title = 'Node options';
+	menuBtn.style.position = 'absolute';
+	menuBtn.style.top = '4px';
+	menuBtn.style.right = '6px';
+	menuBtn.style.color = 'brown';
+	menuBtn.style.background = 'transparent';
+	menuBtn.style.border = 'none';
+	menuBtn.style.cursor = 'pointer';
+	menuBtn.style.zIndex = 2;
+	menuBtn.onclick = function(e) {
+		e.stopPropagation();
+		// Show dropdown menu
+		let menu = document.createElement('div');
+		menu.style.position = 'absolute';
+		menu.style.background = '#fff';
+		menu.style.border = '1px solid #ccc';
+		menu.style.zIndex = 1000;
+		menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+		menu.style.padding = '4px 0';
+		menu.style.minWidth = '140px';
+		// Position menu near button
+		const rect = menuBtn.getBoundingClientRect();
+		menu.style.left = (rect.right + window.scrollX) + 'px';
+		menu.style.top = (rect.bottom + window.scrollY) + 'px';
 
-  // Add a small rectangular protrusion to the root node (lower-right corner)
-  if (depth === 0) {
-    el.style.position = 'relative';
-    const protrusion = document.createElement('div');
-    protrusion.style.position = 'absolute';
-    protrusion.style.width = '28px';
-    protrusion.style.height = '50px';
-    protrusion.style.right = '20px';
-    protrusion.style.bottom = '-50px';
-    protrusion.style.background = getYellowShade(0);
-    protrusion.style.border = '4px solid #b77c00';
-    protrusion.style.borderTop = '0px';
-    protrusion.style.borderBottom = '0px';
-    // Add bold dollar sign
-    const dollar = document.createElement('p');
-    dollar.innerHTML = '↑<br>$';
-    dollar.style.fontWeight = 'bold';
-    dollar.style.fontSize = '1.3em';
-    dollar.style.color = '#7c4c00';
-    dollar.style.position = 'absolute';
-    dollar.style.bottom = '-12px';
-    dollar.style.right = '6px';
-    protrusion.appendChild(dollar);
-    el.appendChild(protrusion);
-  }
+		// Add 'Add Child Node' option
+		const addChild = document.createElement('div');
+		addChild.textContent = 'Add Child Node';
+		addChild.style.padding = '6px 16px';
+		addChild.style.cursor = 'pointer';
+		addChild.onmouseover = () => addChild.style.background = '#eee';
+		addChild.onmouseout = () => addChild.style.background = '';
+		addChild.onclick = function(ev) {
+		  ev.stopPropagation();
+		  let label = prompt('Enter label for new node:');
+		  if (!label) return;
+		  if (!node.children) node.children = [];
+		  let newId = Date.now();
+		  node.children.push({ id: newId, label: label, percentage: 0, children: [] });
+		  document.body.removeChild(menu);
+		  renderCurrentMap();
+		  saveMapToLocalStorage();
+		};
+		menu.appendChild(addChild);
+		// Add 'Delete Node' option (except for root)
+		if (node !== projectMapRoot) {
+		  const deleteNode = document.createElement('div');
+		  deleteNode.textContent = 'Delete Node';
+		  deleteNode.style.padding = '6px 16px';
+		  deleteNode.style.cursor = 'pointer';
+		  deleteNode.style.color = '#b00';
+		  deleteNode.onmouseover = () => deleteNode.style.background = '#fee';
+		  deleteNode.onmouseout = () => deleteNode.style.background = '';
+		  deleteNode.onclick = function(ev) {
+			ev.stopPropagation();
+			// Find parent and reassign children
+			function findAndDelete(parent) {
+			  if (!parent.children) return false;
+			  const idx = parent.children.findIndex(child => child.id === node.id);
+			  if (idx !== -1) {
+				// Move node's children to parent
+				const nodeToDelete = parent.children[idx];
+				if (nodeToDelete.children && nodeToDelete.children.length > 0) {
+				  parent.children.splice(idx, 1, ...nodeToDelete.children);
+				} else {
+				  parent.children.splice(idx, 1);
+				}
+				return true;
+			  }
+			  for (let child of parent.children) {
+				if (findAndDelete(child)) return true;
+			  }
+			  return false;
+			}
+			findAndDelete(projectMapRoot);
+			selected_node = null;
+			document.body.removeChild(menu);
+			renderCurrentMap();
+			saveMapToLocalStorage();
+		  };
+		  menu.appendChild(deleteNode);
+		}
+		// Add 'Rename Node' option
+		const renameNode = document.createElement('div');
+		renameNode.textContent = 'Rename Node';
+		renameNode.style.padding = '6px 16px';
+		renameNode.style.cursor = 'pointer';
+		renameNode.onmouseover = () => renameNode.style.background = '#eee';
+		renameNode.onmouseout = () => renameNode.style.background = '';
+		renameNode.onclick = function(ev) {
+		  ev.stopPropagation();
+		  let newLabel = prompt('Enter new label (EN) for this node:', node.labelEN || node.label || '');
+		  if (newLabel && newLabel.trim()) {
+			node.labelEN = newLabel.trim();
+			node.label = newLabel.trim();
+			renderCurrentMap();
+			saveMapToLocalStorage();
+		  }
+		  document.body.removeChild(menu);
+		};
+		menu.appendChild(renameNode);
+		// Add 'Edit Chinese Label' option
+		const editChineseLabel = document.createElement('div');
+		editChineseLabel.textContent = 'Edit Chinese Label';
+		editChineseLabel.style.padding = '6px 16px';
+		editChineseLabel.style.cursor = 'pointer';
+		editChineseLabel.onmouseover = () => editChineseLabel.style.background = '#eee';
+		editChineseLabel.onmouseout = () => editChineseLabel.style.background = '';
+		editChineseLabel.onclick = function(ev) {
+		  ev.stopPropagation();
+		  let newLabelZH = prompt('输入中文标签 (Chinese label) for this node:', node.labelZH || '');
+		  if (newLabelZH && newLabelZH.trim()) {
+			node.labelZH = newLabelZH.trim();
+			renderCurrentMap();
+			saveMapToLocalStorage();
+		  }
+		  document.body.removeChild(menu);
+		};
+		menu.appendChild(editChineseLabel);
+		// Add 'Move Node' option (reorder within parent)
+		if (node !== projectMapRoot) {
+		  const moveNode = document.createElement('div');
+		  moveNode.textContent = 'Move Node (Change Order)';
+		  moveNode.style.padding = '6px 16px';
+		  moveNode.style.cursor = 'pointer';
+		  moveNode.onmouseover = () => moveNode.style.background = '#eee';
+		  moveNode.onmouseout = () => moveNode.style.background = '';
+		  moveNode.onclick = function(ev) {
+			ev.stopPropagation();
+			// Find parent and index of this node
+			function findParentAndIndex(parent) {
+			  if (!parent.children) return null;
+			  const idx = parent.children.findIndex(child => child.id === node.id);
+			  if (idx !== -1) return { parent, idx };
+			  for (let child of parent.children) {
+				const res = findParentAndIndex(child);
+				if (res) return res;
+			  }
+			  return null;
+			}
+			const res = findParentAndIndex(projectMapRoot);
+			if (!res) return;
+			const { parent, idx } = res;
+			const maxPos = parent.children.length;
+			let newPosStr = prompt(`Enter new position for this node (1-${maxPos}):`, (idx+1));
+			if (!newPosStr) return;
+			let newPos = parseInt(newPosStr, 10) - 1;
+			if (isNaN(newPos) || newPos < 0 || newPos >= maxPos || newPos === idx) return;
+			// Remove node from current position
+			const [movingNode] = parent.children.splice(idx, 1);
+			// Insert node at new position
+			parent.children.splice(newPos, 0, movingNode);
+			renderCurrentMap();
+			saveMapToLocalStorage();
+			document.body.removeChild(menu);
+		  };
+		  menu.appendChild(moveNode);
+		}
+		// Add 'Edit Percentage' option
+		const editPercent = document.createElement('div');
+		editPercent.textContent = 'Edit Percentage';
+		editPercent.style.padding = '6px 16px';
+		editPercent.style.cursor = 'pointer';
+		editPercent.onmouseover = () => editPercent.style.background = '#eee';
+		editPercent.onmouseout = () => editPercent.style.background = '';
+		editPercent.onclick = function(ev) {
+		  ev.stopPropagation();
+		  let val = prompt('Enter percentage (0-100):', node.percentage != null ? node.percentage : 0);
+		  if (val === null) return;
+		  let num = parseInt(val, 10);
+		  if (isNaN(num) || num < 0 || num > 100) {
+			alert('Please enter a number between 0 and 100.');
+			return;
+		  }
+		  node.percentage = num;
+		  renderCurrentMap();
+		  saveMapToLocalStorage();
+		  document.body.removeChild(menu);
+		};
+		menu.appendChild(editPercent);
 
-  // Children
-  if (node.children && node.children.length) {
-    const children = document.createElement('div');
-    children.className = 'map-children';
-    node.children.forEach(child => children.appendChild(renderMap(child, depth + 1)));
-    el.appendChild(children);
-  }
+		// Add 'Open Page' option
+		const openPage = document.createElement('div');
+		openPage.textContent = 'Open Page';
+		openPage.style.padding = '6px 16px';
+		openPage.style.cursor = 'pointer';
+		openPage.onmouseover = () => openPage.style.background = '#eee';
+		openPage.onmouseout = () => openPage.style.background = '';
+		openPage.onclick = function(ev) {
+		  ev.stopPropagation();
+		  window.open(`/node-page.html?id=${encodeURIComponent(node.id)}`, '_blank');
+		  document.body.removeChild(menu);
+		};
+		menu.appendChild(openPage);
 
-  // Render percentage on a separate line BELOW the children
-  const percentLineDiv = document.createElement('div');
-  percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
-  percentLineDiv.style.fontSize = '0.85em';
-  percentLineDiv.style.color = '#7c4c00';
-  percentLineDiv.style.fontWeight = 'bold';
-  percentLineDiv.style.opacity = '0.8';
-  percentLineDiv.style.marginTop = '2px';
-  percentLineDiv.style.marginBottom = '2px';
-  el.appendChild(percentLineDiv);
+		// Remove any existing menu
+		document.querySelectorAll('.node-dropdown-menu').forEach(m => m.remove());
+		menu.className = 'node-dropdown-menu';
+		document.body.appendChild(menu);
 
-  return el;
+		// Remove menu on click outside
+		setTimeout(() => {
+		  function removeMenu(ev) {
+			if (!menu.contains(ev.target)) {
+			  menu.remove();
+			  document.removeEventListener('mousedown', removeMenu);
+			}
+		  }
+		  document.addEventListener('mousedown', removeMenu);
+		}, 0);
+	};
+	el.appendChild(menuBtn);
+
+	// Children
+	if (node.children && node.children.length) {
+	const children = document.createElement('div');
+	children.className = 'map-children';
+	node.children.forEach(child => children.appendChild(renderMap(child, depth + 1)));
+	el.appendChild(children);
+	}
+
+	// Print percentage at the bottom left of each node
+	const percentLineDiv = document.createElement('div');
+	percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
+	percentLineDiv.style.fontSize = '0.85em';
+	percentLineDiv.style.color = '#7c4c00';
+	percentLineDiv.style.fontWeight = 'bold';
+	percentLineDiv.style.opacity = '0.8';
+	percentLineDiv.style.marginTop = '2px';
+	percentLineDiv.style.marginBottom = '2px';
+	el.appendChild(percentLineDiv);
+
+	// Add a small tube to root node's lower-right corner indicating "money in"
+	if (depth === 0) {
+	el.style.position = 'relative';
+	const protrusion = document.createElement('div');
+	protrusion.style.position = 'absolute';
+	protrusion.style.width = '28px';
+	protrusion.style.height = '50px';
+	protrusion.style.right = '20px';
+	protrusion.style.bottom = '-50px';
+	protrusion.style.background = getYellowShade(0);
+	protrusion.style.border = '4px solid #b77c00';
+	protrusion.style.borderTop = '0px';
+	protrusion.style.borderBottom = '0px';
+	// Add bold dollar sign
+	const dollar = document.createElement('p');
+	dollar.innerHTML = '↑<br>$';
+	dollar.style.fontWeight = 'bold';
+	dollar.style.fontSize = '1.3em';
+	dollar.style.color = '#7c4c00';
+	dollar.style.position = 'absolute';
+	dollar.style.bottom = '-12px';
+	dollar.style.right = '6px';
+	protrusion.appendChild(dollar);
+	el.appendChild(protrusion);
+	}
+
+	return el;
 }
 
 // Save the current projectMapRoot to localStorage whenever the map is updated
