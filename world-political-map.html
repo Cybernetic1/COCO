@@ -59,7 +59,28 @@
   </head>
 	<body>
 		<div>
-			<h1 style="text-align: center;">World Political Alignment</h1>
+			<div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px;">
+        <h1 style="text-align: center; margin: 0 20px 0 0;">World Political Alignment</h1>
+        <button id="credits-btn" style="vertical-align: middle;">Credits</button>
+      </div>
+      <div id="credits-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center;">
+        <div id="credits-content" style="background:white; opacity:0.9; border-radius:12px; max-width:800px; max-height:80vh; margin:auto; padding:32px; overflow:auto; position:relative;">
+          <button id="close-credits" style="position:absolute; top:12px; right:16px; font-size:1.5em; background:none; border:none; cursor:pointer;">&times;</button>
+          <!-- Fill in your credits text here -->
+        </div>
+      </div>
+      <script>
+        document.getElementById('credits-btn').onclick = function() {
+          document.getElementById('credits-modal').style.display = 'flex';
+        };
+        document.getElementById('close-credits').onclick = function() {
+          document.getElementById('credits-modal').style.display = 'none';
+        };
+        // Optional: close modal when clicking outside content
+        document.getElementById('credits-modal').onclick = function(e) {
+          if (e.target === this) this.style.display = 'none';
+        };
+      </script>
 			<div style="max-width: 100%; max-height: 100%; position: relative;">
 				<div id="map"></div>
 			</div>
