@@ -113,7 +113,7 @@ function renderMap(node, depth = 0) {
 
 		// Add 'Add Child Node' option
 		const addChild = document.createElement('div');
-		addChild.textContent = 'Add Child Node';
+		addChild.textContent = 'Add child node';
 		addChild.style.padding = '6px 16px';
 		addChild.style.cursor = 'pointer';
 		addChild.onmouseover = () => addChild.style.background = '#eee';
@@ -130,10 +130,11 @@ function renderMap(node, depth = 0) {
 		  saveMapToLocalStorage();
 		};
 		menu.appendChild(addChild);
+
 		// Add 'Delete Node' option (except for root)
 		if (node !== projectMapRoot) {
 		  const deleteNode = document.createElement('div');
-		  deleteNode.textContent = 'Delete Node';
+		  deleteNode.textContent = 'Delete node';
 		  deleteNode.style.padding = '6px 16px';
 		  deleteNode.style.cursor = 'pointer';
 		  deleteNode.style.color = '#b00';
@@ -170,7 +171,7 @@ function renderMap(node, depth = 0) {
 		}
 		// Add 'Rename Node' option
 		const renameNode = document.createElement('div');
-		renameNode.textContent = 'Rename Node';
+		renameNode.textContent = 'Rename node';
 		renameNode.style.padding = '6px 16px';
 		renameNode.style.cursor = 'pointer';
 		renameNode.onmouseover = () => renameNode.style.background = '#eee';
@@ -187,9 +188,10 @@ function renderMap(node, depth = 0) {
 		  document.body.removeChild(menu);
 		};
 		menu.appendChild(renameNode);
+		
 		// Add 'Edit Chinese Label' option
 		const editChineseLabel = document.createElement('div');
-		editChineseLabel.textContent = 'Edit Chinese Label';
+		editChineseLabel.textContent = 'Edit Chinese label';
 		editChineseLabel.style.padding = '6px 16px';
 		editChineseLabel.style.cursor = 'pointer';
 		editChineseLabel.onmouseover = () => editChineseLabel.style.background = '#eee';
@@ -205,10 +207,11 @@ function renderMap(node, depth = 0) {
 		  document.body.removeChild(menu);
 		};
 		menu.appendChild(editChineseLabel);
+
 		// Add 'Move Node' option (reorder within parent)
 		if (node !== projectMapRoot) {
 		  const moveNode = document.createElement('div');
-		  moveNode.textContent = 'Move Node (Change Order)';
+		  moveNode.textContent = 'Move node (change order)';
 		  moveNode.style.padding = '6px 16px';
 		  moveNode.style.cursor = 'pointer';
 		  moveNode.onmouseover = () => moveNode.style.background = '#eee';
@@ -244,9 +247,10 @@ function renderMap(node, depth = 0) {
 		  };
 		  menu.appendChild(moveNode);
 		}
+
 		// Add 'Edit Percentage' option
 		const editPercent = document.createElement('div');
-		editPercent.textContent = 'Edit Percentage';
+		editPercent.textContent = 'Edit %';
 		editPercent.style.padding = '6px 16px';
 		editPercent.style.cursor = 'pointer';
 		editPercent.onmouseover = () => editPercent.style.background = '#eee';
@@ -269,7 +273,7 @@ function renderMap(node, depth = 0) {
 
 		// Add 'Open Page' option
 		const openPage = document.createElement('div');
-		openPage.textContent = 'Open Page';
+		openPage.textContent = 'Open node page';
 		openPage.style.padding = '6px 16px';
 		openPage.style.cursor = 'pointer';
 		openPage.onmouseover = () => openPage.style.background = '#eee';
