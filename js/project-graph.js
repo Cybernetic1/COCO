@@ -1,3 +1,40 @@
+/**
+ * PROJECT GRAPH EDITOR
+ * 
+ * A web-based interactive graph editor for project management and task visualization.
+ * Built with Vis.js for network visualization and jQuery for AJAX operations.
+ * 
+ * MAIN FEATURES:
+ * - Interactive node/edge creation and editing with drag-and-drop
+ * - Tree structure validation with auxiliary edge highlighting
+ * - Bilingual support (English/Chinese) with URL parameter control
+ * - Save/load project graphs as JSON files to server
+ * - Git directory integration for version control
+ * - Node status tracking (in-progress, finished, paused, research)
+ * - Ctrl+drag linking between nodes
+ * - Modal-based UI for data input and file operations
+ * 
+ * ARCHITECTURE:
+ * - Uses Vis.js DataSets for reactive node/edge management
+ * - Express.js server backend for file operations (/saveJSON, /loadJSON, /fileList)
+ * - Modal windows for user interactions (JSON_modal, Git_modal, Node_modal, Help_modal)
+ * - Sound feedback for user actions
+ * - Physics-enabled graph layout with manual positioning support
+ * 
+ * KEY FUNCTIONS:
+ * - saveJSONgraph()/loadJSONgraph(): JSON file persistence
+ * - saveGitDir()/loadGitDir(): Git directory operations
+ * - addNode(): Create new nodes with bilingual labels
+ * - highlightTreeViolations(): Detect and mark non-tree edges as auxiliary
+ * - verifyTreeIgnoringAuxEdges(): Validate tree structure
+ * - Drag-to-link: Ctrl+mouse interaction for edge creation
+ * 
+ * DATA STRUCTURE:
+ * - Nodes: {id, labelEN, labelZH?, status, details?, authors?, votes?}
+ * - Edges: {from, to, label?, dashes?} (dashes=true for auxiliary edges)
+ * - Language controlled by URL parameter: ?lang=EN or ?lang=ZH
+ */
+
 // TO-DO:
 // * Use UUIDs to refer to authors (use nanoID for shorter IDs)
 //	- Everyone runs a server on their own, use Github to merge results
@@ -69,10 +106,10 @@ const techFail = new Audio('sounds/tech-fail.wav');
 // Initialize lang to "EN" unless there is a ?lang=... directive in the URL.
 var lang = "EN";
 const url = window.location.href;
-var regex = new RegExp('[?&]lang(=([^&#]*)|&|#|$)');
+var regex = new RegExp('[?&]lang=([a-zA-Z]{2})');
 var params = regex.exec(url);
-if (params && params[2]) {
-    lang = params[2].toUpperCase();
+if (params && params[1]) {
+    lang = params[1].toUpperCase();
 }
 
 // Returns a node's label in the language in 'lang' variable
@@ -236,9 +273,20 @@ viz.addEventListener('mouseup', function(e) {
 
 // --- Tree structure violation highlighting ---
 function highlightTreeViolations() {
-    // Reset all edge colors to default
+    // Store manually set auxiliary edges before resetting
+    const manuallyAuxEdges = new Set();
     edges.forEach(function(edge) {
-        edges.update({ id: edge.id, color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 } });
+        const dashes = edge.dashes;
+        if (dashes === true) {
+            manuallyAuxEdges.add(edge.id);
+        }
+    });
+
+    // Reset only non-manually-auxiliary edges to default
+    edges.forEach(function(edge) {
+        if (!manuallyAuxEdges.has(edge.id)) {
+            edges.update({ id: edge.id, color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 }, dashes: false });
+        }
     });
 
     // 1. Build outgoing edge map: nodeId -> [edge]
@@ -294,17 +342,20 @@ function highlightTreeViolations() {
         }
     }
 
-    // 4. Highlight violations
+    // 4. Highlight violations as auxiliary edges (but preserve manually set auxiliary edges)
     edges.forEach(function(edge) {
-        if (multiParentEdges.has(edge.id) || cycleEdges.has(edge.id) || notConnectedEdges.has(edge.id) || !treeEdges.has(edge.id)) {
-            edges.update({ id: edge.id, color: { color: 'red', highlight: 'red', inherit: false, opacity: 1.0 } });
+        if (!manuallyAuxEdges.has(edge.id) && (multiParentEdges.has(edge.id) || cycleEdges.has(edge.id) || notConnectedEdges.has(edge.id) || !treeEdges.has(edge.id))) {
+            edges.update({ id: edge.id, color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 }, dashes: true });
         }
     });
 }
 // --- End tree structure violation highlighting ---
 
-// Only call highlightTreeViolations after add/remove edge/node
-edges.on("add", function() { highlightTreeViolations(); });
+// Only call highlightTreeViolations after add/remove edge/node, but not on load
+edges.on("add", function() { 
+    // Add a small delay to ensure the edge is fully added before highlighting
+    setTimeout(highlightTreeViolations, 10); 
+});
 edges.on("remove", function() { highlightTreeViolations(); });
 nodes.on("remove", function() { highlightTreeViolations(); });
 
@@ -316,63 +367,63 @@ let selectedEdgeId = null;
 function setEdgeColor(color) {
     if (selectedEdgeId !== null) {
         if (color === 'normal') {
-            edges.update({ id: selectedEdgeId, color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 } });
-        } else if (color === 'red') {
-            edges.update({ id: selectedEdgeId, color: { color: 'red', highlight: 'red', inherit: false, opacity: 1.0 } });
+            edges.update({ id: selectedEdgeId, color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 }, dashes: false });
+        } else if (color === 'aux') {
+            edges.update({ id: selectedEdgeId, color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 }, dashes: true });
         }
     }
 }
 
 // On clicking a node or edge on Vis.js canvas
 function onClick(params) {
-	if (dragToLinkActive) return;
-	if (params['nodes'].length > 0) {
-		selectedNodeId = params['nodes'][0];
-		selectedEdgeId = null;
-		const node = data.nodes.get(selectedNodeId);
-		if (node) {
-			document.getElementById("TaskNameEN").value = node.labelEN || "";
-			document.getElementById("TaskNameZH").value = node.labelZH || "";
-			document.getElementById("Details").value = node.details || "";
-			// Update status radio buttons
-			const statuses = ["in-progress", "finished", "paused", "research"];
-			statuses.forEach(status => {
-				const radio = document.getElementById(status);
-				radio.checked = (node.status === status);
-			});
-		}
-		// Hide edge color group if node is selected
-		document.getElementById("edgeColorGroup").style.display = "none";
-		techClick.play();
-	} else if (params['edges'].length > 0) {
-		selectedEdgeId = params['edges'][0];
-		selectedNodeId = null;
-		const edge = data.edges.get(selectedEdgeId);
-		if (edge) {
-			document.getElementById("EdgeNameEN").value = edge.label || "";
-			// Show edge color group and set radio button according to color
-			document.getElementById("edgeColorGroup").style.display = "block";
-			const c = edge.color && edge.color.color ? edge.color.color : '#AAA';
-			if (c === 'red') {
-				document.getElementById("edgeColorRed").checked = true;
-				document.getElementById("edgeColorNormal").checked = false;
-			} else {
-				document.getElementById("edgeColorNormal").checked = true;
-				document.getElementById("edgeColorRed").checked = false;
-			}
-		}
-		techClick.play();
-	} else {
-		selectedNodeId = null;
-		selectedEdgeId = null;
-		// Hide edge color group if nothing is selected
-		document.getElementById("edgeColorGroup").style.display = "none";
-		// Optionally clear the side pane fields
-		// document.getElementById("TaskNameEN").value = "";
-		// document.getElementById("TaskNameZH").value = "";
-		// document.getElementById("Details").value = "";
-		// document.getElementById("EdgeNameEN").value = "";
-	}
+    if (dragToLinkActive) return;
+    if (params['nodes'].length > 0) {
+        selectedNodeId = params['nodes'][0];
+        selectedEdgeId = null;
+        const node = data.nodes.get(selectedNodeId);
+        if (node) {
+            document.getElementById("TaskNameEN").value = node.labelEN || "";
+            document.getElementById("TaskNameZH").value = node.labelZH || "";
+            document.getElementById("Details").value = node.details || "";
+            // Update status radio buttons
+            const statuses = ["in-progress", "finished", "paused", "research"];
+            statuses.forEach(status => {
+                const radio = document.getElementById(status);
+                radio.checked = (node.status === status);
+            });
+        }
+        // Hide edge color group if node is selected
+        document.getElementById("edgeColorGroup").style.display = "none";
+        techClick.play();
+    } else if (params['edges'].length > 0) {
+        selectedEdgeId = params['edges'][0];
+        selectedNodeId = null;
+        const edge = data.edges.get(selectedEdgeId);
+        if (edge) {
+            document.getElementById("EdgeNameEN").value = edge.label || "";
+            // Show edge color group and set radio button according to dashes property
+            document.getElementById("edgeColorGroup").style.display = "block";
+            const dashes = edge.dashes === true;
+            if (dashes) {
+                document.getElementById("edgeColorAux").checked = true;
+                document.getElementById("edgeColorNormal").checked = false;
+            } else {
+                document.getElementById("edgeColorNormal").checked = true;
+                document.getElementById("edgeColorAux").checked = false;
+            }
+        }
+        techClick.play();
+    } else {
+        selectedNodeId = null;
+        selectedEdgeId = null;
+        // Hide edge color group if nothing is selected
+        document.getElementById("edgeColorGroup").style.display = "none";
+        // Optionally clear the side pane fields
+        document.getElementById("TaskNameEN").value = "";
+        document.getElementById("TaskNameZH").value = "";
+        document.getElementById("Details").value = "";
+        document.getElementById("EdgeNameEN").value = "";
+    }
 }
 network.on("click", onClick);
 
@@ -397,26 +448,6 @@ window.addEventListener('keydown', function(e) {
 	}
 });
 
-// Track the currently selected node for addNode
-// let selectedNodeId = null;
-
-// On clicking a node or edge on Vis.js canvas
-// function onClick(params) {
-// 	if (params['nodes'].length > 0) {
-// 		selectedNodeId = params['nodes'][0];
-// 		// Node clicked: show node details (if you want to keep this part)
-// 		const node = data.nodes.get(selectedNodeId);
-// 		// ...show node details logic if needed...
-// 		techClick.play();
-// 	} else if (params['edges'].length > 0) {
-// 		// Edge clicked: show edge details (if you want to keep this part)
-// 		const edge = data.edges.get(params['edges'][0]);
-// 		// ...show edge details logic if needed...
-// 		techClick.play();
-// 	}
-// }
-// network.on("click", onClick);
-
 function addAuthor(event) {
 	techClick2.play();
 	event.currentTarget.value = "";
@@ -427,61 +458,6 @@ const json_modal = document.getElementById("JSON_modal");
 const  git_modal = document.getElementById("Git_modal");
 const node_modal = document.getElementById("Node_modal");
 const help_modal = document.getElementById("Help_modal");
-
-// --- Ensure JSON file list is always refreshed when modal is shown ---
-const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-        if (mutation.attributeName === 'style' && json_modal.style.display === 'block') {
-            listJSONfiles();
-        }
-    });
-});
-observer.observe(json_modal, { attributes: true });
-
-// Attach OK and Enter key handlers only once
-(function setupJSONModalHandlers() {
-    const okHandler = function () {
-        var name = document.getElementById("JSONdropDown").value;
-        if (name == "none")
-            name = document.getElementById("JSONfileName").value;
-
-        const remoteUser = document.querySelector(
-            'input[name="remoteUser"]:checked');
-        const tag = remoteUser ? remoteUser.value : "";
-        if (name.endsWith(".json"))
-            name = name.slice(0,-5) + tag + ".json";
-        else if (name.endsWith(tag))
-            name = name + ".json";
-        else
-            name = name + tag + ".json";
-        console.log("Loading file:", name);
-        $.ajax({
-                method: "GET",
-                url: "/loadJSON/" + name,
-                cache: false,
-                success: function(data0) {
-
-                network.destroy();
-                nodes = new vis.DataSet(data0.nodes);
-                edges = new vis.DataSet(data0.edges);
-                data.nodes = nodes;
-                data.edges = edges;
-                init_nodes();
-                network = new vis.Network(viz, data, options);
-                update_node_index();
-                network.on("click", onClick);
-
-                json_modal.style.display = "none";
-                techClick2.play();
-                } });
-    };
-    document.getElementById("json_modal_OK").onclick = okHandler;
-    document.getElementById("JSONfileName").addEventListener('keyup', function(event) {
-        if (event.key === "Enter") {
-            okHandler();
-        }
-    });
-})();
 
 async function addNode() {
 	// Open modal window to ask for Node labels:
@@ -514,19 +490,19 @@ async function addNode() {
 }
 
 async function delNode() {
-	data.nodes.remove({id: clicked_id_1});
-	console.log("Deleted node #", clicked_id_1);
+	data.nodes.remove({id: selectedNodeId});
+	console.log("Deleted node #", selectedNodeId);
 	techClick2.play();
 	}
 
 async function delEdge() {
-	data.edges.remove({id: clicked_edge});
-	console.log("Deleted edge #", clicked_edge);
+	data.edges.remove({id: selectedEdgeId});
+	console.log("Deleted edge #", selectedEdgeId);
 	techClick2.play();
 	}
 
 async function changeStatus(radio) {
-	data.nodes.updateOnly({ id: clicked_id_1,
+	data.nodes.updateOnly({ id: selectedNodeId,
 		status: radio.value,
 		color: nodeColors[radio.value],
 		});
@@ -534,7 +510,7 @@ async function changeStatus(radio) {
 	}
 
 async function changeTaskNameZH(input) {
-	data.nodes.updateOnly({ id: clicked_id_1,
+	data.nodes.updateOnly({ id: selectedNodeId,
 		labelZH: input.value,
 		...(lang == "ZH") && {label: input.value},
 		});
@@ -542,21 +518,21 @@ async function changeTaskNameZH(input) {
 
 async function changeTaskNameEN(input) {
 	// Check if label defaults to English because there are no other-language labels:
-	const default_EN = !('labelZH' in nodes.get(clicked_id_1));
-	data.nodes.updateOnly({ id: clicked_id_1,
+	const default_EN = !('labelZH' in nodes.get(selectedNodeId));
+	data.nodes.updateOnly({ id: selectedNodeId,
 		labelEN: input.value,
 		...(lang == "EN" || default_EN) && {label: input.value},
 		});
 	}
 
 async function changeDetails(input) {
-	data.nodes.updateOnly({ id: clicked_id_1,
+	data.nodes.updateOnly({ id: selectedNodeId,
 		details: input.value,
 		});
 	}
 
 async function changeEdgeEN(input) {
-	data.edges.updateOnly({ id: clicked_edge,
+	data.edges.updateOnly({ id: selectedEdgeId,
 		label: input.value,
 		});
 	}
@@ -610,69 +586,133 @@ function ifRemoteUser() {
 	div.childNodes[1].innerText = "You're on machine: " + location.hostname;
 	}
 
-async function saveJSON() {
-	// For all nodes:
-	var str = "{\"nodes\":[";
-	var ns = nodes._data;
-	ns.forEach(function(n) {
-		delete n['label'];		// only save labelEN and labelZH
-		str += JSON.stringify(n);
-		str += ",";
-		});
-	str = str.slice(0,-1) + "],";
+async function saveJSONgraph() {
+    // For all nodes:
+    var str = "{\"nodes\":[";
+    nodes.forEach(function(n) {
+        const nodeCopy = Object.assign({}, n);
+        delete nodeCopy['label'];		// only save labelEN and labelZH
+        str += JSON.stringify(nodeCopy);
+        str += ",";
+        });
+    str = str.slice(0,-1) + "],";
 
-	// For all edges:
-	str += "\"edges\":[";
-	var es = edges._data;
-	es.forEach(function(e) {
-		delete e['id'];
-		str += JSON.stringify(e);
-		str += ",";
-		});
-	str = str.slice(0,-1) + "]}";
-	console.log(str);
+    // For all edges:
+    str += "\"edges\":[";
+    edges.forEach(function(e) {
+        const edgeCopy = Object.assign({}, e);
+        // Keep the edge ID and color information
+        str += JSON.stringify(edgeCopy);
+        str += ",";
+        });
+    str = str.slice(0,-1) + "]}";
+    // console.log(str);
 
-	// Open modal window and ask for filename
-	json_modal.style.display = "block";
-	techClick2.play();
-	listJSONfiles();
-	ifRemoteUser();
-	document.getElementById("json_modal_OK").onclick = function() {
-		var name = document.getElementById("JSONdropDown").value;
-		if (name === "none")
-			name = document.getElementById("JSONfileName").value;
+    // Open modal window and ask for filename
+    json_modal.style.display = "block";
+    techClick2.play();
+    listJSONfiles(); // Direct call - simple and clear
+    ifRemoteUser();
+    document.getElementById("json_modal_OK").onclick = function() {
+        var name = document.getElementById("JSONdropDown").value;
+        if (name === "none")
+            name = document.getElementById("JSONfileName").value;
 
-		const remoteUser = document.querySelector(
-			'input[name="remoteUser"]:checked');
-		const tag = remoteUser ? remoteUser.value : "";
-		if (name.endsWith(".json"))
-			name = name.slice(0,-5) + tag + ".json";
-		else if (name.endsWith(tag))
-			name = name + ".json";
-		else
-			name = name + tag + ".json";
-		console.log("Saving file:", name);
-		$.ajax({
-			method: "POST",
-			url: "/saveJSON/" + name,
-			data: str,
-			success: function(resp) {}
-			});
+        const remoteUser = document.querySelector(
+            'input[name="remoteUser"]:checked');
+        const tag = remoteUser ? remoteUser.value : "";
+        if (name.endsWith(".json"))
+            name = name.slice(0,-5) + tag + ".json";
+        else if (name.endsWith(tag))
+            name = name + ".json";
+        else
+            name = name + tag + ".json";
+        console.log("Saving file:", name);
+        $.ajax({
+            method: "POST",
+            url: "/saveJSON/project-graphs/" + name,
+            data: str,
+            contentType: "application/json",
+            success: function(resp) {
+                console.log("Save successful:", resp);
+                alert("File saved successfully!");
+            },
+            error: function(xhr, status, error) {
+                console.error("Save failed:", status, error, xhr.responseText);
+                alert("Save failed: " + error);
+            }
+            });
 
-		json_modal.style.display = "none";		// close window
-		techClick2.play();
-		};
+        json_modal.style.display = "none";		// close window
+        techClick2.play();
+        };
+    
+    // Also handle Enter key in filename input
+    document.getElementById("JSONfileName").addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            document.getElementById("json_modal_OK").click();
+        }
+    });
 	}
 
-async function loadJSON() {
-	// Open modal window and ask for filename
-	json_modal.style.display = "block";
-	techClick2.play();
-	ifRemoteUser();
-	// listJSONfiles() is now called by the MutationObserver when modal is shown
+async function loadJSONgraph() {
+    // Open modal window and ask for filename
+    json_modal.style.display = "block";
+    techClick2.play();
+    listJSONfiles(); // Direct call - simple and clear
+    ifRemoteUser();
+    
+    // Set up the OK button to handle loading
+    document.getElementById("json_modal_OK").onclick = function() {
+        var name = document.getElementById("JSONdropDown").value;
+        if (name === "none")
+            name = document.getElementById("JSONfileName").value;
+
+        const remoteUser = document.querySelector(
+            'input[name="remoteUser"]:checked');
+        const tag = remoteUser ? remoteUser.value : "";
+        if (name.endsWith(".json"))
+            name = name.slice(0,-5) + tag + ".json";
+        else if (name.endsWith(tag))
+            name = name + ".json";
+        else
+            name = name + tag + ".json";
+        
+        console.log("Loading file:", name);
+        $.ajax({
+            method: "GET",
+            url: "/loadJSON/project-graphs/" + name,
+            cache: false,
+            success: function(data0) {
+                network.destroy();
+                nodes = new vis.DataSet(data0.nodes);
+                edges = new vis.DataSet(data0.edges);
+                data.nodes = nodes;
+                data.edges = edges;
+                init_nodes();
+                network = new vis.Network(viz, data, options);
+                update_node_index();
+                network.on("click", onClick);
+
+                json_modal.style.display = "none";
+                techClick2.play();
+            },
+            error: function(xhr, status, error) {
+                console.error("Load failed:", status, error, xhr.responseText);
+                alert("Load failed: " + error);
+            }
+        });
+    };
+    
+    // Also handle Enter key in filename input
+    document.getElementById("JSONfileName").addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            document.getElementById("json_modal_OK").click();
+        }
+    });
 }
 
-async function saveDirectory() {
+async function saveGitDir() {
 	// Currently disallow remote users to write directly to global Git dir
 	if (!(location.hostname === "localhost" ||
 			 location.hostname === "127.0.0.1"))
@@ -680,20 +720,20 @@ async function saveDirectory() {
 
 	// For all nodes:
 	var str = "{\"nodes\":[";
-	var ns = nodes._data;
-	ns.forEach(function(n) {
-		delete n['label'];		// only save labelEN and labelZH
-		str += JSON.stringify(n);
+	nodes.forEach(function(n) {
+		const nodeCopy = Object.assign({}, n);
+		delete nodeCopy['label'];		// only save labelEN and labelZH
+		str += JSON.stringify(nodeCopy);
 		str += ",";
 		});
 	str = str.slice(0,-1) + "],";
 
 	// For all edges:
 	str += "\"edges\":[";
-	var es = edges._data;
-	es.forEach(function(e) {
-		delete e['id'];
-		str += JSON.stringify(e);
+	edges.forEach(function(e) {
+		const edgeCopy = Object.assign({}, e);
+		// Keep the edge ID and color information
+		str += JSON.stringify(edgeCopy);
 		str += ",";
 		});
 	str = str.slice(0,-1) + "]}";
@@ -718,168 +758,71 @@ async function saveDirectory() {
 		};
 	}
 
-// **** read Project Graph from current directory
-async function loadDirectory() {
-	// Open modal window and ask for filename
-	git_modal.style.display = "block";
-	// Populate dropdown menu with JSON filenames:
-	let dropDown = document.getElementById("gitDropDown");
-	dropDown.replaceChildren();		// clear all options
-	$.ajax({
-		method: "GET",
-		url: "/dirList/",
-		success: function (dirs) {
-			// console.log(typeof(files), files);
-			dirs.forEach( dir => {
-				var option = document.createElement("option");
-				option.value = dir;
-				option.text = dir;
-				dropDown.appendChild(option);
-				} );
-			} });
-	techClick2.play();
-	// Wait for modal window to be clicked OK, then do:
-	document.getElementById("git_modal_OK").onclick = function () {
+// **** read Project Graph from current Git directory
+async function loadGitDir() {
+    // Open modal window and ask for filename
+    git_modal.style.display = "block";
+    // Populate dropdown menu with JSON filenames:
+    let dropDown = document.getElementById("gitDropDown");
+    dropDown.replaceChildren();		// clear all options
+    $.ajax({
+        method: "GET",
+        url: "/dirList/",
+        success: function (dirs) {
+            // console.log(typeof(files), files);
+            dirs.forEach( dir => {
+                var option = document.createElement("option");
+                option.value = dir;
+                option.text = dir;
+                dropDown.appendChild(option);
+                } );
+            } });
+    techClick2.play();
+    // Wait for modal window to be clicked OK, then do:
+    document.getElementById("git_modal_OK").onclick = function () {
 
-		var dir = document.getElementById("gitDropDown").value;
-		if (dir == "none")
-			dir = document.getElementById("gitFileName").value;
+        var dir = document.getElementById("gitDropDown").value;
+        if (dir == "none")
+            dir = document.getElementById("gitFileName").value;
 
-		$.ajax({
-				method: "GET",
-				url: "/loadDir/" + dir,
-				cache: false,
-				success: function(data0) {
+        $.ajax({
+                method: "GET",
+                url: "/loadDir/" + dir,
+                cache: false,
+                success: function(data0) {
 
-			network.destroy();
-			nodes = new vis.DataSet(data0.nodes);
-			edges = new vis.DataSet(data0.edges);
-			data.nodes = nodes;
-			data.edges = edges;
-			init_nodes();		// set lang, colors, ... from existing data
-			network = new vis.Network(viz, data, options);
-			update_node_index();
-			network.on("click", onClick);
-
-			git_modal.style.display = "none";		// close window
-			techClick2.play();
-			} });
-		};
-	}
-
-async function switchLang() {
-    // Remove all button-related code. Only toggle lang, update UI, and update node labels.
-    lang = (lang === "ZH") ? "EN" : "ZH";
-    $('[lang="ZH"]').toggle();
-    $('[lang="EN"]').toggle();
-    // console.log("Current language:", lang);
-    data.nodes.getIds().forEach((id) => {
-        const i = parseInt(id);
-        data.nodes.updateOnly({ id: i, label: get_label_in_lang(nodes.get(i)) });
-    });
-    techClick2.play().catch(function (error) {
-        // console.log("cannot play sound without user click first");
-    });
-}
-
-// **** Read from Git to extract authors
-$.ajax({
-		method: "GET",
-		url: "/getGitAuthors/",
-		cache: true,
-		success: function(data0) {
-
-	var authors = data0.split(/\r?\n/);
-	const uniqs = Array.from(new Set(authors));
-	const div = document.getElementById("authors");
-	for (const author of uniqs) {
-		if (author.trim() == "")
-			continue;
-		const span = document.createElement('input');
-		span.value = author;
-		span.setAttribute('type', 'author');
-		span.setAttribute('disabled', '');		// for an added author, changes color
-		div.appendChild(span);
-		}
-		// Add a button to add authors;  this function needs to call itself:
-		(function addAuthorButton() {
-			const span = document.createElement('input');
-			span.setAttribute('type', 'author');
-			span.value = '⊕ name [, e-mail]';
-			span.onclick = (event) => {
-				span.value = "";			// clear input field
-				};
-			span.addEventListener('keyup', (event) => {
-				// when finished entering the author name / e-mail:
-				if (event.key === "Enter") {
-					[span.value, ...span.title] = span.value.split(/,\s*/);
-					$.ajax({
-						method: "POST",
-						url: "/addGitAuthor/",
-						data: JSON.stringify({ name: span.value, email: span.title }),
-						contentType: "application/json",
-						success: function(resp) {
-							techClick2.play();
-							addAuthorButton();		// call itself to add button
-							}
-						});
-					}
-				});
-			div.appendChild(span);	// add the button
-			})();
-		}
-	});
-
-// Utility to get projectId from URL
-function getProjectNameFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('projectName');
-}
-
-// --- In the code that loads the graph data ---
-// Replace any hardcoded filename with:
-const projectName = getProjectNameFromUrl();
-const defaultGraphFile = projectName ? `/project-graphs/${projectName}.json` : null;
-
-// --- Auto-load graph if projectId is present ---
-if (defaultGraphFile) {
-    fetch(defaultGraphFile, {cache: 'no-store'})
-        .then(r => {
-            if (!r.ok) throw new Error('Not found');
-            return r.json();
-        })
-        .then(data0 => {
-            // Properly load the graph into Vis.js network
             network.destroy();
             nodes = new vis.DataSet(data0.nodes);
             edges = new vis.DataSet(data0.edges);
             data.nodes = nodes;
             data.edges = edges;
-            init_nodes();
+            init_nodes();		// set lang, colors, ... from existing data
             network = new vis.Network(viz, data, options);
             update_node_index();
             network.on("click", onClick);
-        })
-        .catch(e => {
-            // Optionally show a message if not found
-            // alert('Project graph not found for this projectId.');
-        });
-}
 
-// --- Verify tree structure ignoring red edges ---
-function verifyTreeIgnoringRedEdges() {
-    // 1. Collect all non-red edges
-    const nonRedEdges = [];
+            git_modal.style.display = "none";		// close window
+            techClick2.play();
+            } });
+        };
+    }
+
+
+// --- Verify tree structure ignoring auxiliary edges ---
+function verifyTreeIgnoringAuxEdges() {
+    // 1. Collect all non-auxiliary edges
+    const nonAuxEdges = [];
     edges.forEach(function(edge) {
         const c = edge.color && edge.color.color ? edge.color.color : '#AAA';
-        if (c !== 'red') nonRedEdges.push(edge);
+        const dashes = edge.dashes === true;
+        if (c !== 'red' && !dashes) nonAuxEdges.push(edge);
     });
     // 2. Build parent map: child -> parent
     const parent = {};
-    nonRedEdges.forEach(function(edge) {
+    nonAuxEdges.forEach(function(edge) {
         if (parent[edge.from] !== undefined) {
             // Multiple parents
-            alert('Node ' + edge.from + ' has multiple parents (ignoring red edges). Not a tree.');
+            alert('Node ' + edge.from + ' has multiple parents (ignoring auxiliary edges). Not a tree.');
             return;
         }
         parent[edge.from] = edge.to;
@@ -907,7 +850,7 @@ function verifyTreeIgnoringRedEdges() {
         if (hasCycle) break;
     }
     if (hasCycle) {
-        alert('Cycle detected (ignoring red edges). Not a tree.');
+        alert('Cycle detected (ignoring auxiliary edges). Not a tree.');
         return;
     }
     // 4. Check all nodes (except root) are connected to root
@@ -926,23 +869,24 @@ function verifyTreeIgnoringRedEdges() {
         }
     }
     if (!allToRoot) {
-        alert('Not all nodes are connected to root (ignoring red edges). Not a tree.');
+        alert('Not all nodes are connected to root (ignoring auxiliary edges). Not a tree.');
         return;
     }
-    alert('The graph (ignoring red edges) is a valid tree rooted at node 0!');
+    alert('The graph (ignoring auxiliary edges) is a valid tree rooted at node 0!');
 }
 
-// --- Save project tree as JSON to server-side project-maps/ directory ---
+// --- Save project data as a JSON "map" file to server-side project-maps/ directory ---
 function saveJSONMap() {
-    // Separate edges into tree edges and red edges
+    // Separate edges into tree edges and auxiliary edges
     const treeEdges = [];
-    const redEdges = [];
+    const auxEdges = [];
     edges.forEach(function(edge) {
         const c = edge.color && edge.color.color ? edge.color.color : '#AAA';
+        const dashes = edge.dashes === true;
         const edgeCopy = Object.assign({}, edge);
         delete edgeCopy.id;
-        if (c === 'red') {
-            redEdges.push(edgeCopy);
+        if (c === 'red' || dashes) {
+            auxEdges.push(edgeCopy);
         } else {
             treeEdges.push(edgeCopy);
         }
@@ -957,13 +901,13 @@ function saveJSONMap() {
     const exportObj = {
         nodes: nodeList,
         edges: treeEdges,
-        links: redEdges
+        links: auxEdges
     };
     const filename = prompt('Enter filename for the map (without .json):', 'project-name');
     if (!filename) return;
     const jsonStr = JSON.stringify(exportObj, null, 2);
-	console.log("we're here", filename, jsonStr);
-    fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
+
+	fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: jsonStr
@@ -977,3 +921,22 @@ function close_json_modal() {
     document.getElementById("JSON_modal").style.display = "none";
 }
 window.close_json_modal = close_json_modal;
+
+// Close modal functions
+function close_git_modal() {
+    document.getElementById("Git_modal").style.display = "none";
+}
+
+function close_node_modal() {
+    document.getElementById("Node_modal").style.display = "none";
+}
+
+function close_help_modal() {
+    document.getElementById("Help_modal").style.display = "none";
+}
+
+// Make functions global
+window.close_git_modal = close_git_modal;
+window.close_node_modal = close_node_modal;
+window.close_help_modal = close_help_modal;
+window.verifyTreeIgnoringAuxEdges = verifyTreeIgnoringAuxEdges;

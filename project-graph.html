@@ -52,12 +52,12 @@ by the function toggleSidePane() in project-graph.js -->
 	  <label>Edge color:</label><br>
 	  <input type="radio" id="edgeColorNormal" name="edgeColor" value="normal" onclick="setEdgeColor('normal')">
 	  <label for="edgeColorNormal">Normal</label>
-	  <input type="radio" id="edgeColorRed" name="edgeColor" value="red" onclick="setEdgeColor('red')">
-	  <label for="edgeColorRed">Red</label>
+	  <input type="radio" id="edgeColorAux" name="edgeColor" value="aux" onclick="setEdgeColor('aux')">
+	  <label for="edgeColorAux">Auxiliary (dotted)</label>
 	</div>
 
 	<label>Details:</label><br>
-	<textarea rows="13" id="Details" onchage="changeDetails"></textarea><br>
+	<textarea rows="13" id="Details" oninput="changeDetails(this)"></textarea><br>
 
 	<label disabled>Expected tokens</label>
 	<input type="number" id="ExpTokens" style="width:9em;" disabled><br>
@@ -92,13 +92,13 @@ by the function toggleSidePane() in project-graph.js -->
         <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
           <div class="menu-item" onclick="help(); hideMenuDropdown();">Help</div>
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
-          <div class="menu-item" onclick="loadJSON(); hideMenuDropdown();">Load JSON graph</div>
-          <div class="menu-item" onclick="saveJSON(); hideMenuDropdown();">Save JSON graph</div>
+          <div class="menu-item" onclick="loadJSONgraph(); hideMenuDropdown();">Load JSON graph</div>
+          <div class="menu-item" onclick="saveJSONgraph(); hideMenuDropdown();">Save JSON graph</div>
           <div class="menu-item" onclick="saveJSONMap(); hideMenuDropdown();">Save JSON map</div>
-          <div class="menu-item" onclick="loadDirectory(); hideMenuDropdown();">Load Git Dir</div>
-          <div class="menu-item" onclick="saveDirectory(); hideMenuDropdown();">Save Git Dir</div>
+          <div class="menu-item" onclick="loadGitDir(); hideMenuDropdown();">Load Git Dir</div>
+          <div class="menu-item" onclick="saveGitDir(); hideMenuDropdown();">Save Git Dir</div>
           <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
-          <div class="menu-item" onclick="verifyTreeIgnoringRedEdges(); hideMenuDropdown();">Verify Tree<br>(ignore red links)</div>
+          <div class="menu-item" onclick="verifyTreeIgnoringAuxEdges(); hideMenuDropdown();">Verify Tree<br>(ignore aux links)</div>
         </div>
       </div>
     </td>
