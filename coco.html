@@ -135,6 +135,47 @@
             form.method = 'POST';
             form.submit();
         };
+
+        // Check for error messages in URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        let message = '';
+        
+        if (error) {
+            switch(error) {
+                case 'login_failed':
+                    message = 'Login failed. Please check your email and password, or sign up for a new account.';
+                    break;
+                case 'missing_fields':
+                    message = 'Email and password are required.';
+                    break;
+                case 'email_exists':
+                    message = 'This email is already registered. Please log in instead.';
+                    break;
+                case 'database_error':
+                    message = 'Database error occurred. Please try again.';
+                    break;
+                case 'hash_error':
+                    message = 'Password processing error. Please try again.';
+                    break;
+                case 'login_error':
+                    message = 'Auto-login after signup failed. Please log in manually.';
+                    break;
+                default:
+                    message = 'An error occurred. Please try again.';
+            }
+        }
+        
+        if (message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = 'background:#fee;border:1px solid #fcc;color:#a00;padding:8px;margin:16px 0;border-radius:4px;text-align:center;';
+            messageDiv.textContent = message;
+            document.querySelector('.coco-login').insertBefore(messageDiv, document.querySelector('.coco-login form'));
+            
+            // Clear the error from URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     </script>
 </body>
 </html>

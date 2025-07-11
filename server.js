@@ -127,6 +127,11 @@ passport.deserializeUser((id, done) => {
 });
 
 // --- Auth routes ---
+// GET route for login page (for failed authentication redirects)
+app.get('/login', (req, res) => {
+  res.redirect('/coco.html?error=login_failed');
+});
+
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/my-projects.html',
   failureRedirect: '/login'
@@ -634,49 +639,31 @@ app.post('/api/remove-user', (req, res) => {
 app.post('/signup', (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password) {
-    return res.status(400).send('Email and password are required.');
+    return res.redirect('/coco.html?error=missing_fields');
   }
   // Check if user already exists
   db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
-    if (err) return res.status(500).send('Database error.');
-    if (user) return res.status(409).send('Email already registered.');
+    if (err) return res.redirect('/coco.html?error=database_error');
+    if (user) return res.redirect('/coco.html?error=email_exists');
     // Set default avatar and name
     const defaultAvatar = '/images/coconut.png';
-    const userName = email;
+    const userName = name || email;
     // Hash password
     bcrypt.hash(password, 10, (err, hash) => {
-      if (err) return res.status(500).send('Error hashing password.');
+      if (err) return res.redirect('/coco.html?error=hash_error');
       db.run('INSERT INTO users (email, password, name, avatar) VALUES (?, ?, ?, ?)', [email, hash, userName, defaultAvatar], function(err) {
-        if (err) return res.status(500).send('Database error.');
+        if (err) return res.redirect('/coco.html?error=database_error');
         // Optionally auto-login after signup
         db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, newUser) => {
-          if (err) return res.status(500).send('Database error.');
+          if (err) return res.redirect('/coco.html?error=database_error');
           req.login(newUser, (err) => {
-            if (err) return res.status(500).send('Login error.');
+            if (err) return res.redirect('/coco.html?error=login_error');
             return res.redirect('/my-projects.html');
           });
         });
       });
     });
   });
-});
-
-// --- Signup form page (GET) ---
-app.get('/signup', (req, res) => {
-  res.send(`
-    <html>
-      <head><title>Sign Up</title></head>
-      <body>
-        <h2>Sign Up</h2>
-        <form method="POST" action="/signup">
-          <label>Email: <input type="email" name="email" required></label><br>
-          <label>Password: <input type="password" name="password" required></label><br>
-          <label>Name: <input type="text" name="name"></label><br>
-          <button type="submit">Sign Up</button>
-        </form>
-      </body>
-    </html>
-  `);
 });
 
 // --- API: Get project graph filename by project ID ---

@@ -18,6 +18,40 @@
 
 <div id="container">
 
+<!-- Top row of Graph Editing buttons -->
+<div style="float:right; background-color:White; z-index:9">
+<table>
+<tr style="text-align:center; height:14px; line-height:50%">
+    <td><label class="small">add<br>Node</label></td>
+    <td><label class="small">clear<br>all</label></td>
+    <td><label class="small">menu</label></td>
+</tr>
+<tr class="viz-buttons">
+    <td><button onclick="addNode()">＋</button></td>
+    <td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button>
+	<td>
+	  <!-- Menu button and dropdown -->
+      <div style="position:relative; display:inline-block;">
+        <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:2px solid #888;">
+          <span style="display:inline-block; font-size:22px; line-height:1;">&#9776;</span>
+        </button>
+        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
+          <div class="menu-item" onclick="help(); hideMenuDropdown();">Help</div>
+          <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
+          <div class="menu-item" onclick="loadJSONgraph(); hideMenuDropdown();">Load JSON graph</div>
+          <div class="menu-item" onclick="saveJSONgraph(); hideMenuDropdown();">Save JSON graph</div>
+          <div class="menu-item" onclick="saveJSONmap(); hideMenuDropdown();">Save JSON map</div>
+          <div class="menu-item" onclick="loadGitDir(); hideMenuDropdown();">Load Git Dir</div>
+          <div class="menu-item" onclick="saveGitDir(); hideMenuDropdown();">Save Git Dir</div>
+          <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
+          <div class="menu-item" onclick="verifyTreeIgnoringAuxEdges(); hideMenuDropdown();">Verify Tree<br>(ignore aux links)</div>
+        </div>
+      </div>
+    </td>
+</tr>
+</table>
+</div>
+
 <!-- for displaying project graph using Vis.js, its size is controlled
 by the function toggleSidePane() in project-graph.js -->
 <div id="viz"></div>
@@ -56,57 +90,20 @@ by the function toggleSidePane() in project-graph.js -->
 	  <label for="edgeColorAux">Auxiliary (dotted)</label>
 	</div>
 
-	<label>Details:</label><br>
-	<textarea rows="13" id="Details" oninput="changeDetails(this)"></textarea><br>
-
-	<label disabled>Expected tokens</label>
-	<input type="number" id="ExpTokens" style="width:9em;" disabled><br>
-	<label disabled>Expected days</label>
-	<input type="number" id="ExpTime" style="width:4em;" disabled><br>
-	<label disabled>Expected # workers</label>
-	<input type="number" id="ExpWorkers" style="width:4em;" disabled><br>
-
-	<label style="display:inline-block; margin-top:5px;">Authors:</label>
-	<button id='startVote' style="float:right; margin-top:5px; margin-right:20px;">vote</button><br>
-	<div id="authors"></div>
+	<div style="margin-top: 20px; text-align: center;">
+		<button id="openNodePageBtn" onclick="openNodePageFromSidePane()" style="padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Open node page</button>
+	</div>
 </div>
 <span id="SidePaneButton2" onclick="toggleSidePane()" style="float:left;">🞂</span>
 
-<!-- top row of Graph Editing buttons -->
-<div style="float:right; background-color:White; z-index:9">
-<table>
-<tr style="text-align:center; height:14px; line-height:50%">
-    <td><label class="small">add<br>Node</label></td>
-    <td><label class="small">clear<br>all</label></td>
-    <td><label class="small">menu</label></td>
-</tr>
-<tr class="viz-buttons">
-    <td><button onclick="addNode()">＋</button></td>
-    <td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button>
-	<td>
-	  <!-- Menu button and dropdown -->
-      <div style="position:relative; display:inline-block;">
-        <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:2px solid #888;">
-          <span style="display:inline-block; font-size:22px; line-height:1;">&#9776;</span>
-        </button>
-        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
-          <div class="menu-item" onclick="help(); hideMenuDropdown();">Help</div>
-          <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
-          <div class="menu-item" onclick="loadJSONgraph(); hideMenuDropdown();">Load JSON graph</div>
-          <div class="menu-item" onclick="saveJSONgraph(); hideMenuDropdown();">Save JSON graph</div>
-          <div class="menu-item" onclick="saveJSONmap(); hideMenuDropdown();">Save JSON map</div>
-          <div class="menu-item" onclick="loadGitDir(); hideMenuDropdown();">Load Git Dir</div>
-          <div class="menu-item" onclick="saveGitDir(); hideMenuDropdown();">Save Git Dir</div>
-          <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
-          <div class="menu-item" onclick="verifyTreeIgnoringAuxEdges(); hideMenuDropdown();">Verify Tree<br>(ignore aux links)</div>
-        </div>
-      </div>
-    </td>
-</tr>
-</table>
-</div>
-
 <style>
+#openNodePageBtn:hover {
+  background-color: #45a049;
+}
+#openNodePageBtn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
 .menu-item {
   padding: 8px 16px;
   cursor: pointer;

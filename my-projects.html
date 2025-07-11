@@ -129,15 +129,16 @@
         return;
       }
       let html = '<table style="width:100%;border-collapse:collapse;margin-top:1em;">';
-      html += '<tr style="background:#cfd7db; text-align:left;"><th style="color:#7c4c00;padding:0.5em 0.3em;">ID</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Project Name</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Description</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Role</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Graph</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Action</th></tr>';
+      html += '<tr style="background:#cfd7db; text-align:left;"><th style="color:#7c4c00;padding:0.5em 0.3em;">ID</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Project Name</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Description</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Role</th><th style="color:#7c4c00;padding:0.5em 0.3em;">View project</th><th style="color:#7c4c00;padding:0.5em 0.3em;">Action</th></tr>';
       projects.forEach(p => {
         const graphUrl = `/project-graph.html?projectName=${encodeURIComponent(p.name)}`;
+        const mapUrl = `/project-map.html?projectName=${encodeURIComponent(p.name)}`;
         html += `<tr style="border-bottom:1px solid #f9e6b3;">
           <td style="padding:0.4em 0.3em;">${p.id}</td>
           <td style="padding:0.4em 0.3em;"><b>${p.name}</b></td>
           <td style="padding:0.4em 0.3em;font-size:0.95em;color:#888;">${p.description||''}</td>
           <td style="padding:0.4em 0.3em;color:#b77c00;">${p.userRole||'member'}</td>
-          <td style="padding:0.4em 0.3em;"><a href="${graphUrl}" target="_blank" style="color:#7c4c00;text-decoration:underline;">View</a></td>
+          <td style="padding:0.4em 0.3em;"><a href="${graphUrl}" target="_blank" style="color:#7c4c00;text-decoration:underline;">graph</a> | <a href="${mapUrl}" target="_blank" style="color:#7c4c00;text-decoration:underline;">map</a></td>
           <td style="padding:0.4em 0.3em;">
             <button class="unjoin-btn" data-id="${p.id}">Unjoin</button>
           </td>

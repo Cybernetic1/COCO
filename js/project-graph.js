@@ -382,34 +382,47 @@ function onClick(params) {
         selectedEdgeId = null;
         const node = data.nodes.get(selectedNodeId);
         if (node) {
-            document.getElementById("TaskNameEN").value = node.labelEN || "";
-            document.getElementById("TaskNameZH").value = node.labelZH || "";
-            document.getElementById("Details").value = node.details || "";
+            const taskNameEN = document.getElementById("TaskNameEN");
+            const taskNameZH = document.getElementById("TaskNameZH");
+            const details = document.getElementById("Details");
+            
+            if (taskNameEN) taskNameEN.value = node.labelEN || "";
+            if (taskNameZH) taskNameZH.value = node.labelZH || "";
+            if (details) details.value = node.details || "";
+            
             // Update status radio buttons
             const statuses = ["in-progress", "finished", "paused", "research"];
             statuses.forEach(status => {
                 const radio = document.getElementById(status);
-                radio.checked = (node.status === status);
+                if (radio) radio.checked = (node.status === status);
             });
         }
         // Hide edge color group if node is selected
-        document.getElementById("edgeColorGroup").style.display = "none";
+        const edgeColorGroup = document.getElementById("edgeColorGroup");
+        if (edgeColorGroup) edgeColorGroup.style.display = "none";
         techClick.play();
     } else if (params['edges'].length > 0) {
         selectedEdgeId = params['edges'][0];
         selectedNodeId = null;
         const edge = data.edges.get(selectedEdgeId);
         if (edge) {
-            document.getElementById("EdgeNameEN").value = edge.label || "";
+            const edgeNameEN = document.getElementById("EdgeNameEN");
+            if (edgeNameEN) edgeNameEN.value = edge.label || "";
+            
             // Show edge color group and set radio button according to dashes property
-            document.getElementById("edgeColorGroup").style.display = "block";
+            const edgeColorGroup = document.getElementById("edgeColorGroup");
+            if (edgeColorGroup) edgeColorGroup.style.display = "block";
+            
             const dashes = edge.dashes === true;
+            const edgeColorAux = document.getElementById("edgeColorAux");
+            const edgeColorNormal = document.getElementById("edgeColorNormal");
+            
             if (dashes) {
-                document.getElementById("edgeColorAux").checked = true;
-                document.getElementById("edgeColorNormal").checked = false;
+                if (edgeColorAux) edgeColorAux.checked = true;
+                if (edgeColorNormal) edgeColorNormal.checked = false;
             } else {
-                document.getElementById("edgeColorNormal").checked = true;
-                document.getElementById("edgeColorAux").checked = false;
+                if (edgeColorNormal) edgeColorNormal.checked = true;
+                if (edgeColorAux) edgeColorAux.checked = false;
             }
         }
         techClick.play();
@@ -417,12 +430,19 @@ function onClick(params) {
         selectedNodeId = null;
         selectedEdgeId = null;
         // Hide edge color group if nothing is selected
-        document.getElementById("edgeColorGroup").style.display = "none";
+        const edgeColorGroup = document.getElementById("edgeColorGroup");
+        if (edgeColorGroup) edgeColorGroup.style.display = "none";
+        
         // Optionally clear the side pane fields
-        document.getElementById("TaskNameEN").value = "";
-        document.getElementById("TaskNameZH").value = "";
-        document.getElementById("Details").value = "";
-        document.getElementById("EdgeNameEN").value = "";
+        const taskNameEN = document.getElementById("TaskNameEN");
+        const taskNameZH = document.getElementById("TaskNameZH");
+        const details = document.getElementById("Details");
+        const edgeNameEN = document.getElementById("EdgeNameEN");
+        
+        if (taskNameEN) taskNameEN.value = "";
+        if (taskNameZH) taskNameZH.value = "";
+        if (details) details.value = "";
+        if (edgeNameEN) edgeNameEN.value = "";
     }
 }
 
@@ -869,6 +889,15 @@ function openNodePage() {
         contextMenu.style.display = 'none';
     }
     contextMenuNodeId = null;
+}
+
+function openNodePageFromSidePane() {
+    if (selectedNodeId !== null) {
+        // Open node-page.html in a new tab with the node ID as a URL parameter
+        window.open(`node-page.html?id=${selectedNodeId}`, '_blank');
+    } else {
+        alert('Please select a node first');
+    }
 }
 
 // Listen for Delete key to delete selected node or edge with confirmation
@@ -1419,3 +1448,81 @@ window.verifyTreeIgnoringAuxEdges = verifyTreeIgnoringAuxEdges;
 window.changeStatusFromContextMenu = changeStatusFromContextMenu;
 window.changeEdgeTypeFromContextMenu = changeEdgeTypeFromContextMenu;
 window.openNodePage = openNodePage;
+window.openNodePageFromSidePane = openNodePageFromSidePane;
+
+// Language switching function
+function switchLang() {
+  lang = (lang === "EN") ? "ZH" : "EN";
+  
+  // Update the display of all nodes with new language
+  if (typeof nodes !== 'undefined' && nodes) {
+    const nodeArray = nodes.get();
+    nodeArray.forEach(node => {
+      const newLabel = get_label_in_lang(node);
+      nodes.update({id: node.id, label: newLabel});
+    });
+  }
+  
+  // Update the side panel if a node is selected
+  if (selectedNodeId && typeof data !== 'undefined' && data.nodes) {
+    const node = data.nodes.get(selectedNodeId);
+    if (node) {
+      const taskNameEN = document.getElementById("TaskNameEN");
+      const taskNameZH = document.getElementById("TaskNameZH");
+      
+      if (taskNameEN) taskNameEN.value = node.labelEN || "";
+      if (taskNameZH) taskNameZH.value = node.labelZH || "";
+    }
+  }
+  
+  console.log(`Language switched to: ${lang}`);
+}
+
+// Auto-load project graph from URL parameter
+function autoLoadProjectGraph() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const projectNameParam = urlParams.get('projectName');
+  
+  if (projectNameParam) {
+    // Construct the JSON file path
+    const jsonFilePath = `/loadJSON/project-graphs/${encodeURIComponent(projectNameParam)}.json`;
+    
+    // Try to fetch and load the JSON file
+    $.ajax({
+      method: "GET",
+      url: jsonFilePath,
+      cache: false,
+      success: function(data0) {
+        if (data0 && data0.nodes && data0.edges) {
+          // Destroy existing network if it exists
+          if (typeof network !== 'undefined' && network) {
+            network.destroy();
+          }
+          
+          // Load the new data
+          nodes = new vis.DataSet(data0.nodes);
+          edges = new vis.DataSet(data0.edges);
+          data.nodes = nodes;
+          data.edges = edges;
+          init_nodes();
+          network = new vis.Network(viz, data, options);
+          update_node_index();
+          network.once('stabilized', function() {
+            setupNetworkEvents(network);
+          });
+          
+          console.log(`Auto-loaded project graph: ${projectNameParam}`);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.warn(`Could not auto-load project graph for "${projectNameParam}":`, status, error);
+        // Fall back to default behavior - empty graph will be shown
+      }
+    });
+  }
+}
+
+// Call auto-load when DOM is ready
+$(document).ready(function() {
+  autoLoadProjectGraph();
+});

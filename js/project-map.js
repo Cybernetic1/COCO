@@ -528,4 +528,52 @@ document.addEventListener('DOMContentLoaded', function() {
     renderCurrentMap();
   };
   document.getElementById('modal-overlay').onclick = hideNodeModal;
+
+  // Auto-load project map from URL parameter
+  function autoLoadProjectMap() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectNameParam = urlParams.get('projectName');
+    
+    if (projectNameParam) {
+      // Construct the JSON file path
+      const jsonFilePath = `project-maps/${encodeURIComponent(projectNameParam)}.json`;
+      
+      // Try to fetch and load the JSON file
+      fetch(jsonFilePath)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(json => {
+          // Validate and load the JSON data
+          if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
+            projectMapRoot = json;
+            projectName = projectMapRoot.labelEN || projectMapRoot.label || projectNameParam;
+            window.projectMapRoot = projectMapRoot;
+            selected_node = null;
+            
+            // Update page title and header
+            document.title = `${projectName} - Project Map`;
+            const h1Element = document.getElementsByTagName('h1')[0];
+            if (h1Element) {
+              h1Element.innerHTML = `${projectName} - Project Map`;
+            }
+            
+            renderCurrentMap();
+            saveMapToLocalStorage();
+            console.log(`Auto-loaded project map: ${projectName}`);
+          } else {
+            throw new Error('Invalid JSON map format: root node must have id:0 and children array');
+          }
+        })
+        .catch(error => {
+          console.warn(`Could not auto-load project map for "${projectNameParam}":`, error);
+          // Fall back to default behavior - the existing projectMapRoot will be used
+        });
+    }
+  }
+
+  autoLoadProjectMap();
 });
