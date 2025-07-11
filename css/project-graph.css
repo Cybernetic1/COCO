@@ -207,19 +207,8 @@ input[type='author'][disabled] {
 	cursor: pointer;
 }
 
-/* Remove styles for Node1, Node2, Node12, Edge, and any manual link UI */
-#Node1, #Node2, #Node12, #Edge {
-    display: none !important;
-}
-
-/* Remove or hide any CSS related to the 'link Nodes' button */
-#linkNodes {
-    display: none !important;
-}
-
-/* Remove or hide any CSS related to the delete node and delete edge buttons */
-#delNode, #delEdge {
-    display: none !important;
+#menuDropdown .menu-item {
+	font-size: 14px;
 }
 
 /* Context menu for node status selection */

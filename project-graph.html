@@ -46,13 +46,34 @@
         <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
           <div class="menu-item" onclick="help(); hideMenuDropdown();">Help</div>
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
-          <div class="menu-item" onclick="loadJSONgraph(); hideMenuDropdown();">Load JSON graph</div>
-          <div class="menu-item" onclick="saveJSONgraph(); hideMenuDropdown();">Save JSON graph</div>
-          <div class="menu-item" onclick="saveJSONmap(); hideMenuDropdown();">Save JSON map</div>
-          <div class="menu-item" onclick="loadGitDir(); hideMenuDropdown();">Load Git Dir</div>
-          <div class="menu-item" onclick="saveGitDir(); hideMenuDropdown();">Save Git Dir</div>
-          <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
-          <div class="menu-item" onclick="verifyTreeIgnoringAuxEdges(); hideMenuDropdown();">Verify Tree<br>(ignore aux links)</div>
+          
+          <!-- Load submenu -->
+          <div class="menu-item menu-group" onclick="toggleSubmenu('loadSubmenu', event)">
+            Load... <span class="menu-arrow">&#9654;</span>
+            <div id="loadSubmenu" class="submenu">
+              <div class="menu-item" onclick="loadJSONgraph(); hideMenuDropdown();">Load JSON graph</div>
+              <div class="menu-item" onclick="loadGitDir(); hideMenuDropdown();">Load Git Dir</div>
+            </div>
+          </div>
+          
+          <!-- Save submenu -->
+          <div class="menu-item menu-group" onclick="toggleSubmenu('saveSubmenu', event)">
+            Save... <span class="menu-arrow">&#9654;</span>
+            <div id="saveSubmenu" class="submenu">
+              <div class="menu-item" onclick="saveJSONgraph(); hideMenuDropdown();">Save JSON graph</div>
+              <div class="menu-item" onclick="saveJSONmap(); hideMenuDropdown();">Save JSON map</div>
+              <div class="menu-item" onclick="saveGitDir(); hideMenuDropdown();">Save Git Dir</div>
+            </div>
+          </div>
+          
+          <!-- Tree submenu -->
+          <div class="menu-item menu-group" onclick="toggleSubmenu('treeSubmenu', event)">
+            Tree... <span class="menu-arrow">&#9654;</span>
+            <div id="treeSubmenu" class="submenu">
+              <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
+              <div class="menu-item" onclick="verifyTreeIgnoringAuxEdges(); hideMenuDropdown();">Verify Tree<br>(ignore aux links)</div>
+            </div>
+          </div>
         </div>
       </div>
     </td>
@@ -129,9 +150,58 @@ by the function toggleSidePane() in project-graph.js -->
   cursor: pointer;
   font-size: 12px;
   border-bottom: 1px solid #eee;
+  position: relative;
 }
 .menu-item:last-child { border-bottom: none; }
 .menu-item:hover { background: #f0f0f0; }
+
+/* New styles for grouped menu */
+.menu-separator {
+  height: 1px;
+  background: #ddd;
+  margin: 4px 0;
+}
+
+.menu-group {
+  position: relative;
+}
+
+.menu-arrow {
+  float: right;
+  font-size: 10px;
+  color: #888;
+  transition: transform 0.2s;
+}
+
+.menu-group:hover .menu-arrow {
+  transform: rotate(90deg);
+}
+
+.submenu {
+  display: none;
+  position: absolute;
+  right: 100%;
+  top: 0;
+  background: #fff;
+  border: 1px solid #888;
+  border-radius: 6px;
+  min-width: 150px;
+  box-shadow: -2px 2px 8px rgba(0,0,0,0.2);
+  z-index: 200;
+}
+
+.submenu .menu-item {
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+}
+
+.submenu .menu-item:last-child {
+  border-bottom: none;
+}
+
+.submenu .menu-item:hover {
+  background: #f0f0f0;
+}
 
 /* Smaller font size for side pane */
 #side-pane {
@@ -148,19 +218,57 @@ by the function toggleSidePane() in project-graph.js -->
 }
 </style>
 <script>
+function toggleSubmenu(submenuId, event) {
+  event.stopPropagation(); // Prevent menu from closing
+  
+  // Hide all other submenus first
+  var allSubmenus = document.querySelectorAll('.submenu');
+  allSubmenus.forEach(function(submenu) {
+    if (submenu.id !== submenuId) {
+      submenu.style.display = 'none';
+    }
+  });
+  
+  // Toggle the clicked submenu
+  var submenu = document.getElementById(submenuId);
+  if (submenu) {
+    submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
+  }
+}
+
 function toggleMenuDropdown() {
   var d = document.getElementById('menuDropdown');
   d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+  
+  // Hide all submenus when main menu is toggled
+  if (d.style.display === 'none') {
+    var allSubmenus = document.querySelectorAll('.submenu');
+    allSubmenus.forEach(function(submenu) {
+      submenu.style.display = 'none';
+    });
+  }
 }
+
 function hideMenuDropdown() {
   document.getElementById('menuDropdown').style.display = 'none';
+  
+  // Hide all submenus when main menu is hidden
+  var allSubmenus = document.querySelectorAll('.submenu');
+  allSubmenus.forEach(function(submenu) {
+    submenu.style.display = 'none';
+  });
 }
-// Hide dropdown if clicking outside
+
+// Hide dropdown and submenus if clicking outside
 window.addEventListener('mousedown', function(e) {
   var menu = document.getElementById('menuDropdown');
   var btn = document.getElementById('menuButton');
   if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
     menu.style.display = 'none';
+    var allSubmenus = document.querySelectorAll('.submenu');
+    allSubmenus.forEach(function(submenu) {
+      submenu.style.display = 'none';
+    });
   }
 });
 </script>
