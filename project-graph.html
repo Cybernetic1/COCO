@@ -18,13 +18,21 @@
 
 <div id="container">
 
+<!-- Header -->
+<div style="position:absolute; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; margin:0.2em; background:transparent; z-index:10; pointer-events:none;">
+  <div style="display:flex; align-items:center; pointer-events:auto;">
+    <span style="color:#888; font-size:16px; font-weight:normal; background:white; padding:2px 2px; border-radius:4px;">Project Graph:</span>
+    <h1 style="text-align:left; margin:0; color:#000; background: white; padding:2px 3px; border-radius:4px;">Project Name</h1>
+  </div>
+</div>
+
 <!-- Top row of Graph Editing buttons -->
 <div style="float:right; background-color:White; z-index:9">
 <table>
 <tr style="text-align:center; height:14px; line-height:50%">
-    <td><label class="small">add<br>Node</label></td>
-    <td><label class="small">clear<br>all</label></td>
-    <td><label class="small">menu</label></td>
+    <td><label class="small">Add<br>node</label></td>
+    <td><label class="small">Clear<br>graph</label></td>
+    <td><label class="small">Menu</label></td>
 </tr>
 <tr class="viz-buttons">
     <td><button onclick="addNode()">＋</button></td>
@@ -58,43 +66,52 @@ by the function toggleSidePane() in project-graph.js -->
 
 <!-- side panel for input data -->
 <!-- the attribute "pointer-events:none" allows side panel close button to work even when it's partly covered by the side panel, but it renders the side panel non-functional -->
-<div id="side-pane" style="width:300px; display:none; padding:5px; z-index:0; background-color:#EEE;">
+<div id="side-pane" style="width:300px; display:none; padding:5px; z-index:0; background-color:#EEE; top:60px; position:absolute;">
 	<span id="SidePaneButton" onclick="toggleSidePane()" style="float:right;">🞀</span>
-	<label>Status:</label><br>
-	<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
-	<label class="colorKey" for="in-progress">in progress</label><br>
-	<input type="radio" id="finished" name="status" value="finished" onclick="changeStatus(this)">
-	<label class="colorKey" for="finished">finished</label><br>
-	<input type="radio" id="paused" name="status" value="paused" onclick="changeStatus(this)">
-	<label class="colorKey" for="paused">paused</label><br>
-	<input type="radio" id="research" name="status" value="research" onclick="changeStatus(this)">
-	<label class="colorKey" for="research">research area</label><br>
+	
+	<!-- Node-specific elements -->
+	<div id="nodeElements">
+		<label>Status:</label><br>
+		<input type="radio" id="in-progress" name="status" value="in-progress" onclick="changeStatus(this)">
+		<label class="colorKey" for="in-progress">in progress</label><br>
+		<input type="radio" id="finished" name="status" value="finished" onclick="changeStatus(this)">
+		<label class="colorKey" for="finished">finished</label><br>
+		<input type="radio" id="paused" name="status" value="on hold" onclick="changeStatus(this)">
+		<label class="colorKey" for="paused">paused</label><br>
+		<input type="radio" id="research" name="status" value="research" onclick="changeStatus(this)">
+		<label class="colorKey" for="research">research area</label><br>
 
-	<div lang="ZH">
-	<label>工作名称（中文）：</label><br>
-	<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
+		<div id="chineseNameSection" lang="ZH" style="display: none;">
+		<label>工作名称（中文）：</label><br>
+		<input type="text" id="TaskNameZH" value="" oninput="changeTaskNameZH(this)"><br>
+		</div>
+
+		<label>Task name (English):</label><br>
+		<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
+		
+		<div style="margin-top: 8px; margin-bottom: 8px; text-align: left;">
+			<button id="openNodePageBtn" onclick="openNodePageFromSidePane()"
+			style="padding: 4px 4px; font-size: 14px; background-color: #cff; color: black;
+			border: 1px solid black; border-radius: 5px; cursor: pointer;">Open node's details page...</button>
+		</div>
 	</div>
-
-	<label>Task name (English):</label><br>
-	<input type="text" id="TaskNameEN" value="" oninput="changeTaskNameEN(this)"><br>
-
-	<label>Edge label:</label><br>
-	<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
-
-	<!-- Edge color radio buttons -->
-	<div id="edgeColorGroup" style="margin-top:8px;">
-	  <label>Edge color:</label><br>
-	  <input type="radio" id="edgeColorNormal" name="edgeColor" value="normal" onclick="setEdgeColor('normal')">
-	  <label for="edgeColorNormal">Normal</label>
-	  <input type="radio" id="edgeColorAux" name="edgeColor" value="aux" onclick="setEdgeColor('aux')">
-	  <label for="edgeColorAux">Auxiliary (dotted)</label>
-	</div>
-
-	<div style="margin-top: 20px; text-align: center;">
-		<button id="openNodePageBtn" onclick="openNodePageFromSidePane()" style="padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Open node page</button>
+	
+	<!-- Edge-specific elements -->
+	<div id="edgeElements">
+		<label>Edge label:</label><br>
+		<input type="text" id="EdgeNameEN" value="" oninput="changeEdgeEN(this)"><br>
+		
+		<!-- Edge color radio buttons -->
+		<div id="edgeColorGroup" style="margin-top:8px;">
+		  <label>Edge type:</label><br>
+		  <input type="radio" id="edgeColorNormal" name="edgeColor" value="normal" onclick="setEdgeColor('normal')">
+		  <label for="edgeColorNormal">Normal</label>
+		  <input type="radio" id="edgeColorAux" name="edgeColor" value="aux" onclick="setEdgeColor('aux')">
+		  <label for="edgeColorAux">Auxiliary (dotted)</label>
+		</div>
 	</div>
 </div>
-<span id="SidePaneButton2" onclick="toggleSidePane()" style="float:left;">🞂</span>
+<span id="SidePaneButton2" onclick="toggleSidePane()" style="float:left; position:absolute; top:60px;">🞂</span>
 
 <style>
 #openNodePageBtn:hover {
@@ -104,14 +121,31 @@ by the function toggleSidePane() in project-graph.js -->
   background-color: #cccccc;
   cursor: not-allowed;
 }
+.menu-title {
+  font-weight: bold;
+}
 .menu-item {
   padding: 8px 16px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 12px;
   border-bottom: 1px solid #eee;
 }
 .menu-item:last-child { border-bottom: none; }
 .menu-item:hover { background: #f0f0f0; }
+
+/* Smaller font size for side pane */
+#side-pane {
+  font-size: 14px;
+}
+#side-pane label {
+  font-size: 14px;
+}
+#side-pane input[type="text"] {
+  font-size: 14px;
+}
+/* #side-pane input[type="radio"] {
+  transform: scale(0.9); */
+}
 </style>
 <script>
 function toggleMenuDropdown() {
@@ -236,7 +270,7 @@ window.addEventListener('mousedown', function(e) {
 
 <!-- Context menu for node status selection -->
 <div id="node-context-menu" class="context-menu">
-	<div class="menu-title">Change Node Status:</div>
+	<div class="menu-title">Node Status:</div>
 	<label data-status="in-progress">
 		<input type="radio" name="context-status" value="in-progress" onclick="changeStatusFromContextMenu('in-progress')">
 		<span class="status-label">in progress</span>
@@ -255,13 +289,13 @@ window.addEventListener('mousedown', function(e) {
 	</label>
 	<hr class="menu-separator">
 	<div class="menu-option" onclick="openNodePage()">
-		Open node page
+		Open node's page...
 	</div>
 </div>
 
 <!-- Context menu for edge type selection -->
 <div id="edge-context-menu" class="context-menu">
-	<div class="menu-title">Change Edge Type:</div>
+	<div class="menu-title">Edge Type:</div>
 	<label>
 		<input type="radio" name="context-edge-type" value="normal" onclick="changeEdgeTypeFromContextMenu('normal')">
 		<span class="edge-type-label">Normal</span>

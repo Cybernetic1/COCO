@@ -9,20 +9,20 @@
       font-family: sans-serif;
     }
     h1, h2 {
-	  color: #7c4c00;
+	  color: #000;
 	}
     .map-node {
       display: inline-block;
       margin: 0.5em;
       padding: 0.5em 1em;
       background: #fff8e1;
-      border: 3px solid #b77c00;
+      border: 3px solid #CCC;
       border-radius: 8px;
       cursor: pointer;
       position: relative;
     }
     .map-node:hover {
-      border: 3px solid black;
+      border: 3px solid #555;
       /* background: #fee !important; */
     }
     .map-children {
@@ -36,9 +36,9 @@
       top: 50%;
       transform: translate(-50%, -50%);
       background: #fff;
-      border: 2px solid #b77c00;
+      border: 2px solid #CCC;
       border-radius: 12px;
-      box-shadow: 0 2px 16px #f9e6b3;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.15);
       padding: 2em 2em 1.5em 2em;
       z-index: 1000;
       min-width: 300px;
@@ -48,7 +48,7 @@
       margin-bottom: 1em;
       padding: 0.4em;
       border-radius: 6px;
-      border: 1px solid #b77c00;
+      border: 1px solid #CCC;
     }
     #modal-overlay {
       display: none;
@@ -70,14 +70,18 @@
 </head>
 <body>
   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1.5em; margin-bottom:0.5em;">
-    <h1 style="text-align:left; margin:0;">Title</h1>
+    <div style="display:flex; align-items:center; gap:1em;">
+      <span style="color:#AAA; font-size:16px; font-weight:normal;">Project Map:</span>
+      <h1 style="text-align:left; margin:0;">Project Name</h1>
+    </div>
     <!--div style="float:left;"><h2>Project Map</h2></div-->
     <div style="background-color:White; z-index:9;">
       <div style="position:relative; display:inline-block;">
         <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:1.5px solid #888;">
           <span style="display:inline-block; font-size:22px; line-height:1;">&#9776;</span>
         </button>
-        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:140px; box-shadow:0 2px 8px #888; z-index:100;">
+        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:200px; box-shadow:0 2px 8px #888; z-index:100;">
+          <div class="menu-item" onclick="editProjectName(); hideMenuDropdown();">Edit Project Name</div>
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
           <div class="menu-item" onclick="readJSONMap(); hideMenuDropdown();">Read JSON map</div>
           <div class="menu-item" onclick="saveJSONMap(); hideMenuDropdown();">Save JSON map</div>
@@ -86,13 +90,13 @@
     </div>
   </div>
   <div id="map-container" style="margin:2em auto;max-width:900px;"></div>
-  <hr style="width:95%;margin:2.5% auto 1.2em auto;border:0;border-top:2px solid #b77c00; margin-top:4em;">
+  <hr style="width:95%;margin:2.5% auto 1.2em auto;border:0;border-top:2px solid #000; margin-top:4em;">
   <div id="page-chat" style="width:95%;margin:0 auto 0 auto;">
-    <h3 style="color:#7c4c00;margin-top:0;margin-bottom:0.7em;">Page Chat</h3>
-    <div id="chat-messages" style="min-height:120px;max-height:220px;overflow-y:auto;margin-bottom:1em;background:#fff;border-radius:0;padding:0.7em 1em;border:1px solid #e0c080;"></div>
+    <h3 style="color:#AAA;margin-top:0;margin-bottom:0.7em;">Page Chat</h3>
+    <div id="chat-messages" style="min-height:120px;max-height:220px;overflow-y:auto;margin-bottom:1em;background:#fff;border-radius:0;padding:0.7em 1em;border:1px solid #CCC;"></div>
     <form id="chat-form" style="display:flex;gap:0.5em;">
-      <input id="chat-input" type="text" placeholder="Type a message..." autocomplete="off" style="flex:1;padding:0.5em;border-radius:6px;border:1px solid #b77c00;">
-      <button type="submit" style="background:#b77c00;color:#fff;border:none;border-radius:6px;padding:0.5em 1.2em;font-weight:bold;">Send</button>
+      <input id="chat-input" type="text" placeholder="Type a message..." autocomplete="off" style="flex:1;padding:0.5em;border-radius:6px;border:1px solid #CCC;">
+      <button type="submit" style="background:#999;color:#fff;border:none;border-radius:6px;padding:0.5em 1.2em;font-weight:bold;">Send</button>
     </form>
   </div>
   <div id="modal-overlay"></div>

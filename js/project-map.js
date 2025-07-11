@@ -8,6 +8,7 @@
 let projectMapRoot = {
   id: 0,
   label: 'Root',
+  "project-name": 'Example Project',
   percentage: 100,
   children: [
     { id: 1, label: 'Node 1', percentage: 0, children: [] },
@@ -21,7 +22,22 @@ if (localStorage.getItem('projectMapRoot')) {
     const loaded = JSON.parse(localStorage.getItem('projectMapRoot'));
     if (loaded && typeof loaded === 'object') {
       projectMapRoot = loaded;
-      projectName = projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+      
+      // Get URL parameter for project name (if any)
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectNameParam = urlParams.get('projectName');
+      
+      // Determine project name with proper precedence:
+      // 1. JSON's project-name property (highest precedence)
+      // 2. URL/filename parameter
+      // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
+      projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
+      
+      // If JSON doesn't have project-name but we got it from URL, store it
+      if (!projectMapRoot["project-name"] && projectNameParam) {
+        projectMapRoot["project-name"] = projectNameParam;
+      }
+      
       window.projectMapRoot = projectMapRoot; // update global for debugging
     }
   } catch (e) {
@@ -31,13 +47,26 @@ if (localStorage.getItem('projectMapRoot')) {
 
 let selected_node = null; // Track selected node
 let currentLanguage = 'EN';
-let projectName = projectMapRoot.label || projectMapRoot.labelEN || '';
+
+// Get URL parameter for project name (if any) for initial load
+const urlParams = new URLSearchParams(window.location.search);
+const projectNameParam = urlParams.get('projectName');
+
+// Determine project name with proper precedence:
+// 1. JSON's project-name property (highest precedence)
+// 2. URL/filename parameter  
+// 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
+let projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
 
 // Make projectMapRoot available on window for debugging
 window.projectMapRoot = projectMapRoot;
 
-document.title = `${projectName}`;
-document.getElementsByTagName('h1')[0].innerHTML = document.title;
+// Update page title and header
+document.title = `${projectName} - Project Map`;
+const h1Element = document.getElementsByTagName('h1')[0];
+if (h1Element) {
+  h1Element.innerHTML = projectName;
+}
 
 // Sound files (uncomment to use)
 // const techClick = new Audio('sounds/tech-click.wav');
@@ -50,17 +79,24 @@ function switchLang() {
   techClick2.play();
 }
 
-function getYellowShade(level) {
-  // Returns a yellow shade: level 0 is lightest, deeper levels are darker
-  // HSL: h=48 (yellow), s=100%, l from 95% (root) to 60% (level 5+)
-  const lightness = Math.max(95 - level * 10, 50);
-  return `hsl(48, 100%, ${lightness}%)`;
+function getColorShade(level) {
+  // Returns a cyan shade with both lightness and saturation changes for better distinction
+  // Deeper levels are darker AND more vibrant
+  const maxLightness = 95;
+  const minLightness = 40;  // Darker minimum for better contrast
+  const maxSaturation = 70; // Higher saturation for deeper levels
+  const minSaturation = 20; // Lower saturation for root level
+  
+  const lightness = Math.max(minLightness, maxLightness - (level * 8));
+  const saturation = Math.min(maxSaturation, minSaturation + (level * 8));
+  
+  return `hsl(180, ${saturation}%, ${lightness}%)`;
 }
 
 function renderMap(node, depth = 0) {
 	const el = document.createElement('div');
 	el.className = 'map-node';
-	el.style.background = getYellowShade(depth);
+	el.style.background = getColorShade(depth);
 	// Highlight if selected (compare by id)
 	if (selected_node && selected_node.id === node.id) {
 		el.style.border = '4px solid #f00';
@@ -90,7 +126,7 @@ function renderMap(node, depth = 0) {
 	menuBtn.style.position = 'absolute';
 	menuBtn.style.top = '4px';
 	menuBtn.style.right = '6px';
-	menuBtn.style.color = 'brown';
+	menuBtn.style.color = '#AAA';
 	menuBtn.style.background = 'transparent';
 	menuBtn.style.border = 'none';
 	menuBtn.style.cursor = 'pointer';
@@ -130,6 +166,23 @@ function renderMap(node, depth = 0) {
 		  saveMapToLocalStorage();
 		};
 		menu.appendChild(addChild);
+		
+		// Add 'Edit Project Name' option (only for root node)
+		if (node === projectMapRoot) {
+		  const editProjectNameOption = document.createElement('div');
+		  editProjectNameOption.textContent = 'Edit Project Name';
+		  editProjectNameOption.style.padding = '6px 16px';
+		  editProjectNameOption.style.cursor = 'pointer';
+		  editProjectNameOption.onmouseover = () => editProjectNameOption.style.background = '#eee';
+		  editProjectNameOption.onmouseout = () => editProjectNameOption.style.background = '';
+		  editProjectNameOption.onclick = function(ev) {
+			ev.stopPropagation();
+			editProjectName();
+			document.body.removeChild(menu);
+		  };
+		  menu.appendChild(editProjectNameOption);
+		}
+		
 		// Add 'Delete Node' option (except for root)
 		if (node !== projectMapRoot) {
 		  const deleteNode = document.createElement('div');
@@ -311,7 +364,7 @@ function renderMap(node, depth = 0) {
 	const percentLineDiv = document.createElement('div');
 	percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
 	percentLineDiv.style.fontSize = '0.85em';
-	percentLineDiv.style.color = '#7c4c00';
+	percentLineDiv.style.color = '#AAA';
 	percentLineDiv.style.fontWeight = 'bold';
 	percentLineDiv.style.opacity = '0.8';
 	percentLineDiv.style.marginTop = '2px';
@@ -327,8 +380,8 @@ function renderMap(node, depth = 0) {
 	protrusion.style.height = '50px';
 	protrusion.style.right = '20px';
 	protrusion.style.bottom = '-50px';
-	protrusion.style.background = getYellowShade(0);
-	protrusion.style.border = '4px solid #b77c00';
+	protrusion.style.background = getColorShade(0);
+	protrusion.style.border = '4px solid #CCC';
 	protrusion.style.borderTop = '0px';
 	protrusion.style.borderBottom = '0px';
 	// Add bold dollar sign
@@ -336,7 +389,7 @@ function renderMap(node, depth = 0) {
 	dollar.innerHTML = '↑<br>$';
 	dollar.style.fontWeight = 'bold';
 	dollar.style.fontSize = '1.3em';
-	dollar.style.color = '#7c4c00';
+	dollar.style.color = '#AAA';
 	dollar.style.position = 'absolute';
 	dollar.style.bottom = '-12px';
 	dollar.style.right = '6px';
@@ -361,8 +414,8 @@ function renderCurrentMap() {
   container.innerHTML = '';
   container.appendChild(renderMap(projectMapRoot, 0));
   saveMapToLocalStorage(); // Save after rendering (and after any change)
-  // Always update projectName from root node
-  projectName = projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+  // Always update projectName from root node, prioritizing project-name property
+  projectName = projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
   document.title = projectName + ' - Project Map';
   window.projectMapRoot = projectMapRoot; // keep updated for debugging
   window.projectName = projectName; // keep updated for debugging
@@ -398,9 +451,29 @@ function readJSONMap() {
         // Assume json is exactly the tree structure (ProjectMapRoot)
         if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
           projectMapRoot = json;
-          projectName = projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+          
+          // Determine project name with proper precedence:
+          // 1. JSON's project-name property (highest precedence)
+          // 2. filename (extracted from file.name)
+          // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
+          const filenameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+          projectName = projectMapRoot["project-name"] || filenameWithoutExt || 'project-map';
+          
+          // If JSON doesn't have project-name but we got it from filename, store it
+          if (!projectMapRoot["project-name"] && filenameWithoutExt) {
+            projectMapRoot["project-name"] = filenameWithoutExt;
+          }
+          
           window.projectMapRoot = projectMapRoot;
           selected_node = null;
+          
+          // Update page title and header
+          document.title = `${projectName} - Project Map`;
+          const h1Element = document.getElementsByTagName('h1')[0];
+          if (h1Element) {
+            h1Element.innerHTML = projectName;
+          }
+          
           renderCurrentMap();
           saveMapToLocalStorage();
         } else {
@@ -417,12 +490,16 @@ function readJSONMap() {
 // --- Save JSON map logic ---
 function saveJSONMap(filename) {
   // Always use projectMapRoot as the data to save
-  let defaultName = projectName || (window.projectMapRoot && (window.projectMapRoot.labelEN || window.projectMapRoot.label)) ? (window.projectMapRoot.labelEN || window.projectMapRoot.label) : 'project-map';
+  let defaultName = projectName || projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
   let saveName = prompt('Enter project name for saving (will be used as filename):', defaultName);
   if (!saveName) return;
   // Sanitize filename
   saveName = saveName.replace(/[^a-zA-Z0-9-_]/g, '_');
   projectName = saveName; // Update global projectName
+  
+  // Store the project name in the root node's project-name property
+  projectMapRoot["project-name"] = saveName;
+  
   const fileName = `${saveName}.json`;
   const jsonStr = JSON.stringify(projectMapRoot, null, 2);
 
@@ -467,7 +544,7 @@ async function fetchChatMessages() {
   data.messages.forEach(msg => {
     const div = document.createElement('div');
     div.style.marginBottom = '0.4em';
-    div.innerHTML = `<b style='color:#7c4c00;'>${msg.user}</b>: <span>${escapeHtml(msg.text)}</span> <span style='color:#aaa;font-size:0.9em;'>${formatTime(msg.time)}</span>`;
+    div.innerHTML = `<b style='color:#AAA;'>${msg.user}</b>: <span>${escapeHtml(msg.text)}</span> <span style='color:#aaa;font-size:0.9em;'>${formatTime(msg.time)}</span>`;
     chatContainer.appendChild(div);
   });
   chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -531,9 +608,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Auto-load project map from URL parameter
   function autoLoadProjectMap() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectNameParam = urlParams.get('projectName');
-    
     if (projectNameParam) {
       // Construct the JSON file path
       const jsonFilePath = `project-maps/${encodeURIComponent(projectNameParam)}.json`;
@@ -550,7 +624,18 @@ document.addEventListener('DOMContentLoaded', function() {
           // Validate and load the JSON data
           if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
             projectMapRoot = json;
-            projectName = projectMapRoot.labelEN || projectMapRoot.label || projectNameParam;
+            
+            // Determine project name with proper precedence:
+            // 1. JSON's project-name property (highest precedence)
+            // 2. URL/filename parameter
+            // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
+            projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
+            
+            // If JSON doesn't have project-name but we got it from URL, store it
+            if (!projectMapRoot["project-name"] && projectNameParam) {
+              projectMapRoot["project-name"] = projectNameParam;
+            }
+            
             window.projectMapRoot = projectMapRoot;
             selected_node = null;
             
@@ -558,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.title = `${projectName} - Project Map`;
             const h1Element = document.getElementsByTagName('h1')[0];
             if (h1Element) {
-              h1Element.innerHTML = `${projectName} - Project Map`;
+              h1Element.innerHTML = projectName;
             }
             
             renderCurrentMap();
@@ -577,3 +662,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   autoLoadProjectMap();
 });
+
+// Function to edit the project name
+function editProjectName() {
+  const currentName = projectMapRoot["project-name"] || projectName || 'project-map';
+  const newName = prompt('Enter new project name:', currentName);
+  if (newName && newName.trim()) {
+    projectName = newName.trim();
+    projectMapRoot["project-name"] = projectName;
+    
+    // Update page title and header
+    document.title = `${projectName} - Project Map`;
+    const h1Element = document.getElementsByTagName('h1')[0];
+    if (h1Element) {
+      h1Element.innerHTML = projectName;
+    }
+    
+    saveMapToLocalStorage();
+    techClick2.play().catch(() => {}); // Ignore audio errors
+  }
+}

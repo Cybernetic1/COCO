@@ -112,6 +112,23 @@ if (params && params[1]) {
     lang = params[1].toUpperCase();
 }
 
+// Project name handling - similar to project-map.js
+// Get URL parameter for project name (if any)
+const urlParams = new URLSearchParams(window.location.search);
+const projectNameParam = urlParams.get('projectName');
+
+// Determine project name with proper precedence:
+// 1. URL/filename parameter (primary source for project-graph)
+// 2. Default fallback
+let projectName = projectNameParam || 'project-graph';
+
+// Update page title and header
+document.title = `${projectName} - Project Graph`;
+const h1Element = document.getElementsByTagName('h1')[0];
+if (h1Element) {
+  h1Element.innerHTML = projectName;
+}
+
 // Returns a node's label in the language in 'lang' variable
 function get_label_in_lang(node) {
 	return (lang == 'ZH' && ('labelZH' in node)) ? node.labelZH : node.labelEN;
@@ -181,8 +198,12 @@ var network = new vis.Network(viz, data, options);
 var pane = document.getElementById("side-pane");
 pane.style.display = "none";
 
-// $("SidePaneButton").trigger('click');
-document.getElementById("SidePaneButton").click();
+// Initialize viz size properly without needing to toggle side pane
+viz.style.height = window.innerHeight - 40 + "px";
+viz.style.width = window.innerWidth - 16 + "px";
+
+// Side pane starts hidden - no need to auto-click the button
+// document.getElementById("SidePaneButton").click();
 
 function toggleSidePane() {
 	techClick2.play().catch(function (error) {
@@ -388,6 +409,7 @@ function onClick(params) {
             
             if (taskNameEN) taskNameEN.value = node.labelEN || "";
             if (taskNameZH) taskNameZH.value = node.labelZH || "";
+            updateChineseNameSectionVisibility(node.labelZH);
             if (details) details.value = node.details || "";
             
             // Update status radio buttons
@@ -397,9 +419,13 @@ function onClick(params) {
                 if (radio) radio.checked = (node.status === status);
             });
         }
-        // Hide edge color group if node is selected
-        const edgeColorGroup = document.getElementById("edgeColorGroup");
-        if (edgeColorGroup) edgeColorGroup.style.display = "none";
+        
+        // Show node-specific elements, hide edge-specific elements
+        const nodeElements = document.getElementById("nodeElements");
+        const edgeElements = document.getElementById("edgeElements");
+        if (nodeElements) nodeElements.style.display = "block";
+        if (edgeElements) edgeElements.style.display = "none";
+        
         techClick.play();
     } else if (params['edges'].length > 0) {
         selectedEdgeId = params['edges'][0];
@@ -409,9 +435,11 @@ function onClick(params) {
             const edgeNameEN = document.getElementById("EdgeNameEN");
             if (edgeNameEN) edgeNameEN.value = edge.label || "";
             
-            // Show edge color group and set radio button according to dashes property
-            const edgeColorGroup = document.getElementById("edgeColorGroup");
-            if (edgeColorGroup) edgeColorGroup.style.display = "block";
+            // Show edge-specific elements, hide node-specific elements
+            const nodeElements = document.getElementById("nodeElements");
+            const edgeElements = document.getElementById("edgeElements");
+            if (nodeElements) nodeElements.style.display = "none";
+            if (edgeElements) edgeElements.style.display = "block";
             
             const dashes = edge.dashes === true;
             const edgeColorAux = document.getElementById("edgeColorAux");
@@ -425,13 +453,23 @@ function onClick(params) {
                 if (edgeColorAux) edgeColorAux.checked = false;
             }
         }
+        
+        // Show edge-specific elements, hide node-specific elements
+        const nodeElements = document.getElementById("nodeElements");
+        const edgeElements = document.getElementById("edgeElements");
+        if (nodeElements) nodeElements.style.display = "none";
+        if (edgeElements) edgeElements.style.display = "block";
+        
         techClick.play();
     } else {
         selectedNodeId = null;
         selectedEdgeId = null;
-        // Hide edge color group if nothing is selected
-        const edgeColorGroup = document.getElementById("edgeColorGroup");
-        if (edgeColorGroup) edgeColorGroup.style.display = "none";
+        
+        // Show both node and edge elements when nothing is selected
+        const nodeElements = document.getElementById("nodeElements");
+        const edgeElements = document.getElementById("edgeElements");
+        if (nodeElements) nodeElements.style.display = "block";
+        if (edgeElements) edgeElements.style.display = "none"; // Hide edge elements by default
         
         // Optionally clear the side pane fields
         const taskNameEN = document.getElementById("TaskNameEN");
@@ -441,6 +479,7 @@ function onClick(params) {
         
         if (taskNameEN) taskNameEN.value = "";
         if (taskNameZH) taskNameZH.value = "";
+        updateChineseNameSectionVisibility("");
         if (details) details.value = "";
         if (edgeNameEN) edgeNameEN.value = "";
     }
@@ -987,6 +1026,8 @@ async function changeTaskNameZH(input) {
 		labelZH: input.value,
 		...(lang == "ZH") && {label: input.value},
 		});
+	// Update Chinese name section visibility
+	updateChineseNameSectionVisibility(input.value);
 	}
 
 async function changeTaskNameEN(input) {
@@ -1170,6 +1211,15 @@ async function loadJSONgraph() {
                 network.once('stabilized', function() {
                     setupNetworkEvents(network);
                 });
+
+                // Update project name from loaded filename
+                const filenameWithoutExt = name.replace(/\.[^/.]+$/, "").replace(/-[a-zA-Z0-9]+$/, ""); // Remove extension and user tag
+                projectName = filenameWithoutExt || 'project-graph';
+                document.title = `${projectName} - Project Graph`;
+                const h1Element = document.getElementsByTagName('h1')[0];
+                if (h1Element) {
+                  h1Element.innerHTML = projectName;
+                }
 
                 json_modal.style.display = "none";
                 techClick2.play();
@@ -1472,6 +1522,7 @@ function switchLang() {
       
       if (taskNameEN) taskNameEN.value = node.labelEN || "";
       if (taskNameZH) taskNameZH.value = node.labelZH || "";
+      updateChineseNameSectionVisibility(node.labelZH);
     }
   }
   
@@ -1511,6 +1562,14 @@ function autoLoadProjectGraph() {
             setupNetworkEvents(network);
           });
           
+          // Update project name and UI
+          projectName = projectNameParam;
+          document.title = `${projectName} - Project Graph`;
+          const h1Element = document.getElementsByTagName('h1')[0];
+          if (h1Element) {
+            h1Element.innerHTML = projectName;
+          }
+          
           console.log(`Auto-loaded project graph: ${projectNameParam}`);
         }
       },
@@ -1525,4 +1584,19 @@ function autoLoadProjectGraph() {
 // Call auto-load when DOM is ready
 $(document).ready(function() {
   autoLoadProjectGraph();
+  // Initialize Chinese name section visibility
+  updateChineseNameSectionVisibility("");
 });
+
+/**
+ * Shows or hides the Chinese name section in the side pane based on whether there's content
+ * @param {string} chineseValue - The Chinese label value (can be empty or undefined)
+ */
+function updateChineseNameSectionVisibility(chineseValue) {
+    const chineseSection = document.getElementById("chineseNameSection");
+    if (chineseSection) {
+        // Show the section if there's content, or if we're in Chinese language mode
+        const shouldShow = (chineseValue && chineseValue.trim() !== "") || lang === "ZH";
+        chineseSection.style.display = shouldShow ? "block" : "none";
+    }
+}
