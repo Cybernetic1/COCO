@@ -221,3 +221,78 @@ input[type='author'][disabled] {
 #delNode, #delEdge {
     display: none !important;
 }
+
+/* Context menu for node status selection */
+.context-menu {
+    position: fixed;
+    background-color: #EEE;
+    border: 1px solid #CCC;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: none;
+    min-width: 180px;
+}
+
+.context-menu label {
+    display: block;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 5px;
+}
+
+.context-menu input[type='radio'] {
+    margin-right: 8px;
+    accent-color: Black;
+}
+
+.context-menu .status-label {
+    color: Black;
+    font-size: 16px;
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: inline-block;
+}
+
+/* Context menu status colors (same as side pane) */
+.context-menu label[data-status='in-progress'] .status-label { background-color: var(--in-progress); }
+.context-menu label[data-status='finished'] .status-label { background-color: var(--finished); }
+.context-menu label[data-status='paused'] .status-label { background-color: var(--paused); }
+.context-menu label[data-status='research'] .status-label { background-color: var(--research); }
+
+.context-menu .menu-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.context-menu .menu-separator {
+    border: none;
+    border-top: 1px solid #CCC;
+    margin: 8px 0;
+}
+
+.context-menu .menu-option {
+    cursor: pointer;
+    padding: 6px 8px;
+    margin-top: 5px;
+    border-radius: 4px;
+    background-color: #DDD;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+}
+
+.context-menu .menu-option:hover {
+    background-color: #CCC;
+}
+
+.context-menu .edge-type-label {
+    color: Black;
+    font-size: 16px;
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: inline-block;
+    background-color: #DDD;
+}

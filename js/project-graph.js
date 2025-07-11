@@ -425,7 +425,451 @@ function onClick(params) {
         document.getElementById("EdgeNameEN").value = "";
     }
 }
-network.on("click", onClick);
+
+// Context menu functionality for node status selection
+let contextMenuNodeId = null;
+
+// Context menu functionality for edge type selection
+let contextMenuEdgeId = null;
+
+// Helper function to set up network event listeners
+function setupNetworkEvents(network) {
+    // Helper function to calculate distance from a point to a line segment
+    function distanceToLineSegment(point, lineStart, lineEnd) {
+        const A = point.x - lineStart.x;
+        const B = point.y - lineStart.y;
+        const C = lineEnd.x - lineStart.x;
+        const D = lineEnd.y - lineStart.y;
+        
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        
+        if (lenSq === 0) {
+            // Line segment is actually a point
+            return Math.sqrt(A * A + B * B);
+        }
+        
+        let param = dot / lenSq;
+        
+        let xx, yy;
+        if (param < 0) {
+            xx = lineStart.x;
+            yy = lineStart.y;
+        } else if (param > 1) {
+            xx = lineEnd.x;
+            yy = lineEnd.y;
+        } else {
+            xx = lineStart.x + param * C;
+            yy = lineStart.y + param * D;
+        }
+        
+        const dx = point.x - xx;
+        const dy = point.y - yy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    network.on("click", onClick);
+    
+    // Right-click event handler for nodes
+    network.on("oncontext", function(params) {
+        params.event.preventDefault(); // Prevent default browser context menu
+        
+        // Try node detection first (prioritize nodes over edges)
+        let nodeId = null;
+        if (params.nodes.length > 0) {
+            nodeId = params.nodes[0];
+        } else {
+            // Alternative method: use getNodeAt with canvas coordinates
+            try {
+                const nodeAtPosition = network.getNodeAt(params.pointer);
+                if (nodeAtPosition !== undefined) {
+                    nodeId = nodeAtPosition;
+                }
+            } catch (error) {
+                console.warn('getNodeAt failed in oncontext, network may not be ready:', error);
+            }
+        }
+        
+        // Check for edges only if no node was found
+        let edgeId = null;
+        if (nodeId === null && params.edges.length > 0) {
+            edgeId = params.edges[0];
+        } else if (nodeId === null) {
+            // No edge detected by vis.js - try geometric fallback
+            let closestEdge = null;
+            let minDistance = Infinity;
+            const scale = network.getScale();
+            const toleranceInWorldUnits = 20 / scale; // Convert pixel tolerance to world units
+            
+            edges.forEach(function(edge) {
+                try {
+                    const fromPos = network.getPositions([edge.from])[edge.from];
+                    const toPos = network.getPositions([edge.to])[edge.to];
+                    
+                    if (fromPos && toPos) {
+                        // Use mouse position in world coordinates
+                        const clickWorldPos = network.DOMtoCanvas(params.pointer.DOM);
+                        
+                        // Calculate distance from click point to edge line using world coordinates
+                        const distance = distanceToLineSegment(
+                            clickWorldPos,
+                            fromPos,
+                            toPos
+                        );
+                        
+                        if (distance < toleranceInWorldUnits && distance < minDistance) {
+                            minDistance = distance;
+                            closestEdge = edge;
+                        }
+                    }
+                } catch (error) {
+                    // Skip this edge if there's an error getting positions
+                }
+            });
+            
+            if (closestEdge) {
+                edgeId = closestEdge.id;
+            }
+        }
+        
+        // Hide any open context menus first
+        const nodeContextMenu = document.getElementById('node-context-menu');
+        const edgeContextMenu = document.getElementById('edge-context-menu');
+        if (nodeContextMenu) nodeContextMenu.style.display = 'none';
+        if (edgeContextMenu) edgeContextMenu.style.display = 'none';
+        
+        if (nodeId !== null) {
+            // Right-clicked on a node (prioritized)
+            contextMenuNodeId = nodeId;
+            contextMenuEdgeId = null;
+            const node = data.nodes.get(contextMenuNodeId);
+            
+            if (node) {
+                // Update radio buttons to reflect current node status
+                const statusRadios = document.querySelectorAll('#node-context-menu input[name="context-status"]');
+                statusRadios.forEach(radio => {
+                    radio.checked = (radio.value === (node.status || 'in-progress'));
+                });
+                
+                // Show node context menu at mouse position
+                if (nodeContextMenu) {
+                    nodeContextMenu.style.display = 'block';
+                    nodeContextMenu.style.left = params.event.clientX + 'px';
+                    nodeContextMenu.style.top = params.event.clientY + 'px';
+                    
+                    // Ensure menu stays within viewport
+                    const rect = nodeContextMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    if (rect.right > viewportWidth) {
+                        nodeContextMenu.style.left = (viewportWidth - rect.width - 10) + 'px';
+                    }
+                    if (rect.bottom > viewportHeight) {
+                        nodeContextMenu.style.top = (viewportHeight - rect.height - 10) + 'px';
+                    }
+                }
+                
+                techClick.play().catch(() => {}); // Ignore audio errors
+            }
+        } else if (edgeId !== null) {
+            // Right-clicked on an edge (only if no node found)
+            contextMenuEdgeId = edgeId;
+            contextMenuNodeId = null;
+            const edge = data.edges.get(contextMenuEdgeId);
+            
+            if (edge) {
+                // Update radio buttons to reflect current edge type
+                const typeRadios = document.querySelectorAll('#edge-context-menu input[name="context-edge-type"]');
+                const isAuxiliary = edge.dashes === true;
+                typeRadios.forEach(radio => {
+                    radio.checked = (radio.value === (isAuxiliary ? 'auxiliary' : 'normal'));
+                });
+                
+                // Show edge context menu at mouse position
+                if (edgeContextMenu) {
+                    edgeContextMenu.style.display = 'block';
+                    edgeContextMenu.style.left = params.event.clientX + 'px';
+                    edgeContextMenu.style.top = params.event.clientY + 'px';
+                    
+                    // Ensure menu stays within viewport
+                    const rect = edgeContextMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    if (rect.right > viewportWidth) {
+                        edgeContextMenu.style.left = (viewportWidth - rect.width - 10) + 'px';
+                    }
+                    if (rect.bottom > viewportHeight) {
+                        edgeContextMenu.style.top = (viewportHeight - rect.height - 10) + 'px';
+                    }
+                }
+                
+                techClick.play().catch(() => {}); // Ignore audio errors
+            }
+        } else {
+            // Right-clicked on empty space - reset context menu state
+            contextMenuNodeId = null;
+            contextMenuEdgeId = null;
+        }
+    });
+
+    // Alternative right-click handler using direct canvas event
+    const canvas = network.body.container;
+    canvas.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Hide any open context menus first
+        const nodeContextMenu = document.getElementById('node-context-menu');
+        const edgeContextMenu = document.getElementById('edge-context-menu');
+        if (nodeContextMenu) nodeContextMenu.style.display = 'none';
+        if (edgeContextMenu) edgeContextMenu.style.display = 'none';
+        
+        let nodeId = null;
+        try {
+            // Try to get node at position, with error handling
+            nodeId = network.getNodeAt({x: x, y: y});
+        } catch (error) {
+            console.warn('getNodeAt failed, network may not be ready:', error);
+            return;
+        }
+        
+        if (nodeId !== undefined) {
+            // Found a node
+            contextMenuNodeId = nodeId;
+            contextMenuEdgeId = null;
+            const node = data.nodes.get(contextMenuNodeId);
+            
+            if (node) {
+                // Update radio buttons to reflect current node status
+                const statusRadios = document.querySelectorAll('#node-context-menu input[name="context-status"]');
+                statusRadios.forEach(radio => {
+                    radio.checked = (radio.value === (node.status || 'in-progress'));
+                });
+                
+                // Show node context menu at mouse position
+                if (nodeContextMenu) {
+                    nodeContextMenu.style.display = 'block';
+                    nodeContextMenu.style.left = e.clientX + 'px';
+                    nodeContextMenu.style.top = e.clientY + 'px';
+                    
+                    // Ensure menu stays within viewport
+                    const rect = nodeContextMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    if (rect.right > viewportWidth) {
+                        nodeContextMenu.style.left = (viewportWidth - rect.width - 10) + 'px';
+                    }
+                    if (rect.bottom > viewportHeight) {
+                        nodeContextMenu.style.top = (viewportHeight - rect.height - 10) + 'px';
+                    }
+                }
+                
+                techClick.play().catch(() => {}); // Ignore audio errors
+            }
+        } else {
+            // No node found, try to find an edge by checking if click is near any edge
+            let closestEdge = null;
+            let minDistance = 15; // world coordinate units tolerance for edge detection
+            
+            // Get current zoom scale for conversion
+            const scale = network.getScale();
+            const pixelToWorldRatio = 1 / scale;
+            const toleranceInWorldUnits = 20 * pixelToWorldRatio; // Convert pixel tolerance to world units
+            
+            edges.forEach(function(edge) {
+                try {
+                    const fromPos = network.getPositions([edge.from])[edge.from];
+                    const toPos = network.getPositions([edge.to])[edge.to];
+                    
+                    if (fromPos && toPos) {
+                        // Convert canvas coordinates to world coordinates for consistent comparison
+                        const clickWorldPos = network.DOMtoCanvas({x: x, y: y});
+                        
+                        // Calculate distance from click point to edge line using world coordinates
+                        const distance = distanceToLineSegment(
+                            clickWorldPos,
+                            fromPos,
+                            toPos
+                        );
+                        
+                        if (distance < toleranceInWorldUnits && distance < minDistance) {
+                            minDistance = distance;
+                            closestEdge = edge;
+                        }
+                    }
+                } catch (error) {
+                    // Skip this edge if there's an error getting positions
+                }
+            });
+            
+            console.log('Closest edge found:', closestEdge ? closestEdge.id : 'none');
+            
+            if (closestEdge) {
+                // Found an edge
+                contextMenuEdgeId = closestEdge.id;
+                contextMenuNodeId = null;
+                
+                // Update radio buttons to reflect current edge type
+                const typeRadios = document.querySelectorAll('#edge-context-menu input[name="context-edge-type"]');
+                const isAuxiliary = closestEdge.dashes === true;
+                typeRadios.forEach(radio => {
+                    radio.checked = (radio.value === (isAuxiliary ? 'auxiliary' : 'normal'));
+                });
+                
+                // Show edge context menu at mouse position
+                if (edgeContextMenu) {
+                    edgeContextMenu.style.display = 'block';
+                    edgeContextMenu.style.left = e.clientX + 'px';
+                    edgeContextMenu.style.top = e.clientY + 'px';
+                    
+                    // Ensure menu stays within viewport
+                    const rect = edgeContextMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    if (rect.right > viewportWidth) {
+                        edgeContextMenu.style.left = (viewportWidth - rect.width - 10) + 'px';
+                    }
+                    if (rect.bottom > viewportHeight) {
+                        edgeContextMenu.style.top = (viewportHeight - rect.height - 10) + 'px';
+                    }
+                }
+                
+                techClick.play().catch(() => {}); // Ignore audio errors
+            } else {
+                // No node or edge found - reset context menu state
+                contextMenuNodeId = null;
+                contextMenuEdgeId = null;
+            }
+        }
+    });
+}
+
+// Set up events for the initial network - wait for stabilization
+network.once('stabilized', function() {
+    setupNetworkEvents(network);
+});
+
+// Hide context menu when clicking elsewhere
+document.addEventListener('click', function(e) {
+    const nodeContextMenu = document.getElementById('node-context-menu');
+    const edgeContextMenu = document.getElementById('edge-context-menu');
+    
+    if (nodeContextMenu && !nodeContextMenu.contains(e.target)) {
+        nodeContextMenu.style.display = 'none';
+        contextMenuNodeId = null;
+    }
+    
+    if (edgeContextMenu && !edgeContextMenu.contains(e.target)) {
+        edgeContextMenu.style.display = 'none';
+        contextMenuEdgeId = null;
+    }
+});
+
+// Hide context menu on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const nodeContextMenu = document.getElementById('node-context-menu');
+        const edgeContextMenu = document.getElementById('edge-context-menu');
+        
+        if (nodeContextMenu) {
+            nodeContextMenu.style.display = 'none';
+            contextMenuNodeId = null;
+        }
+        
+        if (edgeContextMenu) {
+            edgeContextMenu.style.display = 'none';
+            contextMenuEdgeId = null;
+        }
+    }
+});
+
+// Handle status change from context menu
+function changeStatusFromContextMenu(newStatus) {
+    if (contextMenuNodeId !== null) {
+        const node = data.nodes.get(contextMenuNodeId);
+        if (node) {
+            // Update node status and color
+            data.nodes.update({
+                id: contextMenuNodeId,
+                status: newStatus,
+                color: nodeColors[newStatus]
+            });
+            
+            // If this node is also selected in the side pane, update the side pane radio buttons
+            if (selectedNodeId === contextMenuNodeId) {
+                const sideRadio = document.getElementById(newStatus);
+                if (sideRadio) sideRadio.checked = true;
+            }
+            
+            techClick2.play().catch(() => {}); // Ignore audio errors
+        }
+        
+        // Hide context menu
+        const contextMenu = document.getElementById('node-context-menu');
+        if (contextMenu) {
+            contextMenu.style.display = 'none';
+        }
+        contextMenuNodeId = null;
+    }
+}
+
+// Handle edge type change from context menu
+function changeEdgeTypeFromContextMenu(newType) {
+    if (contextMenuEdgeId !== null) {
+        const edge = data.edges.get(contextMenuEdgeId);
+        if (edge) {
+            // Update edge type (normal vs auxiliary)
+            const isAuxiliary = (newType === 'auxiliary');
+            data.edges.update({
+                id: contextMenuEdgeId,
+                dashes: isAuxiliary,
+                color: { color: '#AAA', highlight: '#000', inherit: false, opacity: 1.0 }
+            });
+            
+            // If this edge is also selected in the side pane, update the side pane radio buttons
+            if (selectedEdgeId === contextMenuEdgeId) {
+                if (isAuxiliary) {
+                    document.getElementById("edgeColorAux").checked = true;
+                    document.getElementById("edgeColorNormal").checked = false;
+                } else {
+                    document.getElementById("edgeColorNormal").checked = true;
+                    document.getElementById("edgeColorAux").checked = false;
+                }
+            }
+            
+            techClick2.play().catch(() => {}); // Ignore audio errors
+        }
+        
+        // Hide context menu
+        const edgeContextMenu = document.getElementById('edge-context-menu');
+        if (edgeContextMenu) {
+            edgeContextMenu.style.display = 'none';
+        }
+        contextMenuEdgeId = null;
+    }
+}
+
+// Open node page for the context menu node
+function openNodePage() {
+    if (contextMenuNodeId !== null) {
+        // Open node-page.html in a new tab with the node ID as a URL parameter
+        window.open(`node-page.html?id=${contextMenuNodeId}`, '_blank');
+    }
+    
+    // Hide context menu
+    const contextMenu = document.getElementById('node-context-menu');
+    if (contextMenu) {
+        contextMenu.style.display = 'none';
+    }
+    contextMenuNodeId = null;
+}
 
 // Listen for Delete key to delete selected node or edge with confirmation
 window.addEventListener('keydown', function(e) {
@@ -545,7 +989,9 @@ async function clearGraph() {
 	data.edges = edges;
 	network = new vis.Network(viz, data, options);
 	update_node_index();
-	network.on("click", onClick);
+	network.once('stabilized', function() {
+		setupNetworkEvents(network);
+	});
 	techClick2.play();
 	}
 
@@ -692,7 +1138,9 @@ async function loadJSONgraph() {
                 init_nodes();
                 network = new vis.Network(viz, data, options);
                 update_node_index();
-                network.on("click", onClick);
+                network.once('stabilized', function() {
+                    setupNetworkEvents(network);
+                });
 
                 json_modal.style.display = "none";
                 techClick2.play();
@@ -799,7 +1247,9 @@ async function loadGitDir() {
             init_nodes();		// set lang, colors, ... from existing data
             network = new vis.Network(viz, data, options);
             update_node_index();
-            network.on("click", onClick);
+            network.once('stabilized', function() {
+                setupNetworkEvents(network);
+            });
 
             git_modal.style.display = "none";		// close window
             techClick2.play();
@@ -875,44 +1325,70 @@ function verifyTreeIgnoringAuxEdges() {
     alert('The graph (ignoring auxiliary edges) is a valid tree rooted at node 0!');
 }
 
-// --- Save project data as a JSON "map" file to server-side project-maps/ directory ---
-function saveJSONMap() {
-    // Separate edges into tree edges and auxiliary edges
-    const treeEdges = [];
-    const auxEdges = [];
+// --- Save project data as a JSON "map" file in tree format to server-side project-maps/ directory ---
+function saveJSONmap() {
+    // Convert graph format to tree format for project-map.js
+    
+    // 1. Build children map from edges (only non-auxiliary edges)
+    const childrenMap = {};
     edges.forEach(function(edge) {
-        const c = edge.color && edge.color.color ? edge.color.color : '#AAA';
         const dashes = edge.dashes === true;
-        const edgeCopy = Object.assign({}, edge);
-        delete edgeCopy.id;
-        if (c === 'red' || dashes) {
-            auxEdges.push(edgeCopy);
-        } else {
-            treeEdges.push(edgeCopy);
+        if (!dashes) { // Only include tree edges, not auxiliary edges
+            if (!childrenMap[edge.to]) childrenMap[edge.to] = [];
+            childrenMap[edge.to].push(edge.from);
         }
     });
-    // Prepare nodes (remove Vis.js-only fields like label)
-    const nodeList = [];
-    nodes.forEach(function(node) {
-        const nodeCopy = Object.assign({}, node);
-        delete nodeCopy.label;
-        nodeList.push(nodeCopy);
-    });
-    const exportObj = {
-        nodes: nodeList,
-        edges: treeEdges,
-        links: auxEdges
-    };
+    
+    // 2. Find root node (should be id: 0)
+    const rootNode = nodes.get(0);
+    if (!rootNode) {
+        alert('Error: No root node found (id: 0)');
+        return;
+    }
+    
+    // 3. Convert to tree structure recursively
+    function convertToTree(nodeId) {
+        const node = nodes.get(nodeId);
+        if (!node) return null;
+        
+        const treeNode = {
+            id: node.id,
+            label: node.labelEN || node.label || `Node ${node.id}`,
+            percentage: 0 // Default percentage for project-map.js
+        };
+        
+        // Add bilingual support
+        if (node.labelEN) treeNode.labelEN = node.labelEN;
+        if (node.labelZH) treeNode.labelZH = node.labelZH;
+        
+        // Add other properties if they exist
+        if (node.status) treeNode.status = node.status;
+        if (node.details) treeNode.details = node.details;
+        
+        // Add children recursively
+        const childIds = childrenMap[nodeId] || [];
+        treeNode.children = childIds.map(childId => convertToTree(childId)).filter(Boolean);
+        
+        return treeNode;
+    }
+    
+    // 4. Convert starting from root - this becomes the top-level object
+    const treeData = convertToTree(0);
+    if (!treeData) {
+        alert('Error: Could not convert graph to tree format');
+        return;
+    }
+    
     const filename = prompt('Enter filename for the map (without .json):', 'project-name');
     if (!filename) return;
-    const jsonStr = JSON.stringify(exportObj, null, 2);
+    const jsonStr = JSON.stringify(treeData, null, 2);
 
-	fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
+    fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: jsonStr
     })
-    .then(r => r.ok ? alert('Saved to server!') : r.text().then(t => alert('Error: ' + t)))
+    .then(r => r.ok ? alert('Map saved to server in tree format!') : r.text().then(t => alert('Error: ' + t)))
     .catch(e => alert('Network error: ' + e));
 }
 
@@ -940,3 +1416,6 @@ window.close_git_modal = close_git_modal;
 window.close_node_modal = close_node_modal;
 window.close_help_modal = close_help_modal;
 window.verifyTreeIgnoringAuxEdges = verifyTreeIgnoringAuxEdges;
+window.changeStatusFromContextMenu = changeStatusFromContextMenu;
+window.changeEdgeTypeFromContextMenu = changeEdgeTypeFromContextMenu;
+window.openNodePage = openNodePage;

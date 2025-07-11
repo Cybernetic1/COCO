@@ -4,51 +4,199 @@
   <meta charset="UTF-8">
   <title>Node Page</title>
   <style>
-    body { font-family: sans-serif; background: #f7fafd; color: #333; margin: 2em; }
-    .container { background: #fff8e1; border: 2px solid #b77c00; border-radius: 10px; padding: 2em; max-width: 600px; margin: auto; }
-    h1 { color: #7c4c00; }
-    .node-id { color: #b77c00; font-size: 1.2em; }
-    .section { margin-bottom: 1em; }
-    .field-label { font-weight: bold; }
-    .value-box { background: #fff3e0; padding: 0.5em; border-radius: 5px; display: inline-block; }
+    :root {
+      --in-progress: #FCC;
+      --finished: #CFC;
+      --paused: #CCC;
+      --research: #FF0;
+    }
+    
+    body { 
+      font-family: sans-serif; 
+      background: #EEE; 
+      color: #333; 
+      margin: 2em; 
+    }
+    
+    .container { 
+      background: #EEE; 
+      border: 2px solid #888; 
+      border-radius: 10px; 
+      padding: 20px; 
+      max-width: 90%; 
+      margin: auto;
+    }
+    
+    h1 { 
+      color: #333; 
+      margin-top: 0;
+      font-size: 24px;
+    }
+    
+    .node-id { 
+      color: #666; 
+      font-size: 16px; 
+      margin-bottom: 15px;
+    }
+    
+    .section { 
+      margin-bottom: 15px; 
+    }
+    
+    label { 
+      font-size: 16px;
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .colorKey {
+      color: Black;
+      font-size: 16px;
+      border-radius: 8px;
+      padding: 4px;
+      display: inline;
+    }
+    
+    label[for='in-progress'] { background-color: var(--in-progress); }
+    label[for='finished'] { background-color: var(--finished); }
+    label[for='paused'] { background-color: var(--paused); }
+    label[for='research'] { background-color: var(--research); }
+    
+    input[type='text'], textarea, input[type='number'] {
+      font-size: 16px;
+      width: 95%;
+      padding: 4px;
+      border: 1px solid #888;
+      border-radius: 4px;
+    }
+    
+    input[type='radio'] {
+      margin-right: 8px;
+      margin-bottom: 16px;
+      accent-color: Black;
+    }
+    
+    input:disabled, label[disabled] {
+      color: #888;
+      background-color: #DDD;
+    }
+    
+    textarea {
+      resize: vertical;
+    }
+    
+    button {
+      background: #CFF;
+      border: 1px solid #888;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    button:hover {
+      background: #AEE;
+    }
+    
+    .vote-section {
+      margin-top: 15px;
+    }
+    
+    .vote-button {
+      float: right;
+      margin-top: 5px;
+      margin-right: 20px;
+    }
+    
+    .authors-section {
+      clear: both;
+      margin-top: 10px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-top: 2em;
+      color: #666;
+      text-decoration: none;
+    }
+    
+    .back-link:hover {
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Node Details</h1>
+    <h1 id="node-title">Node: Loading...</h1>
     <div class="node-id" id="node-id"></div>
-    <form id="node-form">
-      <div class="section"><span class="field-label">Status:</span>
-        <label><input type="radio" name="status" value="in-progress"> in progress</label>
-        <label><input type="radio" name="status" value="finished"> finished</label>
-        <label><input type="radio" name="status" value="paused"> paused</label>
-        <label><input type="radio" name="status" value="research"> research</label>
+
+      <div class="section">
+        <label>Task name (English):</label>
+        <input type="text" id="labelEN" name="labelEN">
       </div>
-      <div class="section"><span class="field-label">Task Name (EN):</span>
-        <input id="labelEN" name="labelEN" class="value-box" type="text"></div>
-      <div class="section"><span class="field-label">工作名称（中文）:</span>
-        <input id="labelZH" name="labelZH" class="value-box" type="text"></div>
-      <div class="section"><span class="field-label">Edge Label:</span>
-        <input id="edgeLabel" name="edgeLabel" class="value-box" type="text"></div>
-      <div class="section"><span class="field-label">Details:</span>
-        <textarea id="details" name="details" class="value-box" rows="5"></textarea></div>
-      <div class="section"><span class="field-label">Expected tokens:</span>
-        <input id="expTokens" name="expTokens" class="value-box" type="number"></div>
-      <div class="section"><span class="field-label">Expected days:</span>
-        <input id="expTime" name="expTime" class="value-box" type="number"></div>
-      <div class="section"><span class="field-label">Expected # workers:</span>
-        <input id="expWorkers" name="expWorkers" class="value-box" type="number"></div>
-      <div class="section"><span class="field-label">Authors (comma separated):</span>
-        <input id="authors" name="authors" class="value-box" type="text"></div>
-      <button type="submit" style="margin-top:1em;background:#b77c00;color:#fff;border:none;border-radius:6px;padding:0.5em 1.2em;font-weight:bold;">Save</button>
+
+      <div class="section">
+        <label>工作名称（中文）：</label>
+        <input type="text" id="labelZH" name="labelZH">
+      </div>
+
+    <form id="node-form">
+      <div class="section">
+        <label>Status:</label>
+        <input type="radio" id="in-progress" name="status" value="in-progress">
+        <label class="colorKey" for="in-progress">in progress</label><br>
+        <input type="radio" id="finished" name="status" value="finished">
+        <label class="colorKey" for="finished">finished</label><br>
+        <input type="radio" id="paused" name="status" value="paused">
+        <label class="colorKey" for="paused">paused</label><br>
+        <input type="radio" id="research" name="status" value="research">
+        <label class="colorKey" for="research">research area</label><br>
+      </div>
+
+      <div class="section">
+        <label>Edge label:</label>
+        <input type="text" id="edgeLabel" name="edgeLabel">
+      </div>
+
+      <div class="section">
+        <label>Details:</label>
+        <textarea id="details" name="details" rows="8"></textarea>
+      </div>
+
+      <div class="section">
+        <label disabled>Expected tokens</label>
+        <input type="number" id="expTokens" name="expTokens" style="width:9em;" disabled>
+      </div>
+      
+      <div class="section">
+        <label disabled>Expected days</label>
+        <input type="number" id="expTime" name="expTime" style="width:4em;" disabled>
+      </div>
+      
+      <div class="section">
+        <label disabled>Expected # workers</label>
+        <input type="number" id="expWorkers" name="expWorkers" style="width:4em;" disabled>
+      </div>
+
+      <div class="section vote-section">
+        <label style="display:inline-block; margin-top:5px;">Authors:</label>
+        <button type="button" id="startVote" class="vote-button">vote</button>
+        <div class="authors-section">
+          <input type="text" id="authors" name="authors" placeholder="comma separated">
+        </div>
+      </div>
+
+      <button type="submit" style="margin-top:1em;">Save</button>
     </form>
-    <a href="project-map.html" style="display:inline-block;margin-top:2em;color:#b77c00;">&larr; Back to Project Map</a>
+    
+    <a href="project-graph.html" class="back-link">&larr; Back to Project Graph</a>
   </div>
   <script>
     // Get node id from URL
     const params = new URLSearchParams(window.location.search);
     const nodeId = params.get('id');
     document.getElementById('node-id').textContent = 'Node ID: ' + nodeId;
+    
     // Load node data from localStorage (if available)
     let nodeData = null;
     let map = null;
@@ -67,15 +215,27 @@
       }
       nodeData = findNode(map, nodeId);
     } catch {}
+    
     function setField(id, value) {
       const el = document.getElementById(id);
       if (el) el.value = value || '';
     }
+    
     if (nodeData) {
+      // Set the node title
+      const nodeNameEN = nodeData.labelEN || nodeData.label || `Node ${nodeId}`;
+      document.getElementById('node-title').innerHTML = `<span style="color: #666; font-weight: normal; font-size: 16px;">Node:</span> ${nodeNameEN}`;
+      
+      // Set status radio buttons
       if (nodeData.status) {
-        const radios = document.querySelectorAll('input[name="status"]');
-        radios.forEach(r => { r.checked = (r.value === nodeData.status); });
+        const statusRadio = document.getElementById(nodeData.status);
+        if (statusRadio) statusRadio.checked = true;
+      } else {
+        // Default to in-progress if no status
+        const defaultRadio = document.getElementById('in-progress');
+        if (defaultRadio) defaultRadio.checked = true;
       }
+      
       setField('labelEN', nodeData.labelEN || nodeData.label || '');
       setField('labelZH', nodeData.labelZH || '');
       setField('edgeLabel', nodeData.edgeLabel || '');
@@ -84,13 +244,24 @@
       setField('expTime', nodeData.expTime || '');
       setField('expWorkers', nodeData.expWorkers || '');
       setField('authors', nodeData.authors ? nodeData.authors.join(', ') : '');
+    } else {
+      // Set default title when no node data found
+      document.getElementById('node-title').innerHTML = `<span style="color: #666; font-weight: normal; font-size: 16px;">Node:</span> ${nodeId || 'Unknown'}`;
+      
+      // Default to in-progress if no node data found
+      const defaultRadio = document.getElementById('in-progress');
+      if (defaultRadio) defaultRadio.checked = true;
     }
+    
+    // Handle form submission
     document.getElementById('node-form').onsubmit = function(e) {
       e.preventDefault();
       if (!nodeData) return;
+      
       // Update nodeData from form
-      const radios = document.querySelectorAll('input[name="status"]');
-      radios.forEach(r => { if (r.checked) nodeData.status = r.value; });
+      const checkedRadio = document.querySelector('input[name="status"]:checked');
+      if (checkedRadio) nodeData.status = checkedRadio.value;
+      
       nodeData.labelEN = document.getElementById('labelEN').value;
       nodeData.label = nodeData.labelEN;
       nodeData.labelZH = document.getElementById('labelZH').value;
@@ -100,9 +271,15 @@
       nodeData.expTime = document.getElementById('expTime').value;
       nodeData.expWorkers = document.getElementById('expWorkers').value;
       nodeData.authors = document.getElementById('authors').value.split(',').map(s => s.trim()).filter(Boolean);
+      
       // Save back to localStorage
       localStorage.setItem('projectMapRoot', JSON.stringify(map));
       alert('Node updated! (Note: changes are local until you save the map)');
+    };
+    
+    // Handle vote button click (placeholder functionality)
+    document.getElementById('startVote').onclick = function() {
+      alert('Vote functionality not yet implemented for node page.');
     };
   </script>
 </body>

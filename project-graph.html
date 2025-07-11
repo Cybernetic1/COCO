@@ -94,7 +94,7 @@ by the function toggleSidePane() in project-graph.js -->
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
           <div class="menu-item" onclick="loadJSONgraph(); hideMenuDropdown();">Load JSON graph</div>
           <div class="menu-item" onclick="saveJSONgraph(); hideMenuDropdown();">Save JSON graph</div>
-          <div class="menu-item" onclick="saveJSONMap(); hideMenuDropdown();">Save JSON map</div>
+          <div class="menu-item" onclick="saveJSONmap(); hideMenuDropdown();">Save JSON map</div>
           <div class="menu-item" onclick="loadGitDir(); hideMenuDropdown();">Load Git Dir</div>
           <div class="menu-item" onclick="saveGitDir(); hideMenuDropdown();">Save Git Dir</div>
           <div class="menu-item" onclick="highlightTreeViolations(); hideMenuDropdown();">Highlight Tree Violations</div>
@@ -235,6 +235,44 @@ window.addEventListener('mousedown', function(e) {
 	<iframe id="helpFrame" src="help0.html" onload='resizeIframe(this)' frameborder="0" scrolling="no" style="width:100%; position:absolutel;">
 	</iframe>
 	</div>
+</div>
+
+<!-- Context menu for node status selection -->
+<div id="node-context-menu" class="context-menu">
+	<div class="menu-title">Change Node Status:</div>
+	<label data-status="in-progress">
+		<input type="radio" name="context-status" value="in-progress" onclick="changeStatusFromContextMenu('in-progress')">
+		<span class="status-label">in progress</span>
+	</label>
+	<label data-status="finished">
+		<input type="radio" name="context-status" value="finished" onclick="changeStatusFromContextMenu('finished')">
+		<span class="status-label">finished</span>
+	</label>
+	<label data-status="paused">
+		<input type="radio" name="context-status" value="paused" onclick="changeStatusFromContextMenu('paused')">
+		<span class="status-label">paused</span>
+	</label>
+	<label data-status="research">
+		<input type="radio" name="context-status" value="research" onclick="changeStatusFromContextMenu('research')">
+		<span class="status-label">research area</span>
+	</label>
+	<hr class="menu-separator">
+	<div class="menu-option" onclick="openNodePage()">
+		Open node page
+	</div>
+</div>
+
+<!-- Context menu for edge type selection -->
+<div id="edge-context-menu" class="context-menu">
+	<div class="menu-title">Change Edge Type:</div>
+	<label>
+		<input type="radio" name="context-edge-type" value="normal" onclick="changeEdgeTypeFromContextMenu('normal')">
+		<span class="edge-type-label">Normal</span>
+	</label>
+	<label>
+		<input type="radio" name="context-edge-type" value="auxiliary" onclick="changeEdgeTypeFromContextMenu('auxiliary')">
+		<span class="edge-type-label">Auxiliary (dotted)</span>
+	</label>
 </div>
 
 </body>
