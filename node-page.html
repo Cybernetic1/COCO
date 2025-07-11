@@ -123,6 +123,40 @@
     .back-link:hover {
       color: #333;
     }
+    
+    /* Voting styles */
+    .voting-container {
+      padding: 5px;
+      border: 1px solid #888;
+      border-radius: 4px;
+      background: white;
+    }
+    
+    .slidecontainer {
+      width: 100%;
+      height: 35px;
+    }
+
+    .slider {
+      width: 76%;
+      display: inline-block;
+    }
+
+    .name {
+      color: Blue;
+      font-size: 18px;
+      display: inline-block;
+      margin-right: 5px;
+      width: 15%;
+      text-align: center;
+    }
+
+    .score {
+      font-size: 16px;
+      display: inline-block;
+      margin-left: 5px;
+      width: 5%;
+    }
   </style>
 </head>
 <body>
@@ -159,7 +193,7 @@
       </div>
 
       <div class="section">
-        <label>Details:</label>
+        <label>Comments:</label>
         <textarea id="details" name="details" rows="8"></textarea>
       </div>
 
@@ -180,9 +214,56 @@
 
       <div class="section vote-section">
         <label style="display:inline-block; margin-top:5px;">Authors:</label>
-        <button type="button" id="startVote" class="vote-button">vote</button>
         <div class="authors-section">
           <input type="text" id="authors" name="authors" placeholder="comma separated">
+        </div>
+      </div>
+
+      <!-- Voting section -->
+      <div class="section">
+        <label>Voting:</label>
+        <div class="voting-container">
+          <div class="slidecontainer">
+            <p class="name">Claris</p>
+            <pre class="score">0</pre>
+            <input type="range" min="0" max="1000" value="0" class="slider">
+          </div>
+
+          <div class="slidecontainer">
+            <p class="name">Abeer</p>
+            <pre class="score">0</pre>
+            <input type="range" min="0" max="1000" value="0" class="slider">
+          </div>
+
+          <div class="slidecontainer">
+            <p class="name">Pete</p>
+            <pre class="score">0</pre>
+            <input type="range" min="0" max="1000" value="0" class="slider">
+          </div>
+
+          <div class="slidecontainer">
+            <p class="name">Eric</p>
+            <pre class="score">0</pre>
+            <input type="range" min="0" max="1000" value="0" class="slider">
+          </div>
+
+          <div class="slidecontainer">
+            <p class="name">YKY</p>
+            <pre class="score">0</pre>
+            <input type="range" min="0" max="1000" value="0" class="slider">
+          </div>
+
+          <div class="slidecontainer">
+            <p class="name">Roger</p>
+            <pre class="score">0</pre>
+            <input type="range" min="0" max="1000" value="0" class="slider">
+          </div>
+
+          <div class="slidecontainer">
+            <p class="name">Total</p>
+            <pre class="score" id="total">0</pre>
+          </div>
+          <br>
         </div>
       </div>
 
@@ -277,10 +358,72 @@
       alert('Node updated! (Note: changes are local until you save the map)');
     };
     
-    // Handle vote button click (placeholder functionality)
-    document.getElementById('startVote').onclick = function() {
-      alert('Vote functionality not yet implemented for node page.');
-    };
+    // Initialize voting sliders
+    function initializeVoting() {
+      const sliders = document.getElementsByClassName("slider");
+      const outputs = document.getElementsByClassName("score");
+      
+      var scores = [];
+      const n = sliders.length;
+      
+      // Initialize sliders values
+      if (!window.votes || window.votes.length == 0) {
+        window.votes = new Array();
+        for (let j = 0; j < n; ++j) {
+          scores[j] = window.votes[j] = 1000.0 / n;
+          sliders[j].value = Math.round(scores[j]);
+          outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+        }
+      } else {
+        for (let j = 0; j < n; ++j) {
+          sliders[j].value = window.votes[j];
+          scores[j] = window.votes[j];
+          outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+        }
+      }
+      
+      var total = 0.0;
+      for (const score of scores) {
+        total += score;
+      }
+      document.getElementById("total").innerHTML = (total / 10.0).toFixed(2);
+      
+      // Add event listeners to sliders
+      [...sliders].forEach(function (slider, k) {
+        slider.addEventListener("input", function() {
+          scores[k] = window.votes[k] = parseFloat(this.value);
+          outputs[k].innerHTML = parseFloat(scores[k] / 10.0);
+          
+          // Calculate surplus value
+          var subtotal = 0;
+          for (const score of scores) {
+            subtotal += score;
+          }
+          var surplus = 1000.0 - subtotal;
+          var adjustment = surplus / (n - 1);
+          
+          // Adjust other sliders proportionally
+          for (let j = 0; j < n; ++j) {
+            if (j != k) {
+              scores[j] = window.votes[j] += adjustment;
+              if (scores[j] < 0) scores[j] = window.votes[j] = 0;
+              sliders[j].value = Math.round(scores[j]);
+              outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+            }
+          }
+          
+          // Update total
+          var newTotal = 0.0;
+          for (const score of scores) {
+            newTotal += score;
+          }
+          document.getElementById("total").innerHTML = (newTotal / 10.0).toFixed(2);
+        });
+      });
+    }
+    
+    // Initialize voting when page loads
+    initializeVoting();
   </script>
 </body>
 </html>

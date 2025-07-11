@@ -11,8 +11,8 @@ let projectMapRoot = {
   "project-name": 'Example Project',
   percentage: 100,
   children: [
-    { id: 1, label: 'Node 1', percentage: 0, children: [] },
-    { id: 2, label: 'Node 2', percentage: 0, children: [] }
+    { id: 1, label: 'Node 1', percentage: 60, children: [] },
+    { id: 2, label: 'Node 2', percentage: 40, children: [] }
   ]
 };
 
@@ -360,16 +360,58 @@ function renderMap(node, depth = 0) {
 	el.appendChild(children);
 	}
 
-	// Print percentage at the bottom left of each node
-	const percentLineDiv = document.createElement('div');
-	percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
-	percentLineDiv.style.fontSize = '0.85em';
-	percentLineDiv.style.color = '#AAA';
-	percentLineDiv.style.fontWeight = 'bold';
-	percentLineDiv.style.opacity = '0.8';
-	percentLineDiv.style.marginTop = '2px';
-	percentLineDiv.style.marginBottom = '2px';
-	el.appendChild(percentLineDiv);
+	// Create percentage/slider display section
+	if (node.children && node.children.length > 0) {
+		// Node has children - show sliders for each child
+		const sliderContainer = document.createElement('div');
+		sliderContainer.className = 'slider-container';
+		
+		// Create sliders for each child
+		node.children.forEach((child, index) => {
+			const slidecontainer = document.createElement('div');
+			slidecontainer.className = 'slidecontainer';
+			
+			// Child name
+			const nameElement = document.createElement('div');
+			nameElement.className = 'slider-name';
+			nameElement.textContent = child.labelEN || child.label || `Child ${child.id}`;
+			slidecontainer.appendChild(nameElement);
+			
+			// Slider
+			const slider = document.createElement('input');
+			slider.type = 'range';
+			slider.min = '0';
+			slider.max = '1000';
+			slider.value = (child.percentage || 0) * 10; // Convert from % to 0-1000 scale
+			slider.className = 'slider';
+			slider.dataset.childIndex = index;
+			slider.dataset.nodeId = node.id;
+			slidecontainer.appendChild(slider);
+			
+			// Score display
+			const scoreElement = document.createElement('div');
+			scoreElement.className = 'slider-score';
+			scoreElement.textContent = (child.percentage || 0).toFixed(1) + '%';
+			slidecontainer.appendChild(scoreElement);
+			
+			sliderContainer.appendChild(slidecontainer);
+		});
+		
+		// Note: Total display is hidden to save space since it's always 100%
+		
+		el.appendChild(sliderContainer);
+	} else {
+		// Node has no children - show simple percentage display
+		const percentLineDiv = document.createElement('div');
+		percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
+		percentLineDiv.style.fontSize = '0.85em';
+		percentLineDiv.style.color = '#AAA';
+		percentLineDiv.style.fontWeight = 'bold';
+		percentLineDiv.style.opacity = '0.8';
+		percentLineDiv.style.marginTop = '2px';
+		percentLineDiv.style.marginBottom = '2px';
+		el.appendChild(percentLineDiv);
+	}
 
 	// Add a small tube to root node's lower-right corner indicating "money in"
 	if (depth === 0) {
@@ -401,18 +443,119 @@ function renderMap(node, depth = 0) {
 }
 
 // Save the current projectMapRoot to localStorage whenever the map is updated
-function saveMapToLocalStorage() {
-  try {
-    localStorage.setItem('projectMapRoot', JSON.stringify(projectMapRoot));
-  } catch (e) {
-    console.warn('Could not save projectMapRoot to localStorage:', e);
+function saveProjectMap() {
+  localStorage.setItem('projectMapRoot', JSON.stringify(projectMapRoot));
+}
+
+// Initialize slider event listeners after map is rendered
+function initializeSliders() {
+  const sliders = document.querySelectorAll('.slider');
+  
+  sliders.forEach(slider => {
+    slider.addEventListener('input', function() {
+      const nodeId = parseInt(this.dataset.nodeId);
+      const childIndex = parseInt(this.dataset.childIndex);
+      const newValue = parseFloat(this.value);
+      
+      // Find the node in the tree
+      const node = findNodeById(projectMapRoot, nodeId);
+      if (!node || !node.children || !node.children[childIndex]) return;
+      
+      const children = node.children;
+      const n = children.length;
+      
+      // Update the changed child's percentage
+      children[childIndex].percentage = newValue / 10.0; // Convert from 0-1000 to 0-100
+      
+      // Calculate surplus/deficit
+      let subtotal = 0;
+      for (const child of children) {
+        subtotal += (child.percentage || 0);
+      }
+      
+      const surplus = 100.0 - subtotal;
+      if (n > 1) {
+        const adjustment = surplus / (n - 1);
+        
+        // Distribute surplus to other children proportionally
+        const otherChildrenTotal = subtotal - children[childIndex].percentage;
+        
+        for (let j = 0; j < n; j++) {
+          if (j !== childIndex) {
+            if (otherChildrenTotal < 1e-5) {
+              // If other children are all zero, distribute equally
+              children[j].percentage += adjustment;
+            } else {
+              // Distribute proportionally based on current values
+              const proportionalAdjustment = surplus * (children[j].percentage || 0) / otherChildrenTotal;
+              children[j].percentage += proportionalAdjustment;
+            }
+            
+            // Ensure non-negative values
+            if (children[j].percentage < 0) {
+              children[j].percentage = 0;
+            }
+          }
+        }
+      }
+      
+      // Update all sliders and score displays for this node
+      updateNodeSliders(nodeId);
+      
+      // Save changes
+      saveProjectMap();
+    });
+  });
+}
+
+// Helper function to find a node by ID in the tree
+function findNodeById(node, targetId) {
+  if (node.id === targetId) return node;
+  
+  if (node.children) {
+    for (const child of node.children) {
+      const found = findNodeById(child, targetId);
+      if (found) return found;
+    }
   }
+  
+  return null;
+}
+
+// Update sliders and displays for a specific node
+function updateNodeSliders(nodeId) {
+  const node = findNodeById(projectMapRoot, nodeId);
+  if (!node || !node.children) return;
+  
+  // Update sliders and score displays
+  const sliders = document.querySelectorAll(`[data-node-id="${nodeId}"]`);
+  sliders.forEach((slider, index) => {
+    const childIndex = parseInt(slider.dataset.childIndex);
+    if (childIndex < node.children.length) {
+      const percentage = node.children[childIndex].percentage || 0;
+      slider.value = Math.round(percentage * 10); // Convert to 0-1000 scale
+      
+      // Update score display
+      const scoreElement = slider.parentElement.querySelector('.slider-score');
+      if (scoreElement) {
+        scoreElement.textContent = percentage.toFixed(1) + '%';
+      }
+    }
+  });
+  
+  // Note: Total display removed to save space (always 100%)
 }
 
 function renderCurrentMap() {
   const container = document.getElementById('map-container');
   container.innerHTML = '';
   container.appendChild(renderMap(projectMapRoot, 0));
+  
+  // Initialize sliders after rendering
+  setTimeout(() => {
+    initializeSliders();
+  }, 0);
+  
   saveMapToLocalStorage(); // Save after rendering (and after any change)
   // Always update projectName from root node, prioritizing project-name property
   projectName = projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';

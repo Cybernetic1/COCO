@@ -594,8 +594,10 @@ function setupNetworkEvents(network) {
         // Hide any open context menus first
         const nodeContextMenu = document.getElementById('node-context-menu');
         const edgeContextMenu = document.getElementById('edge-context-menu');
+        const canvasContextMenu = document.getElementById('canvas-context-menu');
         if (nodeContextMenu) nodeContextMenu.style.display = 'none';
         if (edgeContextMenu) edgeContextMenu.style.display = 'none';
+        if (canvasContextMenu) canvasContextMenu.style.display = 'none';
         
         if (nodeId !== null) {
             // Right-clicked on a node (prioritized)
@@ -685,8 +687,10 @@ function setupNetworkEvents(network) {
         // Hide any open context menus first
         const nodeContextMenu = document.getElementById('node-context-menu');
         const edgeContextMenu = document.getElementById('edge-context-menu');
+        const canvasContextMenu = document.getElementById('canvas-context-menu');
         if (nodeContextMenu) nodeContextMenu.style.display = 'none';
         if (edgeContextMenu) edgeContextMenu.style.display = 'none';
+        if (canvasContextMenu) canvasContextMenu.style.display = 'none';
         
         let nodeId = null;
         try {
@@ -767,7 +771,7 @@ function setupNetworkEvents(network) {
                 }
             });
             
-            console.log('Closest edge found:', closestEdge ? closestEdge.id : 'none');
+            // console.log('Closest edge found:', closestEdge ? closestEdge.id : 'none');
             
             if (closestEdge) {
                 // Found an edge
@@ -802,9 +806,31 @@ function setupNetworkEvents(network) {
                 
                 techClick.play().catch(() => {}); // Ignore audio errors
             } else {
-                // No node or edge found - reset context menu state
+                // No node or edge found - show canvas context menu
                 contextMenuNodeId = null;
                 contextMenuEdgeId = null;
+                
+                // Show canvas context menu at mouse position
+                const canvasContextMenu = document.getElementById('canvas-context-menu');
+                if (canvasContextMenu) {
+                    canvasContextMenu.style.display = 'block';
+                    canvasContextMenu.style.left = e.clientX + 'px';
+                    canvasContextMenu.style.top = e.clientY + 'px';
+                    
+                    // Ensure menu stays within viewport
+                    const rect = canvasContextMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    if (rect.right > viewportWidth) {
+                        canvasContextMenu.style.left = (viewportWidth - rect.width - 10) + 'px';
+                    }
+                    if (rect.bottom > viewportHeight) {
+                        canvasContextMenu.style.top = (viewportHeight - rect.height - 10) + 'px';
+                    }
+                }
+                
+                techClick.play().catch(() => {}); // Ignore audio errors
             }
         }
     });
@@ -819,6 +845,7 @@ network.once('stabilized', function() {
 document.addEventListener('click', function(e) {
     const nodeContextMenu = document.getElementById('node-context-menu');
     const edgeContextMenu = document.getElementById('edge-context-menu');
+    const canvasContextMenu = document.getElementById('canvas-context-menu');
     
     if (nodeContextMenu && !nodeContextMenu.contains(e.target)) {
         nodeContextMenu.style.display = 'none';
@@ -829,6 +856,10 @@ document.addEventListener('click', function(e) {
         edgeContextMenu.style.display = 'none';
         contextMenuEdgeId = null;
     }
+    
+    if (canvasContextMenu && !canvasContextMenu.contains(e.target)) {
+        canvasContextMenu.style.display = 'none';
+    }
 });
 
 // Hide context menu on Escape key
@@ -836,6 +867,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const nodeContextMenu = document.getElementById('node-context-menu');
         const edgeContextMenu = document.getElementById('edge-context-menu');
+        const canvasContextMenu = document.getElementById('canvas-context-menu');
         
         if (nodeContextMenu) {
             nodeContextMenu.style.display = 'none';
@@ -845,6 +877,10 @@ document.addEventListener('keydown', function(e) {
         if (edgeContextMenu) {
             edgeContextMenu.style.display = 'none';
             contextMenuEdgeId = null;
+        }
+        
+        if (canvasContextMenu) {
+            canvasContextMenu.style.display = 'none';
         }
     }
 });

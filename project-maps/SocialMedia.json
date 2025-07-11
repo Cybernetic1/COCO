@@ -1,0 +1,138 @@
+{
+  "id": 0,
+  "label": "ROOT",
+  "percentage": 0,
+  "labelEN": "ROOT",
+  "children": [
+    {
+      "id": 1,
+      "label": "business plan",
+      "percentage": 0,
+      "labelEN": "business plan",
+      "labelZH": "商业计划书",
+      "children": [
+        {
+          "id": 28,
+          "label": "competitive advantage?",
+          "percentage": 0,
+          "labelEN": "competitive advantage?",
+          "status": "research",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "web site development",
+      "percentage": 0,
+      "labelEN": "web site development",
+      "children": [
+        {
+          "id": 36,
+          "label": "front end",
+          "percentage": 0,
+          "labelEN": "front end",
+          "children": []
+        },
+        {
+          "id": 37,
+          "label": "back end",
+          "percentage": 0,
+          "labelEN": "back end",
+          "children": [
+            {
+              "id": 35,
+              "label": "data storage",
+              "percentage": 0,
+              "labelEN": "data storage",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "label": "crypto tokens",
+      "percentage": 0,
+      "labelEN": "crypto tokens",
+      "children": [
+        {
+          "id": 2,
+          "label": "technical white paper",
+          "percentage": 0,
+          "labelEN": "technical white paper",
+          "labelZH": "技术白皮书",
+          "children": [
+            {
+              "id": 38,
+              "label": "how to accept funding",
+              "percentage": 0,
+              "labelEN": "how to accept funding",
+              "status": "research",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 39,
+          "label": "smart contract",
+          "percentage": 0,
+          "labelEN": "smart contract",
+          "children": []
+        },
+        {
+          "id": 40,
+          "label": "dApp",
+          "percentage": 0,
+          "labelEN": "dApp",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "label": "user contents",
+      "percentage": 0,
+      "labelEN": "user contents",
+      "children": [
+        {
+          "id": 25,
+          "label": "comments",
+          "percentage": 0,
+          "labelEN": "comments",
+          "children": []
+        },
+        {
+          "id": 10,
+          "label": "posts",
+          "percentage": 0,
+          "labelEN": "posts",
+          "children": []
+        },
+        {
+          "id": 24,
+          "label": "likes / reactions",
+          "percentage": 0,
+          "labelEN": "likes / reactions",
+          "children": []
+        },
+        {
+          "id": 9,
+          "label": "spam detection",
+          "percentage": 0,
+          "labelEN": "spam detection",
+          "children": []
+        },
+        {
+          "id": 6,
+          "label": "chatroom?",
+          "percentage": 0,
+          "labelEN": "chatroom?",
+          "status": "research",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

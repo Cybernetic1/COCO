@@ -29,23 +29,18 @@
 <!-- Top row of Graph Editing buttons -->
 <div style="float:right; background-color:White; z-index:9">
 <table>
-<tr style="text-align:center; height:14px; line-height:50%">
-    <td><label class="small">Add<br>node</label></td>
-    <td><label class="small">Clear<br>graph</label></td>
-    <td><label class="small">Menu</label></td>
-</tr>
 <tr class="viz-buttons">
-    <td><button onclick="addNode()">＋</button></td>
-    <td><button onclick="clearGraph()"><span style="color:red;">🗙</span></button>
 	<td>
 	  <!-- Menu button and dropdown -->
       <div style="position:relative; display:inline-block;">
         <button id="menuButton" onclick="toggleMenuDropdown()" style="font-size:22px; padding:4px 10px; border-radius:6px; background:#fff; border:2px solid #888;">
           <span style="display:inline-block; font-size:22px; line-height:1;">&#9776;</span>
         </button>
-        <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
+          <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:190px; box-shadow:0 2px 8px #888; z-index:100;">
           <div class="menu-item" onclick="help(); hideMenuDropdown();">Help</div>
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
+          <div class="menu-item" onclick="addNode(); hideMenuDropdown();">＋ Add node</div>
+          <div class="menu-item" onclick="clearGraph(); hideMenuDropdown();" style="color: #d32f2f;"><span style="color:red;">🗙</span> Clear graph</div>
           
           <!-- Load submenu -->
           <div class="menu-item menu-group" onclick="toggleSubmenu('loadSubmenu', event)">
@@ -214,8 +209,8 @@ by the function toggleSidePane() in project-graph.js -->
   font-size: 14px;
 }
 /* #side-pane input[type="radio"] {
-  transform: scale(0.9); */
-}
+  transform: scale(0.9);
+} */
 </style>
 <script>
 function toggleSubmenu(submenuId, event) {
@@ -257,6 +252,13 @@ function hideMenuDropdown() {
   allSubmenus.forEach(function(submenu) {
     submenu.style.display = 'none';
   });
+}
+
+function hideCanvasContextMenu() {
+  const canvasContextMenu = document.getElementById('canvas-context-menu');
+  if (canvasContextMenu) {
+    canvasContextMenu.style.display = 'none';
+  }
 }
 
 // Hide dropdown and submenus if clicking outside
@@ -412,6 +414,13 @@ window.addEventListener('mousedown', function(e) {
 		<input type="radio" name="context-edge-type" value="auxiliary" onclick="changeEdgeTypeFromContextMenu('auxiliary')">
 		<span class="edge-type-label">Auxiliary (dotted)</span>
 	</label>
+</div>
+
+<!-- Context menu for canvas (empty space) -->
+<div id="canvas-context-menu" class="context-menu">
+	<div class="menu-option" onclick="addNode(); hideCanvasContextMenu();">
+		＋ Add node
+	</div>
 </div>
 
 </body>
