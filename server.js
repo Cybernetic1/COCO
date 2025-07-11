@@ -442,6 +442,19 @@ db.serialize(() => {
     text TEXT,
     time INTEGER
   )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS node_percentages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER,
+    projectName TEXT,
+    nodeId TEXT,
+    childId TEXT,
+    percentage REAL,
+    graphVersion TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(userId) REFERENCES users(id)
+  )`);
 });
 
 // --- API: Page chat (persistent, per-page) ---
@@ -707,6 +720,200 @@ app.get('/loadJSON/:dir/:filename', (req, res) => {
   fs.readFile(filePath, 'utf-8', (err, data) => {
     if (err) return res.status(404).send('File not found');
     res.type('json').send(data);
+  });
+});
+
+// --- API: Save node percentages ---
+app.post('/api/percentages', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  
+  const { projectName, nodeId, childPercentages, graphVersion } = req.body;
+  if (!projectName || !nodeId || !childPercentages) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  const userId = req.user.id;
+  
+  // Start transaction to replace all percentages for this node
+  db.serialize(() => {
+    // Delete existing percentages for this user/project/node
+    db.run('DELETE FROM node_percentages WHERE userId = ? AND projectName = ? AND nodeId = ?', 
+      [userId, projectName, nodeId], function(err) {
+        if (err) {
+          console.error('Error deleting old percentages:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        // Insert new percentages
+        const stmt = db.prepare(`INSERT INTO node_percentages 
+          (userId, projectName, nodeId, childId, percentage, graphVersion, updatedAt) 
+          VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`);
+        
+        let insertCount = 0;
+        let hasError = false;
+        
+        childPercentages.forEach(child => {
+          stmt.run([userId, projectName, nodeId, child.childId, child.percentage, graphVersion], function(err) {
+            if (err) {
+              console.error('Error inserting percentage:', err);
+              hasError = true;
+            }
+            insertCount++;
+            
+            // Check if all inserts are complete
+            if (insertCount === childPercentages.length) {
+              stmt.finalize();
+              if (hasError) {
+                return res.status(500).json({ error: 'Error saving some percentages' });
+              }
+              res.json({ success: true, saved: insertCount });
+            }
+          });
+        });
+        
+        // Handle empty childPercentages array
+        if (childPercentages.length === 0) {
+          stmt.finalize();
+          res.json({ success: true, saved: 0 });
+        }
+      });
+  });
+});
+
+// --- API: Load node percentages ---
+app.get('/api/percentages', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  
+  const { projectName, nodeId } = req.query;
+  if (!projectName || !nodeId) {
+    return res.status(400).json({ error: 'Missing projectName or nodeId' });
+  }
+  
+  const userId = req.user.id;
+  
+  db.all(`SELECT childId, percentage, graphVersion, updatedAt 
+          FROM node_percentages 
+          WHERE userId = ? AND projectName = ? AND nodeId = ? 
+          ORDER BY childId`, 
+    [userId, projectName, nodeId], (err, rows) => {
+      if (err) {
+        console.error('Error loading percentages:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (rows.length === 0) {
+        return res.json({ found: false });
+      }
+      
+      const childPercentages = rows.map(row => ({
+        childId: row.childId,
+        percentage: row.percentage
+      }));
+      
+      res.json({
+        found: true,
+        childPercentages: childPercentages,
+        graphVersion: rows[0].graphVersion,
+        updatedAt: rows[0].updatedAt
+      });
+    });
+});
+
+// --- API: Get all saved percentages for a project ---
+app.get('/api/percentages/all', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  
+  const { projectName } = req.query;
+  if (!projectName) {
+    return res.status(400).json({ error: 'Missing projectName' });
+  }
+  
+  const userId = req.user.id;
+  
+  db.all(`SELECT nodeId, childId, percentage, graphVersion, updatedAt 
+          FROM node_percentages 
+          WHERE userId = ? AND projectName = ? 
+          ORDER BY nodeId, childId`, 
+    [userId, projectName], (err, rows) => {
+      if (err) {
+        console.error('Error loading all percentages:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Group by nodeId
+      const grouped = {};
+      rows.forEach(row => {
+        if (!grouped[row.nodeId]) {
+          grouped[row.nodeId] = {
+            nodeId: row.nodeId,
+            childPercentages: [],
+            graphVersion: row.graphVersion,
+            updatedAt: row.updatedAt
+          };
+        }
+        grouped[row.nodeId].childPercentages.push({
+          childId: row.childId,
+          percentage: row.percentage
+        });
+      });
+      
+      res.json({ percentages: Object.values(grouped) });
+    });
+});
+
+// --- TEST API: Save percentages without authentication (for testing only) ---
+app.post('/api/test-percentages', (req, res) => {
+  const { projectName, nodeId, childPercentages, graphVersion } = req.body;
+  if (!projectName || !nodeId || !childPercentages) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  // Use test user ID = 1 for testing
+  const userId = 1;
+  
+  // Start transaction to replace all percentages for this node
+  db.serialize(() => {
+    // Delete existing percentages for this user/project/node
+    db.run('DELETE FROM node_percentages WHERE userId = ? AND projectName = ? AND nodeId = ?', 
+      [userId, projectName, nodeId], function(err) {
+        if (err) {
+          console.error('Error deleting old percentages:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        // Insert new percentages
+        const stmt = db.prepare(`INSERT INTO node_percentages 
+          (userId, projectName, nodeId, childId, percentage, graphVersion, updatedAt) 
+          VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`);
+        
+        let insertCount = 0;
+        let hasError = false;
+        
+        childPercentages.forEach(child => {
+          stmt.run([userId, projectName, nodeId, child.childId, child.percentage, graphVersion], function(err) {
+            if (err) {
+              console.error('Error inserting percentage:', err);
+              hasError = true;
+            }
+            insertCount++;
+            
+            // Check if all inserts are complete
+            if (insertCount === childPercentages.length) {
+              stmt.finalize();
+              if (hasError) {
+                return res.status(500).json({ error: 'Error saving some percentages' });
+              }
+              res.json({ success: true, saved: insertCount });
+            }
+          });
+        });
+        
+        // Handle empty childPercentages
+        if (childPercentages.length === 0) {
+          stmt.finalize();
+          res.json({ success: true, saved: 0 });
+        }
+      });
   });
 });
 

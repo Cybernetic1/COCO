@@ -58,6 +58,17 @@ const projectNameParam = urlParams.get('projectName');
 // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
 let projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
 
+// Initialize PercentageManager
+// TODO: Get actual user ID from authentication system
+const currentUserId = 'user-' + (localStorage.getItem('currentUserId') || 'default');
+let percentageManager = null;
+
+// Initialize percentage manager when DOM is ready
+function initializePercentageManager() {
+  percentageManager = new PercentageManager(projectName, currentUserId);
+  console.log('PercentageManager initialized for project:', projectName, 'user:', currentUserId);
+}
+
 // Make projectMapRoot available on window for debugging
 window.projectMapRoot = projectMapRoot;
 
@@ -400,18 +411,8 @@ function renderMap(node, depth = 0) {
 		// Note: Total display is hidden to save space since it's always 100%
 		
 		el.appendChild(sliderContainer);
-	} else {
-		// Node has no children - show simple percentage display
-		const percentLineDiv = document.createElement('div');
-		percentLineDiv.textContent = (node.percentage != null ? node.percentage : 0) + '%';
-		percentLineDiv.style.fontSize = '0.85em';
-		percentLineDiv.style.color = '#AAA';
-		percentLineDiv.style.fontWeight = 'bold';
-		percentLineDiv.style.opacity = '0.8';
-		percentLineDiv.style.marginTop = '2px';
-		percentLineDiv.style.marginBottom = '2px';
-		el.appendChild(percentLineDiv);
 	}
+	// Note: Individual node percentage displays removed as they're redundant with slider interface
 
 	// Add a small tube to root node's lower-right corner indicating "money in"
 	if (depth === 0) {
@@ -459,41 +460,45 @@ function initializeSliders() {
       
       // Find the node in the tree
       const node = findNodeById(projectMapRoot, nodeId);
-      if (!node || !node.children || !node.children[childIndex]) return;
+      if (!node || !node.children || !node.children[childIndex]) {
+        return;
+      }
       
       const children = node.children;
       const n = children.length;
       
-      // Update the changed child's percentage
-      children[childIndex].percentage = newValue / 10.0; // Convert from 0-1000 to 0-100
+      // Update the changed child's percentage (convert from 0-1000 to 0-100 and round to 1 decimal)
+      const newPercentage = Math.round((newValue / 10.0) * 10) / 10;
+      children[childIndex].percentage = newPercentage;
       
-      // Calculate surplus/deficit
-      let subtotal = 0;
+      // Calculate what needs to be redistributed
+      let currentTotal = 0;
       for (const child of children) {
-        subtotal += (child.percentage || 0);
+        currentTotal += (child.percentage || 0);
       }
       
-      const surplus = 100.0 - subtotal;
-      if (n > 1) {
-        const adjustment = surplus / (n - 1);
-        
-        // Distribute surplus to other children proportionally
-        const otherChildrenTotal = subtotal - children[childIndex].percentage;
-        
+      const surplus = currentTotal - 100.0;
+      
+      if (n > 1 && Math.abs(surplus) > 0.01) { // Only redistribute if there's a meaningful surplus
+        // Calculate total of other children (excluding the one we just changed)
+        let otherChildrenTotal = 0;
         for (let j = 0; j < n; j++) {
           if (j !== childIndex) {
-            if (otherChildrenTotal < 1e-5) {
-              // If other children are all zero, distribute equally
-              children[j].percentage += adjustment;
+            otherChildrenTotal += (children[j].percentage || 0);
+          }
+        }
+        
+        // Redistribute proportionally among other children
+        for (let j = 0; j < n; j++) {
+          if (j !== childIndex) {
+            if (otherChildrenTotal > 0.01) {
+              // Proportional reduction/increase
+              const proportion = (children[j].percentage || 0) / otherChildrenTotal;
+              const adjustment = surplus * proportion;
+              children[j].percentage = Math.max(0, Math.round((children[j].percentage - adjustment) * 10) / 10);
             } else {
-              // Distribute proportionally based on current values
-              const proportionalAdjustment = surplus * (children[j].percentage || 0) / otherChildrenTotal;
-              children[j].percentage += proportionalAdjustment;
-            }
-            
-            // Ensure non-negative values
-            if (children[j].percentage < 0) {
-              children[j].percentage = 0;
+              // If other children are all zero, distribute the surplus equally
+              children[j].percentage = Math.max(0, Math.round(((100.0 - newPercentage) / (n - 1)) * 10) / 10);
             }
           }
         }
@@ -502,7 +507,16 @@ function initializeSliders() {
       // Update all sliders and score displays for this node
       updateNodeSliders(nodeId);
       
-      // Save changes
+      // Save percentages using PercentageManager
+      if (percentageManager) {
+        const childPercentages = children.map(child => ({
+          childId: child.id.toString(),
+          percentage: child.percentage || 0
+        }));
+        percentageManager.savePercentages(nodeId.toString(), childPercentages);
+      }
+      
+      // Save changes to localStorage (project structure)
       saveProjectMap();
     });
   });
@@ -535,15 +549,13 @@ function updateNodeSliders(nodeId) {
       const percentage = node.children[childIndex].percentage || 0;
       slider.value = Math.round(percentage * 10); // Convert to 0-1000 scale
       
-      // Update score display
+      // Update score display with 1 decimal place
       const scoreElement = slider.parentElement.querySelector('.slider-score');
       if (scoreElement) {
         scoreElement.textContent = percentage.toFixed(1) + '%';
       }
     }
   });
-  
-  // Note: Total display removed to save space (always 100%)
 }
 
 function renderCurrentMap() {
@@ -551,10 +563,17 @@ function renderCurrentMap() {
   container.innerHTML = '';
   container.appendChild(renderMap(projectMapRoot, 0));
   
-  // Initialize sliders after rendering
+  // Initialize percentage manager if not already done
+  if (!percentageManager) {
+    initializePercentageManager();
+  }
+  
+  // Initialize sliders after rendering with a longer delay to ensure DOM is ready
   setTimeout(() => {
     initializeSliders();
-  }, 0);
+    // Load saved percentages after sliders are initialized
+    loadSavedPercentages();
+  }, 100);
   
   saveMapToLocalStorage(); // Save after rendering (and after any change)
   // Always update projectName from root node, prioritizing project-name property
@@ -562,6 +581,47 @@ function renderCurrentMap() {
   document.title = projectName + ' - Project Map';
   window.projectMapRoot = projectMapRoot; // keep updated for debugging
   window.projectName = projectName; // keep updated for debugging
+}
+
+// Load saved percentages for all nodes with children
+async function loadSavedPercentages() {
+  if (!percentageManager) return;
+  
+  try {
+    await loadPercentagesForNode(projectMapRoot);
+    console.log('Saved percentages loaded successfully');
+  } catch (error) {
+    console.error('Failed to load saved percentages:', error);
+  }
+}
+
+// Recursively load percentages for a node and its children
+async function loadPercentagesForNode(node) {
+  if (node.children && node.children.length > 0) {
+    try {
+      const savedPercentages = await percentageManager.loadPercentages(node.id.toString());
+      
+      if (savedPercentages && savedPercentages.length > 0) {
+        // Apply saved percentages to the node's children
+        savedPercentages.forEach(saved => {
+          const child = node.children.find(c => c.id.toString() === saved.childId);
+          if (child) {
+            child.percentage = saved.percentage;
+          }
+        });
+        
+        // Update the sliders for this node
+        updateNodeSliders(node.id);
+      }
+    } catch (error) {
+      console.warn('Failed to load percentages for node:', node.id, error);
+    }
+    
+    // Recursively load for children
+    for (const child of node.children) {
+      await loadPercentagesForNode(child);
+    }
+  }
 }
 
 function showNodeModal(node) {
@@ -823,5 +883,62 @@ function editProjectName() {
     
     saveMapToLocalStorage();
     techClick2.play().catch(() => {}); // Ignore audio errors
+  }
+}
+
+// Function to save all current percentage assignments for all nodes with children
+function saveAllPercentages() {
+  if (!percentageManager) {
+    initializePercentageManager();
+  }
+  
+  if (!percentageManager) {
+    alert('Error: Could not initialize percentage manager');
+    return;
+  }
+  
+  let savedCount = 0;
+  let errorCount = 0;
+  
+  // Helper function to recursively walk through all nodes
+  function walkNodes(node) {
+    // If this node has children, save their percentages
+    if (node.children && node.children.length > 0) {
+      try {
+        const childPercentages = node.children.map(child => ({
+          childId: child.id.toString(),
+          percentage: child.percentage || 0
+        }));
+        
+        percentageManager.savePercentages(node.id.toString(), childPercentages);
+        savedCount++;
+        console.log(`Saved percentages for node ${node.id} (${node.label}):`, childPercentages);
+      } catch (error) {
+        console.error(`Error saving percentages for node ${node.id}:`, error);
+        errorCount++;
+      }
+    }
+    
+    // Recursively process all children
+    if (node.children) {
+      for (const child of node.children) {
+        walkNodes(child);
+      }
+    }
+  }
+  
+  // Start the walk from the root node
+  walkNodes(projectMapRoot);
+  
+  // Provide user feedback
+  if (errorCount === 0) {
+    if (savedCount > 0) {
+      alert(`Successfully saved percentages for ${savedCount} node(s).`);
+      techClick2.play().catch(() => {}); // Play success sound
+    } else {
+      alert('No nodes with children found to save percentages for.');
+    }
+  } else {
+    alert(`Saved percentages for ${savedCount} node(s), but encountered ${errorCount} error(s). Check console for details.`);
   }
 }
