@@ -1550,6 +1550,7 @@ window.changeStatusFromContextMenu = changeStatusFromContextMenu;
 window.changeEdgeTypeFromContextMenu = changeEdgeTypeFromContextMenu;
 window.openNodePage = openNodePage;
 window.openNodePageFromSidePane = openNodePageFromSidePane;
+window.saveGraphToDatabase = saveGraphToDatabase;
 
 // Language switching function
 function switchLang() {
@@ -1649,5 +1650,113 @@ function updateChineseNameSectionVisibility(chineseValue) {
         // Show the section if there's content, or if we're in Chinese language mode
         const shouldShow = (chineseValue && chineseValue.trim() !== "") || lang === "ZH";
         chineseSection.style.display = shouldShow ? "block" : "none";
+    }
+}
+
+// Save graph to database as a new project
+async function saveGraphToDatabase() {
+    // Check if user is authenticated
+    try {
+        const userResponse = await fetch('/user-info');
+        const userInfo = await userResponse.json();
+        if (!userInfo.loggedIn) {
+            alert('You must be logged in to save projects to the database.');
+            return;
+        }
+    } catch (error) {
+        alert('Error checking authentication. Please try again.');
+        return;
+    }
+
+    // Get project name (using current global projectName as default)
+    const defaultName = projectName || 'Untitled Project';
+    const projectNameInput = prompt('Enter project name:', defaultName);
+    if (!projectNameInput || !projectNameInput.trim()) {
+        return; // User cancelled or entered empty name
+    }
+    
+    const finalProjectName = projectNameInput.trim();
+    
+    // Get optional description
+    const description = prompt('Enter project description (optional):', '') || '';
+    
+    // Create JSON data from current graph
+    var graphData = "{\"nodes\":[";
+    nodes.forEach(function(n) {
+        const nodeCopy = Object.assign({}, n);
+        delete nodeCopy['label']; // only save labelEN and labelZH
+        graphData += JSON.stringify(nodeCopy);
+        graphData += ",";
+    });
+    graphData = graphData.slice(0,-1) + "],";
+
+    graphData += "\"edges\":[";
+    edges.forEach(function(e) {
+        const edgeCopy = Object.assign({}, e);
+        graphData += JSON.stringify(edgeCopy);
+        graphData += ",";
+    });
+    graphData = graphData.slice(0,-1) + "]}";
+    
+    // Generate filename for the JSON file
+    const sanitizedName = finalProjectName.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const filename = `${sanitizedName}.json`;
+    
+    try {
+        // Step 1: Save JSON file to project-graphs directory
+        console.log('Saving JSON file:', filename);
+        const saveResponse = await fetch(`/saveJSON/project-graphs/${encodeURIComponent(filename)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: graphData
+        });
+        
+        if (!saveResponse.ok) {
+            throw new Error(`Failed to save JSON file: ${saveResponse.status} ${saveResponse.statusText}`);
+        }
+        
+        console.log('JSON file saved successfully');
+        
+        // Step 2: Create project entry in database
+        console.log('Creating project in database');
+        const projectResponse = await fetch('/api/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                name: finalProjectName,
+                description: description,
+                sourceFilename: filename
+            })
+        });
+        
+        if (!projectResponse.ok) {
+            const errorText = await projectResponse.text();
+            throw new Error(`Failed to create project: ${projectResponse.status} ${errorText}`);
+        }
+        
+        const projectResult = await projectResponse.json();
+        console.log('Project created successfully:', projectResult);
+        
+        // Update global project name
+        projectName = finalProjectName;
+        document.title = `${projectName} - Project Graph`;
+        const h1Element = document.getElementsByTagName('h1')[0];
+        if (h1Element) {
+            h1Element.innerHTML = projectName;
+        }
+        
+        // Success message
+        alert(`Project "${finalProjectName}" saved successfully!\n\n` +
+              `- JSON file: project-graphs/${filename}\n` +
+              `- Database ID: ${projectResult.id}\n\n` +
+              `The project is now available in "My Projects" and can be joined by other users.`);
+        
+        techClick2.play().catch(() => {}); // Play success sound
+        
+    } catch (error) {
+        console.error('Error saving project to database:', error);
+        alert(`Error saving project: ${error.message}\n\nPlease try again.`);
+        techFail.play().catch(() => {}); // Play error sound
     }
 }

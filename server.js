@@ -421,6 +421,7 @@ db.serialize(() => {
     name TEXT,
     description TEXT,
     ownerId INTEGER,
+    source_filename TEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ownerId) REFERENCES users(id)
   )`);
@@ -529,396 +530,42 @@ app.post('/api/update-project', (req, res) => {
   });
 });
 
-// --- API: Join a project ---
-app.post('/api/join-project', (req, res) => {
+// --- API: Create a new project ---
+app.post('/api/projects', (req, res) => {
   if (!req.isAuthenticated() || !req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
-  const projectId = parseInt(req.body.projectId, 10);
-  const role = req.body.role || 'member'; // Default role is 'member'
-  if (!projectId) {
-    return res.status(400).json({ error: 'Missing or invalid project ID' });
+  const { name, description, sourceFilename } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Project name is required' });
   }
-  // Defensive: check if req.body exists and has projectId
-  if (!req.body || typeof req.body.projectId === 'undefined') {
-    return res.status(400).json({ error: 'Missing project ID in request body' });
-  }
-  db.run(`INSERT INTO user_projects (userId, projectId, role) VALUES (?, ?, ?)`, [req.user.id, projectId, role], function(err) {
+  
+  const projectDescription = description || '';
+  const ownerId = req.user.id;
+  
+  db.run(`INSERT INTO projects (name, description, ownerId, source_filename) VALUES (?, ?, ?, ?)`, 
+    [name, projectDescription, ownerId, sourceFilename], function(err) {
     if (err) {
+      console.error('Error creating project:', err);
       return res.status(500).json({ error: 'Database error' });
     }
-    res.json({ success: true });
-  });
-});
-
-// --- API: Leave a project ---
-app.post('/api/leave-project', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  const projectId = req.body.projectId;
-  if (!projectId) {
-    return res.status(400).json({ error: 'Missing project ID' });
-  }
-  db.run(`DELETE FROM user_projects WHERE userId = ? AND projectId = ?`, [req.user.id, projectId], function(err) {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json({ success: true });
-  });
-});
-
-// --- API: Get user projects ---
-app.get('/api/user-projects', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  db.all(`SELECT p.id, p.name, p.description, up.role FROM projects p
-          JOIN user_projects up ON p.id = up.projectId
-          WHERE up.userId = ?`, [req.user.id], (err, projects) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json(projects);
-  });
-});
-
-// --- API: Get project members ---
-app.get('/api/project-members', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  const projectId = req.query.id;
-  if (!projectId) {
-    return res.status(400).json({ error: 'Missing project ID' });
-  }
-  db.all(`SELECT u.id, u.name, u.avatar, up.role FROM users u
-          JOIN user_projects up ON u.id = up.userId
-          WHERE up.projectId = ?`, [projectId], (err, members) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json(members);
-  });
-});
-
-// --- API: Invite user to project ---
-app.post('/api/invite-user', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  const projectId = req.body.projectId;
-  const email = req.body.email;
-  if (!projectId || !email) {
-    return res.status(400).json({ error: 'Missing fields' });
-  }
-  // Find user by email
-  db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    // Insert into user_projects
-    db.run(`INSERT INTO user_projects (userId, projectId, role) VALUES (?, ?, ?)`, [user.id, projectId, 'member'], function(err) {
+    
+    const projectId = this.lastID;
+    
+    // Automatically add the creator as owner/admin of the project
+    db.run(`INSERT INTO user_projects (userId, projectId, role) VALUES (?, ?, ?)`, 
+      [ownerId, projectId, 'owner'], function(err) {
       if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json({ success: true });
-    });
-  });
-});
-
-// --- API: Remove user from project ---
-app.post('/api/remove-user', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  const projectId = req.body.projectId;
-  const userId = req.body.userId;
-  if (!projectId || !userId) {
-    return res.status(400).json({ error: 'Missing fields' });
-  }
-  db.run(`DELETE FROM user_projects WHERE projectId = ? AND userId = ?`, [projectId, userId], function(err) {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json({ success: true });
-  });
-});
-
-// --- Signup route ---
-app.post('/signup', (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email || !password) {
-    return res.redirect('/coco.html?error=missing_fields');
-  }
-  // Check if user already exists
-  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
-    if (err) return res.redirect('/coco.html?error=database_error');
-    if (user) return res.redirect('/coco.html?error=email_exists');
-    // Set default avatar and name
-    const defaultAvatar = '/images/coconut.png';
-    const userName = name || email;
-    // Hash password
-    bcrypt.hash(password, 10, (err, hash) => {
-      if (err) return res.redirect('/coco.html?error=hash_error');
-      db.run('INSERT INTO users (email, password, name, avatar) VALUES (?, ?, ?, ?)', [email, hash, userName, defaultAvatar], function(err) {
-        if (err) return res.redirect('/coco.html?error=database_error');
-        // Optionally auto-login after signup
-        db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, newUser) => {
-          if (err) return res.redirect('/coco.html?error=database_error');
-          req.login(newUser, (err) => {
-            if (err) return res.redirect('/coco.html?error=login_error');
-            return res.redirect('/my-projects.html');
-          });
-        });
-      });
-    });
-  });
-});
-
-// --- API: Get project graph filename by project ID ---
-app.get('/api/project-graph-filename/:id', (req, res) => {
-  const projectId = parseInt(req.params.id, 10);
-  if (!projectId) return res.status(400).json({ error: 'Missing or invalid project ID' });
-  db.get('SELECT source_filename FROM projects WHERE id = ?', [projectId], (err, row) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (!row || !row.source_filename) return res.status(404).json({ error: 'Not found' });
-    res.json({ filename: row.source_filename });
-  });
-});
-
-// --- Save a JSON file to a specified directory ---
-app.post('/saveJSON/:dir/:filename', (req, res) => {
-  const allowedDirs = ['project-graphs', 'project-maps'];
-  const dir = req.params.dir;
-  const filename = path.basename(req.params.filename);
-  if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
-  const filePath = path.join(__dirname, dir, filename);
-  // console.log('Saving JSON to', filePath);
-  // Use req.body directly (Express JSON middleware)
-  const data = JSON.stringify(req.body, null, 2);
-  fs.writeFile(filePath, data, err => {
-    if (err) {
-      console.log('Failed to save file:', filePath, err);
-      return res.status(500).send('Failed to save file');
-    }
-    console.log('File saved successfully:', filePath);
-    res.send('OK');
-  });
-});
-
-// --- Load a JSON file from a specified directory ---
-app.get('/loadJSON/:dir/:filename', (req, res) => {
-  const allowedDirs = ['project-graphs', 'project-maps'];
-  const dir = req.params.dir;
-  const filename = path.basename(req.params.filename);
-  if (!allowedDirs.includes(dir)) return res.status(400).send('Invalid directory');
-  const filePath = path.join(__dirname, dir, filename);
-  fs.readFile(filePath, 'utf-8', (err, data) => {
-    if (err) return res.status(404).send('File not found');
-    res.type('json').send(data);
-  });
-});
-
-// --- API: Save node percentages ---
-app.post('/api/percentages', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
-  
-  const { projectName, nodeId, childPercentages, graphVersion } = req.body;
-  if (!projectName || !nodeId || !childPercentages) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-  
-  const userId = req.user.id;
-  
-  // Start transaction to replace all percentages for this node
-  db.serialize(() => {
-    // Delete existing percentages for this user/project/node
-    db.run('DELETE FROM node_percentages WHERE userId = ? AND projectName = ? AND nodeId = ?', 
-      [userId, projectName, nodeId], function(err) {
-        if (err) {
-          console.error('Error deleting old percentages:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        
-        // Insert new percentages
-        const stmt = db.prepare(`INSERT INTO node_percentages 
-          (userId, projectName, nodeId, childId, percentage, graphVersion, updatedAt) 
-          VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`);
-        
-        let insertCount = 0;
-        let hasError = false;
-        
-        childPercentages.forEach(child => {
-          stmt.run([userId, projectName, nodeId, child.childId, child.percentage, graphVersion], function(err) {
-            if (err) {
-              console.error('Error inserting percentage:', err);
-              hasError = true;
-            }
-            insertCount++;
-            
-            // Check if all inserts are complete
-            if (insertCount === childPercentages.length) {
-              stmt.finalize();
-              if (hasError) {
-                return res.status(500).json({ error: 'Error saving some percentages' });
-              }
-              res.json({ success: true, saved: insertCount });
-            }
-          });
-        });
-        
-        // Handle empty childPercentages array
-        if (childPercentages.length === 0) {
-          stmt.finalize();
-          res.json({ success: true, saved: 0 });
-        }
-      });
-  });
-});
-
-// --- API: Load node percentages ---
-app.get('/api/percentages', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
-  
-  const { projectName, nodeId } = req.query;
-  if (!projectName || !nodeId) {
-    return res.status(400).json({ error: 'Missing projectName or nodeId' });
-  }
-  
-  const userId = req.user.id;
-  
-  db.all(`SELECT childId, percentage, graphVersion, updatedAt 
-          FROM node_percentages 
-          WHERE userId = ? AND projectName = ? AND nodeId = ? 
-          ORDER BY childId`, 
-    [userId, projectName, nodeId], (err, rows) => {
-      if (err) {
-        console.error('Error loading percentages:', err);
+        console.error('Error adding user to project:', err);
         return res.status(500).json({ error: 'Database error' });
       }
       
-      if (rows.length === 0) {
-        return res.json({ found: false });
-      }
-      
-      const childPercentages = rows.map(row => ({
-        childId: row.childId,
-        percentage: row.percentage
-      }));
-      
-      res.json({
-        found: true,
-        childPercentages: childPercentages,
-        graphVersion: rows[0].graphVersion,
-        updatedAt: rows[0].updatedAt
+      res.json({ 
+        success: true, 
+        id: projectId,
+        name: name,
+        description: projectDescription 
       });
     });
-});
-
-// --- API: Get all saved percentages for a project ---
-app.get('/api/percentages/all', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
-  
-  const { projectName } = req.query;
-  if (!projectName) {
-    return res.status(400).json({ error: 'Missing projectName' });
-  }
-  
-  const userId = req.user.id;
-  
-  db.all(`SELECT nodeId, childId, percentage, graphVersion, updatedAt 
-          FROM node_percentages 
-          WHERE userId = ? AND projectName = ? 
-          ORDER BY nodeId, childId`, 
-    [userId, projectName], (err, rows) => {
-      if (err) {
-        console.error('Error loading all percentages:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      // Group by nodeId
-      const grouped = {};
-      rows.forEach(row => {
-        if (!grouped[row.nodeId]) {
-          grouped[row.nodeId] = {
-            nodeId: row.nodeId,
-            childPercentages: [],
-            graphVersion: row.graphVersion,
-            updatedAt: row.updatedAt
-          };
-        }
-        grouped[row.nodeId].childPercentages.push({
-          childId: row.childId,
-          percentage: row.percentage
-        });
-      });
-      
-      res.json({ percentages: Object.values(grouped) });
-    });
-});
-
-// --- TEST API: Save percentages without authentication (for testing only) ---
-app.post('/api/test-percentages', (req, res) => {
-  const { projectName, nodeId, childPercentages, graphVersion } = req.body;
-  if (!projectName || !nodeId || !childPercentages) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-  
-  // Use test user ID = 1 for testing
-  const userId = 1;
-  
-  // Start transaction to replace all percentages for this node
-  db.serialize(() => {
-    // Delete existing percentages for this user/project/node
-    db.run('DELETE FROM node_percentages WHERE userId = ? AND projectName = ? AND nodeId = ?', 
-      [userId, projectName, nodeId], function(err) {
-        if (err) {
-          console.error('Error deleting old percentages:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        
-        // Insert new percentages
-        const stmt = db.prepare(`INSERT INTO node_percentages 
-          (userId, projectName, nodeId, childId, percentage, graphVersion, updatedAt) 
-          VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`);
-        
-        let insertCount = 0;
-        let hasError = false;
-        
-        childPercentages.forEach(child => {
-          stmt.run([userId, projectName, nodeId, child.childId, child.percentage, graphVersion], function(err) {
-            if (err) {
-              console.error('Error inserting percentage:', err);
-              hasError = true;
-            }
-            insertCount++;
-            
-            // Check if all inserts are complete
-            if (insertCount === childPercentages.length) {
-              stmt.finalize();
-              if (hasError) {
-                return res.status(500).json({ error: 'Error saving some percentages' });
-              }
-              res.json({ success: true, saved: insertCount });
-            }
-          });
-        });
-        
-        // Handle empty childPercentages
-        if (childPercentages.length === 0) {
-          stmt.finalize();
-          res.json({ success: true, saved: 0 });
-        }
-      });
   });
-});
-
-// Start the Express server
-const PORT = process.env.PORT || 8383;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
 });
