@@ -319,22 +319,6 @@ window.addEventListener('keydown', function(e) {
 	}
 });
 
-// Prepare modal window for user to input filenames etc
-const json_modal = document.getElementById("JSON_modal");
-const  git_modal = document.getElementById("Git_modal");
-const node_modal = document.getElementById("Node_modal");
-const help_modal = document.getElementById("Help_modal");
-
-// Make functions global
-window.close_git_modal = close_git_modal;
-window.close_node_modal = close_node_modal;
-window.close_help_modal = close_help_modal;
-window.verifyTreeIgnoringAuxEdges = verifyTreeIgnoringAuxEdges;
-window.changeStatusFromContextMenu = changeStatusFromContextMenu;
-window.changeEdgeTypeFromContextMenu = changeEdgeTypeFromContextMenu;
-window.openNodePage = openNodePage;
-window.openNodePageFromSidePane = openNodePageFromSidePane;
-window.saveGraphToDatabase = saveGraphToDatabase;
 
 // Auto-load project graph from URL parameter
 function autoLoadProjectGraph() {

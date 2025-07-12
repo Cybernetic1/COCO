@@ -457,3 +457,6 @@ async function saveGraphToDatabase() {
         techFail.play().catch(() => {}); // Play error sound
     }
 }
+
+// Make functions global
+window.saveGraphToDatabase = saveGraphToDatabase;

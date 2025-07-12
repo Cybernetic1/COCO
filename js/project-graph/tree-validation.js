@@ -155,3 +155,5 @@ function verifyTreeIgnoringAuxEdges() {
     alert('The graph (ignoring auxiliary edges) is a valid tree rooted at node 0!');
 }
 
+// Make functions global
+window.verifyTreeIgnoringAuxEdges = verifyTreeIgnoringAuxEdges;

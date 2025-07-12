@@ -9,6 +9,7 @@ close_node_modal() - Close node edit modal
 close_help_modal() - Close help modal
 switchLang() - Switch between languages
 updateChineseNameSectionVisibility() - Show/hide Chinese fields
+openNodePageFromSidePane() - Open node page from side panel
 */
 
 // Side pane starts hidden - no need to auto-click the button
@@ -34,6 +35,12 @@ function toggleSidePane() {
 // Make sure toggleSidePane is global
 window.toggleSidePane = toggleSidePane;
 
+// Prepare modal window for user to input filenames etc
+const json_modal = document.getElementById("JSON_modal");
+const  git_modal = document.getElementById("Git_modal");
+const node_modal = document.getElementById("Node_modal");
+const help_modal = document.getElementById("Help_modal");
+
 // Close JSON modal
 function close_json_modal() {
     document.getElementById("JSON_modal").style.display = "none";
@@ -52,6 +59,11 @@ function close_node_modal() {
 function close_help_modal() {
     document.getElementById("Help_modal").style.display = "none";
 }
+
+// Make functions global
+window.close_git_modal = close_git_modal;
+window.close_node_modal = close_node_modal;
+window.close_help_modal = close_help_modal;
 
 // Language switching function
 function switchLang() {
@@ -95,3 +107,14 @@ function updateChineseNameSectionVisibility(chineseValue) {
     }
 }
 
+function openNodePageFromSidePane() {
+    if (selectedNodeId !== null) {
+        // Open node-page.html in a new tab with the node ID as a URL parameter
+        window.open(`node-page.html?id=${selectedNodeId}`, '_blank');
+    } else {
+        alert('Please select a node first');
+    }
+}
+
+// Make functions global
+window.openNodePageFromSidePane = openNodePageFromSidePane;

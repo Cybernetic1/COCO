@@ -4,7 +4,6 @@ Purpose: Core utility functions and helpers
 get_label_in_lang() - Get label in current language
 init_nodes() - Initialize node dataset
 update_node_index() - Update node index mapping
-openNodePageFromSidePane() - Open node page from side panel
 */
 
 // Initialize node labels to be in default language; set node colors
@@ -33,13 +32,4 @@ function update_node_index() {
 	node_index++;
 	}
 update_node_index();
-
-function openNodePageFromSidePane() {
-    if (selectedNodeId !== null) {
-        // Open node-page.html in a new tab with the node ID as a URL parameter
-        window.open(`node-page.html?id=${selectedNodeId}`, '_blank');
-    } else {
-        alert('Please select a node first');
-    }
-}
 

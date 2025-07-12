@@ -87,3 +87,7 @@ function openNodePage() {
     contextMenuNodeId = null;
 }
 
+// Make functions global
+window.changeStatusFromContextMenu = changeStatusFromContextMenu;
+window.changeEdgeTypeFromContextMenu = changeEdgeTypeFromContextMenu;
+window.openNodePage = openNodePage;
