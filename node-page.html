@@ -113,6 +113,101 @@
       margin-top: 10px;
     }
     
+    .author-tag {
+      display: inline-block;
+      background: white;
+      border: 1px solid blue;
+      color: blue;
+      border-radius: 15px;
+      padding: 4px 10px;
+      margin: 2px;
+      font-size: 14px;
+      position: relative;
+    }
+    
+    .author-tag .remove-btn {
+      margin-left: 6px;
+      color: #666;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .author-tag .remove-btn:hover {
+      color: #c00;
+    }
+    
+    .add-author-btn {
+      background: #90EE90;
+      font-size: 14px;
+      padding: 6px 12px;
+    }
+    
+    .user-selector {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid #888;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-width: 400px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .user-selector h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+    
+    .user-item {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      background: #f9f9f9;
+    }
+    
+    .user-item:hover {
+      background: #e6f3ff;
+    }
+    
+    .user-item .user-name {
+      font-weight: bold;
+    }
+    
+    .user-item .user-email {
+      color: #666;
+      font-size: 12px;
+    }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    
+    .close-btn {
+      float: right;
+      background: #f44;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
     .back-link {
       display: inline-block;
       margin-top: 2em;
@@ -215,7 +310,10 @@
       <div class="section vote-section">
         <label style="display:inline-block; margin-top:5px;">Authors:</label>
         <div class="authors-section">
-          <input type="text" id="authors" name="authors" placeholder="comma separated">
+          <div class="authors-list" id="authors-list">
+            <!-- Authors will be displayed here as tags -->
+          </div>
+          <button type="button" class="add-author-btn" onclick="showUserSelector()">Add Author</button>
         </div>
       </div>
 
@@ -272,7 +370,22 @@
     
     <a href="project-graph.html" class="back-link">&larr; Back to Project Graph</a>
   </div>
+
+  <!-- User selector modal -->
+  <div class="modal-overlay" id="modal-overlay" onclick="hideUserSelector()"></div>
+  <div class="user-selector" id="user-selector">
+    <button class="close-btn" onclick="hideUserSelector()">×</button>
+    <h3>Select User to Add as Author</h3>
+    <div id="users-list">
+      <!-- Users will be loaded here -->
+    </div>
+  </div>
+
   <script>
+    // Global variables
+    let currentAuthors = [];
+    let availableUsers = [];
+
     // Get node id from URL
     const params = new URLSearchParams(window.location.search);
     const nodeId = params.get('id');
@@ -302,6 +415,103 @@
       if (el) el.value = value || '';
     }
     
+    // Functions for author management
+    function displayAuthors() {
+      const authorsList = document.getElementById('authors-list');
+      authorsList.innerHTML = '';
+      
+      if (currentAuthors.length === 0) {
+        authorsList.innerHTML = '<span style="color: #999; font-style: italic;">No authors assigned</span>';
+        return;
+      }
+      
+      currentAuthors.forEach((author, index) => {
+        const authorTag = document.createElement('span');
+        authorTag.className = 'author-tag';
+        authorTag.innerHTML = `
+          ${author.name || author.email || 'Unknown User'}
+          <span class="remove-btn" onclick="removeAuthor(${index})">&times;</span>
+        `;
+        authorsList.appendChild(authorTag);
+      });
+    }
+    
+    function removeAuthor(index) {
+      currentAuthors.splice(index, 1);
+      displayAuthors();
+    }
+    
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users');
+        if (response.ok) {
+          availableUsers = await response.json();
+        } else {
+          console.error('Failed to load users:', response.statusText);
+          availableUsers = [];
+        }
+      } catch (error) {
+        console.error('Error loading users:', error);
+        availableUsers = [];
+      }
+    }
+    
+    function showUserSelector() {
+      // Load users if not already loaded
+      if (availableUsers.length === 0) {
+        loadUsers().then(() => {
+          displayUserSelector();
+        });
+      } else {
+        displayUserSelector();
+      }
+    }
+    
+    function displayUserSelector() {
+      const usersList = document.getElementById('users-list');
+      usersList.innerHTML = '';
+      
+      if (availableUsers.length === 0) {
+        usersList.innerHTML = '<p style="color: #999;">No users found or failed to load users.</p>';
+      } else {
+        // Filter out users already in authors list
+        const currentAuthorIds = currentAuthors.map(a => a.id);
+        const availableToAdd = availableUsers.filter(user => !currentAuthorIds.includes(user.id));
+        
+        if (availableToAdd.length === 0) {
+          usersList.innerHTML = '<p style="color: #999;">All users are already added as authors.</p>';
+        } else {
+          availableToAdd.forEach(user => {
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.innerHTML = `
+              <div class="user-name">${user.name || 'Unnamed User'}</div>
+              <div class="user-email">${user.email || 'No email'}</div>
+            `;
+            userItem.onclick = () => addAuthor(user);
+            usersList.appendChild(userItem);
+          });
+        }
+      }
+      
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('user-selector').style.display = 'block';
+    }
+    
+    function hideUserSelector() {
+      document.getElementById('modal-overlay').style.display = 'none';
+      document.getElementById('user-selector').style.display = 'none';
+    }
+    
+    function addAuthor(user) {
+      // Check if user is already in authors list
+      if (!currentAuthors.find(a => a.id === user.id)) {
+        currentAuthors.push(user);
+        displayAuthors();
+      }
+      hideUserSelector();
+    }
+    
     if (nodeData) {
       // Set the node title
       const nodeNameEN = nodeData.labelEN || nodeData.label || `Node ${nodeId}`;
@@ -324,7 +534,31 @@
       setField('expTokens', nodeData.expTokens || '');
       setField('expTime', nodeData.expTime || '');
       setField('expWorkers', nodeData.expWorkers || '');
-      setField('authors', nodeData.authors ? nodeData.authors.join(', ') : '');
+      
+      // Handle authors - convert from old format if needed
+      if (nodeData.authors) {
+        if (Array.isArray(nodeData.authors)) {
+          // If it's already an array of objects, use it
+          if (nodeData.authors.length > 0 && typeof nodeData.authors[0] === 'object') {
+            currentAuthors = [...nodeData.authors];
+          } else {
+            // If it's an array of strings, convert to objects
+            currentAuthors = nodeData.authors.map(authorName => ({
+              name: authorName,
+              email: '',
+              id: authorName // Use name as temporary ID
+            }));
+          }
+        } else if (typeof nodeData.authors === 'string') {
+          // If it's a comma-separated string, convert to objects
+          currentAuthors = nodeData.authors.split(',').map(name => name.trim()).filter(Boolean).map(authorName => ({
+            name: authorName,
+            email: '',
+            id: authorName
+          }));
+        }
+      }
+      displayAuthors();
     } else {
       // Set default title when no node data found
       document.getElementById('node-title').innerHTML = `<span style="color: #666; font-weight: normal; font-size: 16px;">Node:</span> ${nodeId || 'Unknown'}`;
@@ -332,6 +566,8 @@
       // Default to in-progress if no node data found
       const defaultRadio = document.getElementById('in-progress');
       if (defaultRadio) defaultRadio.checked = true;
+      
+      displayAuthors();
     }
     
     // Handle form submission
@@ -351,7 +587,9 @@
       nodeData.expTokens = document.getElementById('expTokens').value;
       nodeData.expTime = document.getElementById('expTime').value;
       nodeData.expWorkers = document.getElementById('expWorkers').value;
-      nodeData.authors = document.getElementById('authors').value.split(',').map(s => s.trim()).filter(Boolean);
+      
+      // Save authors as array of objects
+      nodeData.authors = currentAuthors;
       
       // Save back to localStorage
       localStorage.setItem('projectMapRoot', JSON.stringify(map));
@@ -424,6 +662,9 @@
     
     // Initialize voting when page loads
     initializeVoting();
+    
+    // Load users on page load
+    loadUsers();
   </script>
 </body>
 </html>

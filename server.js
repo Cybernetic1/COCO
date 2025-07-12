@@ -1,0 +1,602 @@
+// Simple server based on Node.js
+// ==============================
+
+require('dotenv').config();
+
+const http = require("http");
+const fs = require("fs");
+const url = require("url");
+const path = require("path");
+const process = require('process');
+const { exec } = require("child_process");
+const { readdir } = require("fs/promises");
+const bcrypt = require('bcrypt');
+
+// --- Authentication dependencies ---
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
+
+// Add at the very top, before any use of app
+const express = require('express');
+const app = express();
+
+// --- Express session and passport setup ---
+app.use(session({ secret: 'your-secret', resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.json()); // <-- Add this line before any routes
+app.use(express.urlencoded({ extended: true })); // <-- Add this to support HTML form submissions
+
+// --- Local strategy (email/password) ---
+passport.use(new LocalStrategy(
+  { usernameField: 'email' },
+  (email, password, done) => {
+    db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+      if (err) return done(err);
+      if (!user) return done(null, false);
+      // Compare hashed password
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) return done(err);
+        return isMatch ? done(null, user) : done(null, false);
+      });
+    });
+  }
+));
+
+// --- Google OAuth ---
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+passport.use(new GoogleStrategy({
+  clientID: GOOGLE_CLIENT_ID,
+  clientSecret: GOOGLE_CLIENT_SECRET,
+  callbackURL: '/auth/google/callback'
+}, (accessToken, refreshToken, profile, done) => {
+  const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+  db.get('SELECT * FROM users WHERE googleId = ?', [profile.id], (err, user) => {
+    if (err) return done(err);
+    if (!user) {
+      db.run('INSERT INTO users (googleId, name, avatar, email) VALUES (?, ?, ?, ?)',
+        [profile.id, profile.displayName, profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null, email],
+        function(err) {
+          if (err) return done(err);
+          db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, newUser) => {
+            if (err) return done(err);
+            return done(null, newUser);
+          });
+        }
+      );
+    } else {
+      db.run('UPDATE users SET name = ?, avatar = ?, email = ? WHERE id = ?',
+        [profile.displayName, profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null, email, user.id],
+        (err) => {
+          if (err) return done(err);
+          db.get('SELECT * FROM users WHERE id = ?', [user.id], (err, updatedUser) => {
+            if (err) return done(err);
+            return done(null, updatedUser);
+          });
+        }
+      );
+    }
+  });
+}));
+
+// --- Facebook OAuth ---
+passport.use(new FacebookStrategy({
+  clientID: 'FACEBOOK_APP_ID',
+  clientSecret: 'FACEBOOK_APP_SECRET',
+  callbackURL: '/auth/facebook/callback',
+  profileFields: ['id', 'displayName', 'photos', 'email'] // Request profile photo
+}, (accessToken, refreshToken, profile, done) => {
+  db.get('SELECT * FROM users WHERE facebookId = ?', [profile.id], (err, user) => {
+    if (err) return done(err);
+    const avatarUrl = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
+    if (!user) {
+      db.run('INSERT INTO users (facebookId, name, avatar) VALUES (?, ?, ?)',
+        [profile.id, profile.displayName, avatarUrl],
+        function(err) {
+          if (err) return done(err);
+          db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, newUser) => {
+            if (err) return done(err);
+            return done(null, newUser);
+          });
+        }
+      );
+    } else {
+      db.run('UPDATE users SET name = ?, avatar = ? WHERE id = ?',
+        [profile.displayName, avatarUrl, user.id],
+        (err) => {
+          if (err) return done(err);
+          db.get('SELECT * FROM users WHERE id = ?', [user.id], (err, updatedUser) => {
+            if (err) return done(err);
+            return done(null, updatedUser);
+          });
+        }
+      );
+    }
+  });
+}));
+
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser((id, done) => {
+  db.get('SELECT * FROM users WHERE id = ?', [id], (err, user) => {
+    done(err, user);
+  });
+});
+
+// --- Auth routes ---
+// GET route for login page (for failed authentication redirects)
+app.get('/login', (req, res) => {
+  res.redirect('/coco.html?error=login_failed');
+});
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/my-projects.html',
+  failureRedirect: '/login'
+}));
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google/callback', passport.authenticate('google', {
+  successRedirect: '/my-projects.html',
+  failureRedirect: '/login'
+}));
+
+app.get('/auth/facebook', passport.authenticate('facebook'));
+app.get('/auth/facebook/callback', passport.authenticate('facebook', {
+  successRedirect: '/my-projects.html',
+  failureRedirect: '/login'
+}));
+
+// --- Show user info on home page if logged in ---
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
+// --- API: Get user info for frontend ---
+app.get('/user-info', (req, res) => {
+  if (req.isAuthenticated() && req.user) {
+    res.json({
+      loggedIn: true,
+      name: req.user.name,
+      avatar: req.user.avatar
+    });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+// --- Log out route ---
+app.get('/logout', (req, res) => {
+  req.logout(() => {
+    res.redirect('/');
+  });
+});
+
+async function reqHandler(req, res) {
+
+	var fileName = decodeURIComponent(req.url);
+	if (fileName === "/")
+		fileName = "/index.html";
+
+	// **** load a JSON file
+	if (fileName.startsWith("/loadJSON/")) {
+		var fname = path.basename(url.parse(req.url).pathname);
+
+		res.writeHead(200, {
+			"Content-Type"	: "application/json",
+			"Cache-Control"	: "no-cache",
+			"Connection"	: "keep-alive"
+			});
+
+		fs.readFile("project-graphs/" + fname, "utf-8", function (err, data) {
+			if (err) {
+				console.log(err);
+				return err;
+				}
+			res.end(data, "utf-8");
+			console.log("Loaded JSON file:", fname);
+			});
+		return;
+		}
+
+	// **** save a project as a dir-structure, from project graph JSON
+	if (fileName.startsWith("/saveDir/")) {
+		var rootDirName = path.basename(url.parse(req.url).pathname);
+
+		res.writeHead(200, {
+			'Content-Type': 'text/event-stream; charset=utf-8',
+			});
+
+		const buffer = [];
+		req.on('data', chunk => buffer.push(chunk));
+		req.on('end', () => {
+			data = JSON.parse(Buffer.concat(buffer));
+
+			// Save to dir -- it should be the same dir every time
+			// as there may be other project files in the dirs
+			// 1. if root-dir not exist create it:
+			if (!fs.existsSync(rootDirName)) {
+				fs.mkdirSync(rootDirName);
+				}
+
+			// 2. for each node, if not exists create sub-dir
+			data.nodes.forEach( node => {
+				const subDirName = rootDirName + '/' + node.id.toString();
+				if (!fs.existsSync(subDirName)) {
+					fs.mkdirSync(subDirName);
+					}
+
+				// 3. write node details to "node-data.txt"
+				var stream = fs.createWriteStream(`${subDirName}/node-data.txt`, {encoding: 'utf8'});
+				stream.once('open', function(fd) {
+					// pretty JSON spacing level = 2
+					stream.write(JSON.stringify(node, null, 2));
+					stream.end();
+					});
+
+				} );
+
+			// 4. write edges to "edges-data.json"
+			var stream = fs.createWriteStream(`${rootDirName}/edges-data.json`, {encoding: 'utf8'});
+			stream.once('open', function(fd) {
+				// JSON spacing level = 1
+				stream.write(JSON.stringify(data.edges, null, 1));
+				stream.end();
+				});
+
+			console.log("Saved project graph to directory:", rootDirName);
+			});
+		res.end();
+		return;
+		}
+
+	// **** read a project dir and return as JSON file
+	// must use synchronous read
+	if (fileName.startsWith("/loadDir/")) {
+		var rootDirName = path.basename(url.parse(req.url).pathname);
+
+		res.writeHead(200, {
+			"Content-Type"	: "application/json",
+			"Cache-Control"	: "no-cache",
+			"Connection"	: "keep-alive"
+			});
+
+		var data = {};
+		data.nodes = [];
+
+		// **** Read all nodes from directory and create data.nodes object
+		// 1. read root-node file "node-data.txt" and fill in details
+		function get1Node(subdir) {
+			const details = fs.readFileSync(`${rootDirName}/${subdir}/node-data.txt`, "utf-8");
+			const node = JSON.parse(details);
+			data.nodes.push(node);
+			}
+
+		// 2. for each sub-dir, do the same:
+		fs.readdirSync( rootDirName, { withFileTypes: true } )
+			.filter(dirent => dirent.isDirectory())
+			.map(dirent => get1Node(dirent.name));	// recurse ∀ sub-dirs
+
+		// 3. read edges data file and fill in details
+		const edges = fs.readFileSync(`${rootDirName}/edges-data.json`, "utf-8");
+		data.edges = JSON.parse(edges);
+		
+		res.end(JSON.stringify(data), "utf-8");
+		console.log("Loaded dir as JSON");
+		return;
+		}
+
+	// **** Return a list of files in directory
+	if (fileName.startsWith("/fileList/")) {
+		fs.readdir("./project-graphs/", (err, files) => {
+			if (err) {
+				console.log(err);
+				return err;
+				}
+			console.log("JSON files list =", typeof(files), files);
+			res.writeHead(200, {"Content-Type": "application/json"});
+			res.end(JSON.stringify(files), "utf-8");
+			});
+		return;
+		}
+
+	// **** Return a list of project directories
+	if (fileName.startsWith("/dirList/")) {
+		var dirs = (await readdir("./", { withFileTypes: true }))
+			.filter(dirent => dirent.isDirectory())
+			.map(dirent => dirent.name)
+			.filter(name => name.endsWith(".data"))
+		console.log("Dir list =", dirs);
+		res.writeHead(200, {"Content-Type": "application/json"});
+		res.end(JSON.stringify(dirs), "utf-8");
+		return;
+		}
+
+	// **** Return list of authers in a Git repository
+	if (fileName.startsWith("/getGitAuthors/")) {
+		res.writeHead(200, {
+			"Content-Type"	: "text/event-stream; charset=utf-8",
+			"Cache-Control"	: "no-cache",
+			"Connection"	: "keep-alive"
+			});
+
+		const { exec } = require("child_process");
+
+		// git: %an = author name, %ae = author email, %s = commit subject
+		exec("git log --pretty='%ae,%an'", (error, stdout, stderr) => {
+			if (error) {
+				console.log(`error: ${error.message}`);
+				return;
+			}
+			if (stderr) {
+				console.log(`stderr: ${stderr}`);
+				return;
+			}
+			res.end(stdout, "utf-8");
+			console.log("Extracted Git authors.");
+		});
+		return;
+		}
+
+	// ************* Process the reading of various file types ****************
+
+	fileName = "./" + fileName;
+
+	fileTypes = {
+		".html" : ["text/html"				, "utf-8"],
+		".css"	: ["text/css"				, "utf-8"],
+		".js"   : ["application/javascript" , "utf-8"],
+		".map"	: ["application/javascript" , "utf-8"],
+		".json" : ["application/json"		, "utf-8"],
+		".ogg"  : ["audio/ogg"              , "base64"],
+		".wav"  : ["audio/wav"              , "base64"],
+		".aiff" : ["audio/aiff"             , "base64"],
+		".ico"  : ["image/x-icon"           , "base64"],
+		".jpg"  : ["image/jpg"				, "base64"],
+		".png"  : ["image/png"				, "base64"],
+		".gif"  : ["image/gif"				, "base64"],
+		};
+
+	// Remove the cache-preventer suffix that begins with a '?'
+	fileName = fileName.split('?')[0];
+	// console.log("filename =", fileName);
+	var ext = path.extname(fileName);
+	if (ext in fileTypes) {
+		fs.exists(fileName, function(exists) {
+			if (exists) {
+				fs.readFile(fileName, fileTypes[ext][1], function(error, content) {
+					if (error) {
+						res.writeHead(500);
+						res.end();
+					} else {
+						res.writeHead(200, {"Content-Type": fileTypes[ext][0]});
+						res.end(content, fileTypes[ext][1]);
+						}
+					});
+			} else {
+				res.writeHead(404);
+				res.end();
+				}
+			});
+		return; }
+
+	// All failed:
+	res.writeHead(404);
+	res.end();
+	}
+
+// Serve static files from the current directory
+app.use(express.static(__dirname));
+
+// Attach your custom reqHandler for legacy/project routes
+app.use(async (req, res, next) => {
+  // Let Express handle /api/*, /auth/*, and all POST requests
+  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/') || req.method !== 'GET') {
+    return next();
+  }
+  // Only handle GET requests not already handled by express.static
+  await reqHandler(req, res);
+});
+
+// --- SQLite setup ---
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('coco.db');
+
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    googleId TEXT,
+    facebookId TEXT,
+    email TEXT,
+    name TEXT,
+    avatar TEXT,
+    password TEXT
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    description TEXT,
+    ownerId INTEGER,
+    source_filename TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(ownerId) REFERENCES users(id)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS user_projects (
+    userId INTEGER,
+    projectId INTEGER,
+    role TEXT,
+    joinedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (userId, projectId),
+    FOREIGN KEY(userId) REFERENCES users(id),
+    FOREIGN KEY(projectId) REFERENCES projects(id)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    room TEXT,
+    user TEXT,
+    text TEXT,
+    time INTEGER
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS node_percentages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER,
+    projectName TEXT,
+    nodeId TEXT,
+    childId TEXT,
+    percentage REAL,
+    graphVersion TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(userId) REFERENCES users(id)
+  )`);
+});
+
+// --- API: Page chat (persistent, per-page) ---
+app.get('/api/chat', (req, res) => {
+  const room = req.query.room;
+  if (!room) return res.status(400).json({ error: 'Missing room' });
+  db.all('SELECT user, text, time FROM chat_messages WHERE room = ? ORDER BY time ASC LIMIT 100', [room], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ messages: rows });
+  });
+});
+
+app.post('/api/chat', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  const room = req.query.room;
+  const text = req.body.text && req.body.text.trim();
+  if (!room || !text) return res.status(400).json({ error: 'Missing room or text' });
+  const user = req.user.name || req.user.email || 'User';
+  const time = Date.now();
+  db.run('INSERT INTO chat_messages (room, user, text, time) VALUES (?, ?, ?, ?)', [room, user, text, time], function(err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true });
+  });
+});
+
+// --- API: List joinable projects (not already joined by user) ---
+app.get('/api/joinable-projects', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  db.all(`SELECT id, name, description FROM projects WHERE id NOT IN (SELECT projectId FROM user_projects WHERE userId = ?)`, [req.user.id], (err, rows) => {
+    if (err) return res.json([]);
+    res.json(rows);
+  });
+});
+
+// --- API: Get project details (for editing) ---
+app.get('/api/project-details', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  const projectId = req.query.id;
+  if (!projectId) {
+    return res.status(400).json({ error: 'Missing project ID' });
+  }
+  db.get(`SELECT * FROM projects WHERE id = ?`, [projectId], (err, project) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    res.json(project);
+  });
+});
+
+// --- API: Update project details ---
+app.post('/api/update-project', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  const projectId = req.body.id;
+  const { name, description } = req.body;
+  if (!projectId || !name || !description) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+  db.run(`UPDATE projects SET name = ?, description = ? WHERE id = ?`, [name, description, projectId], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// --- API: Create a new project ---
+app.post('/api/projects', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  const { name, description, sourceFilename } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Project name is required' });
+  }
+  
+  const projectDescription = description || '';
+  const ownerId = req.user.id;
+  
+  db.run(`INSERT INTO projects (name, description, ownerId, source_filename) VALUES (?, ?, ?, ?)`, 
+    [name, projectDescription, ownerId, sourceFilename], function(err) {
+    if (err) {
+      console.error('Error creating project:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    const projectId = this.lastID;
+    
+    // Automatically add the creator as owner/admin of the project
+    db.run(`INSERT INTO user_projects (userId, projectId, role) VALUES (?, ?, ?)`, 
+      [ownerId, projectId, 'owner'], function(err) {
+      if (err) {
+        console.error('Error adding user to project:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      res.json({ 
+        success: true, 
+        id: projectId,
+        name: name,
+        description: projectDescription 
+      });
+    });
+  });
+});
+
+// --- API: Get user's projects ---
+app.get('/api/user-projects', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const userId = req.user.id;
+  
+  db.all(`
+    SELECT p.id, p.name, p.description, p.createdAt, up.role
+    FROM projects p
+    JOIN user_projects up ON p.id = up.projectId
+    WHERE up.userId = ?
+    ORDER BY p.createdAt DESC
+  `, [userId], (err, rows) => {
+    if (err) {
+      console.error('Error loading user projects:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json(rows || []);
+  });
+});
+
+// Start the server
+const PORT = process.env.PORT || 8383;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Access the application at http://localhost:${PORT}`);
+});

@@ -9,6 +9,21 @@ function initializeApiRoutes(database) {
   return router;
 }
 
+// --- API: Get all users (for author selection) ---
+router.get('/users', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  db.all('SELECT id, name, email, avatar FROM users ORDER BY name, email', (err, rows) => {
+    if (err) {
+      console.error('Error loading users:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(rows || []);
+  });
+});
+
 // --- API: Page chat (persistent, per-page) ---
 router.get('/chat', (req, res) => {
   const room = req.query.room;
