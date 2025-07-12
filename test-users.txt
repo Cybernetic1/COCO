@@ -1,0 +1,61 @@
+Test Users Summary for COCO Project
+=======================================
+
+Created: July 12, 2025
+Database: coco.db
+Purpose: Testing user-specific percentage assignment system
+
+Five fictional test users have been created in the COCO database:
+
+1. Claris
+   - ID: 1
+   - Email: claris@test.com
+   - Password: test123 (hashed with bcrypt)
+   - Avatar: /images/Claris.png
+   - Role: Test user for percentage assignment system
+
+2. Abeer
+   - ID: 2
+   - Email: abeer@test.com
+   - Password: test123 (hashed with bcrypt)
+   - Avatar: /images/Abeer.png
+   - Role: Test user for percentage assignment system
+
+3. Pete
+   - ID: 3
+   - Email: pete@test.com
+   - Password: test123 (hashed with bcrypt)
+   - Avatar: /images/Pete.png
+   - Role: Test user for percentage assignment system
+
+4. Eric
+   - ID: 4
+   - Email: eric@test.com
+   - Password: test123 (hashed with bcrypt)
+   - Avatar: /images/Eric.png
+   - Role: Test user for percentage assignment system
+
+5. YKY
+   - ID: 5
+   - Email: yky@test.com
+   - Password: test123 (hashed with bcrypt)
+   - Avatar: /images/YKY.jpg (special avatar as requested)
+   - Role: Test user for percentage assignment system
+
+Technical Details:
+- All users were created using bcrypt password hashing for security
+- Avatar images correspond to existing files in the /images/ directory
+- Users can be used to test the user-specific percentage assignment feature
+- Login credentials: use email and password 'test123' for any of these users
+- Database table: users (in coco.db SQLite database)
+
+Usage:
+These test users can be used to verify that the percentage assignment system
+correctly saves and loads user-specific data, ensuring that different users
+can have different percentage allocations for the same project nodes.
+
+Related Systems:
+- PercentageManager class (js/percentage-manager.js)
+- Node percentages API endpoints (/api/percentages)
+- Database table: node_percentages
+- Project map editor (project-map.html)

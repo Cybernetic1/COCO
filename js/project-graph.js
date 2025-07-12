@@ -1050,42 +1050,57 @@ async function delEdge() {
 	}
 
 async function changeStatus(radio) {
-	data.nodes.updateOnly({ id: selectedNodeId,
-		status: radio.value,
-		color: nodeColors[radio.value],
+	if (selectedNodeId !== null) {
+		data.nodes.update({ 
+			id: selectedNodeId,
+			status: radio.value,
+			color: nodeColors[radio.value]
 		});
-	techClick2.play();
+		techClick2.play().catch(() => {}); // Ignore audio errors
 	}
+}
 
 async function changeTaskNameZH(input) {
-	data.nodes.updateOnly({ id: selectedNodeId,
-		labelZH: input.value,
-		...(lang == "ZH") && {label: input.value},
+	if (selectedNodeId !== null) {
+		data.nodes.update({ 
+			id: selectedNodeId,
+			labelZH: input.value,
+			...(lang == "ZH") && {label: input.value}
 		});
-	// Update Chinese name section visibility
-	updateChineseNameSectionVisibility(input.value);
+		// Update Chinese name section visibility
+		updateChineseNameSectionVisibility(input.value);
 	}
+}
 
 async function changeTaskNameEN(input) {
-	// Check if label defaults to English because there are no other-language labels:
-	const default_EN = !('labelZH' in nodes.get(selectedNodeId));
-	data.nodes.updateOnly({ id: selectedNodeId,
-		labelEN: input.value,
-		...(lang == "EN" || default_EN) && {label: input.value},
+	if (selectedNodeId !== null) {
+		// Check if label defaults to English because there are no other-language labels:
+		const default_EN = !('labelZH' in nodes.get(selectedNodeId));
+		data.nodes.update({ 
+			id: selectedNodeId,
+			labelEN: input.value,
+			...(lang == "EN" || default_EN) && {label: input.value}
 		});
 	}
+}
 
 async function changeDetails(input) {
-	data.nodes.updateOnly({ id: selectedNodeId,
-		details: input.value,
+	if (selectedNodeId !== null) {
+		data.nodes.update({ 
+			id: selectedNodeId,
+			details: input.value
 		});
 	}
+}
 
 async function changeEdgeEN(input) {
-	data.edges.updateOnly({ id: selectedEdgeId,
-		label: input.value,
+	if (selectedEdgeId !== null) {
+		data.edges.update({ 
+			id: selectedEdgeId,
+			label: input.value
 		});
 	}
+}
 
 async function clearGraph() {
 	network.destroy();

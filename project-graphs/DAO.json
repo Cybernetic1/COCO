@@ -32,7 +32,8 @@
     {
       "id": 5,
       "labelEN": "Project Graph",
-      "color": "#FCC"
+      "color": "#CFC",
+      "status": "finished"
     },
     {
       "id": 6,
@@ -65,7 +66,8 @@
     {
       "id": 11,
       "labelEN": "connect Aragon",
-      "color": "#FCC"
+      "color": "#CCC",
+      "status": "paused"
     },
     {
       "id": 12,
@@ -165,13 +167,6 @@
       "id": 27,
       "labelEN": "send tokens",
       "labelZH": "发 token",
-      "color": "#FCC"
-    },
-    {
-      "id": 28,
-      "labelEN": "analyse competitors",
-      "labelZH": "分析竞争者",
-      "status": "in-progress",
       "color": "#FCC"
     },
     {
