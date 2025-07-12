@@ -1,0 +1,14 @@
+nohup: ignoring input
+Server running on port 3000
+Access the application at http://localhost:3000
+undefined:0
+
+
+[Error: SQLITE_ERROR: no such column: username
+Emitted 'error' event on Statement instance at:
+] {
+  errno: 1,
+  code: 'SQLITE_ERROR'
+}
+
+Node.js v17.9.1

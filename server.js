@@ -569,3 +569,34 @@ app.post('/api/projects', (req, res) => {
     });
   });
 });
+
+// --- API: Get user's projects ---
+app.get('/api/user-projects', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const userId = req.user.id;
+  
+  db.all(`
+    SELECT p.id, p.name, p.description, p.createdAt, up.role
+    FROM projects p
+    JOIN user_projects up ON p.id = up.projectId
+    WHERE up.userId = ?
+    ORDER BY p.createdAt DESC
+  `, [userId], (err, rows) => {
+    if (err) {
+      console.error('Error loading user projects:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json(rows || []);
+  });
+});
+
+// Start the server
+const PORT = process.env.PORT || 8383;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Access the application at http://localhost:${PORT}`);
+});
