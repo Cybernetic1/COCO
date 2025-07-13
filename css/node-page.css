@@ -1,0 +1,248 @@
+:root {
+    --in-progress: #FCC;
+    --finished: #CFC;
+    --paused: #CCC;
+    --research: #FF0;
+}
+
+body { 
+    font-family: sans-serif; 
+    background: #EEE; 
+    color: #333; 
+    margin: 2em; 
+}
+
+.container { 
+    background: #EEE; 
+    border: 2px solid #888; 
+    border-radius: 10px; 
+    padding: 20px; 
+    max-width: 90%; 
+    margin: auto;
+}
+
+h1 { 
+    color: #333; 
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.node-id { 
+    color: #666; 
+    font-size: 16px; 
+    margin-bottom: 15px;
+}
+
+.section { 
+    margin-bottom: 15px; 
+}
+
+label { 
+    font-size: 16px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.colorKey {
+    color: Black;
+    font-size: 16px;
+    border-radius: 8px;
+    padding: 4px;
+    display: inline;
+}
+
+label[for='in-progress'] { background-color: var(--in-progress); }
+label[for='finished'] { background-color: var(--finished); }
+label[for='paused'] { background-color: var(--paused); }
+label[for='research'] { background-color: var(--research); }
+
+input[type='text'], textarea, input[type='number'] {
+    font-size: 16px;
+    width: 95%;
+    padding: 4px;
+    border: 1px solid #888;
+    border-radius: 4px;
+}
+
+input[type='radio'] {
+    margin-right: 8px;
+    margin-bottom: 16px;
+    accent-color: Black;
+}
+
+input:disabled, label[disabled] {
+    color: #888;
+    background-color: #DDD;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    background: #CFF;
+    border: 1px solid #888;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #AEE;
+}
+
+.vote-section {
+    margin-top: 15px;
+}
+
+.vote-button {
+    float: right;
+    margin-top: 5px;
+    margin-right: 20px;
+}
+
+.authors-section {
+    clear: both;
+    margin-top: 10px;
+}
+
+.author-tag {
+    display: inline-block;
+    background: white;
+    border: 1px solid blue;
+    color: blue;
+    border-radius: 15px;
+    padding: 4px 10px;
+    margin: 2px;
+    font-size: 14px;
+    position: relative;
+}
+
+.author-tag .remove-btn {
+    margin-left: 6px;
+    color: #666;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.author-tag .remove-btn:hover {
+    color: #c00;
+}
+
+.add-author-btn {
+    background: #CFF;
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+.user-selector {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 2px solid #888;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 1000;
+    max-width: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.user-selector h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.user-item {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    background: #f9f9f9;
+}
+
+.user-item:hover {
+    background: #e6f3ff;
+}
+
+.user-item .user-name {
+    font-weight: bold;
+}
+
+.user-item .user-email {
+    color: #666;
+    font-size: 12px;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+.close-btn {
+    float: right;
+    background: #f44;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 2em;
+    color: #666;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #333;
+}
+
+/* Voting styles */
+.voting-container {
+    padding: 5px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    background: white;
+}
+
+.slidecontainer {
+    width: 100%;
+    height: 35px;
+}
+
+.slider {
+    width: 76%;
+    display: inline-block;
+}
+
+.name {
+    color: Blue;
+    font-size: 18px;
+    display: inline-block;
+    margin-right: 5px;
+    width: 15%;
+    text-align: center;
+}
+
+.score {
+    font-size: 16px;
+    display: inline-block;
+    margin-left: 5px;
+    width: 5%;
+}
