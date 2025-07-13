@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run Authors Test</title>
+</head>
+<body>
+    <h1>Running Node Authors Display Test</h1>
+    <p>Check console for results...</p>
+    <div id="test-area">
+        <div id="authors-list"></div>
+    </div>
+    
+    <script>
+        // Mock the environment needed for the test
+        window.displayAuthors = function() {
+            const authorsList = document.getElementById('authors-list');
+            authorsList.innerHTML = '';
+            
+            const authorsToDisplay = getNodeAuthors();
+            
+            // Check if we're using inherited authors from ROOT (node authors are empty)
+            const isUsingInheritedAuthors = (!currentAuthors || currentAuthors.length === 0);
+            
+            // Show inheritance note whenever we're using ROOT authors
+            if (isUsingInheritedAuthors) {
+                const inheritedNote = document.createElement('div');
+                inheritedNote.style.fontSize = '12px';
+                inheritedNote.style.color = '#666';
+                inheritedNote.style.fontStyle = 'italic';
+                inheritedNote.style.marginBottom = '5px';
+                inheritedNote.textContent = '(Default authors from ROOT)';
+                authorsList.appendChild(inheritedNote);
+            }
+            
+            if (authorsToDisplay.length === 0) {
+                // Both node and ROOT have no authors
+                const emptyMsg = document.createElement('span');
+                emptyMsg.style.color = '#999';
+                emptyMsg.style.fontStyle = 'italic';
+                emptyMsg.textContent = '[empty list]';
+                authorsList.appendChild(emptyMsg);
+                return;
+            }
+            
+            authorsToDisplay.forEach((author, index) => {
+                const authorTag = document.createElement('span');
+                authorTag.className = 'author-tag';
+                authorTag.style.display = 'inline-block';
+                authorTag.style.background = 'white';
+                authorTag.style.border = '1px solid blue';
+                authorTag.style.borderRadius = '15px';
+                authorTag.style.padding = '4px 10px';
+                authorTag.style.margin = '2px';
+                authorTag.innerHTML = `${author.name || author.email || 'Unknown User'}`;
+                authorsList.appendChild(authorTag);
+            });
+        };
+        
+        window.getNodeAuthors = function() {
+            // If current node has authors, return them
+            if (currentAuthors && currentAuthors.length > 0) {
+                return currentAuthors;
+            }
+            
+            // Fall back to ROOT node's authors (map is the root node)
+            if (map && map.authors && Array.isArray(map.authors)) {
+                return map.authors;
+            }
+            
+            // Return empty array if no authors found anywhere
+            return [];
+        };
+        
+        // Now run the test
+    </script>
+    
+    <script src="/tests/manual/node-authors-display-test.js"></script>
+</body>
+</html>

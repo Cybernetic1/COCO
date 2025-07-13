@@ -320,48 +320,8 @@
       <!-- Voting section -->
       <div class="section">
         <label>Voting:</label>
-        <div class="voting-container">
-          <div class="slidecontainer">
-            <p class="name">Claris</p>
-            <pre class="score">0</pre>
-            <input type="range" min="0" max="1000" value="0" class="slider">
-          </div>
-
-          <div class="slidecontainer">
-            <p class="name">Abeer</p>
-            <pre class="score">0</pre>
-            <input type="range" min="0" max="1000" value="0" class="slider">
-          </div>
-
-          <div class="slidecontainer">
-            <p class="name">Pete</p>
-            <pre class="score">0</pre>
-            <input type="range" min="0" max="1000" value="0" class="slider">
-          </div>
-
-          <div class="slidecontainer">
-            <p class="name">Eric</p>
-            <pre class="score">0</pre>
-            <input type="range" min="0" max="1000" value="0" class="slider">
-          </div>
-
-          <div class="slidecontainer">
-            <p class="name">YKY</p>
-            <pre class="score">0</pre>
-            <input type="range" min="0" max="1000" value="0" class="slider">
-          </div>
-
-          <div class="slidecontainer">
-            <p class="name">Roger</p>
-            <pre class="score">0</pre>
-            <input type="range" min="0" max="1000" value="0" class="slider">
-          </div>
-
-          <div class="slidecontainer">
-            <p class="name">Total</p>
-            <pre class="score" id="total">0</pre>
-          </div>
-          <br>
+        <div class="voting-container" id="voting-container">
+          <!-- Voting sliders will be populated dynamically based on authors -->
         </div>
       </div>
 
@@ -464,8 +424,9 @@
       }
       
       if (authorsToDisplay.length === 0) {
-        // If we already showed the combined message above, just return
+        // If we already showed the combined message above, just create empty voting sliders
         if (isUsingInheritedAuthors) {
+          createVotingSliders();
           return;
         }
         
@@ -475,6 +436,7 @@
         emptyMsg.style.fontStyle = 'italic';
         emptyMsg.textContent = '[empty list]';
         authorsList.appendChild(emptyMsg);
+        createVotingSliders();
         return;
       }
       
@@ -487,6 +449,9 @@
         `;
         authorsList.appendChild(authorTag);
       });
+      
+      // Update voting sliders when authors change
+      createVotingSliders();
     }
     
     function removeAuthor(index) {
@@ -658,6 +623,58 @@
       alert('Node updated! (Note: changes are local until you save the map)');
     };
     
+    // Functions for dynamic voting sliders
+    
+    function createVotingSliders() {
+      const votingContainer = document.getElementById('voting-container');
+      votingContainer.innerHTML = '';
+      
+      const authorsToDisplay = getNodeAuthors();
+      
+      if (authorsToDisplay.length === 0) {
+        votingContainer.innerHTML = '<p style="color: #999; font-style: italic;">No authors available for voting</p>';
+        // Clear votes array when no authors
+        window.votes = [];
+        return;
+      }
+      
+      // Reset votes array to match number of authors, all starting at 0
+      const n = authorsToDisplay.length;
+      window.votes = new Array(n).fill(0);
+      
+      // Create slider for each author
+      authorsToDisplay.forEach((author, index) => {
+        const slideContainer = document.createElement('div');
+        slideContainer.className = 'slidecontainer';
+        
+        const authorName = author.name || author.email || 'Unknown User';
+        
+        slideContainer.innerHTML = `
+          <p class="name">${authorName}</p>
+          <pre class="score">0.00</pre>
+          <input type="range" min="0" max="1000" value="0" class="slider" data-author-index="${index}">
+        `;
+        
+        votingContainer.appendChild(slideContainer);
+      });
+      
+      // Add total display
+      const totalContainer = document.createElement('div');
+      totalContainer.className = 'slidecontainer';
+      totalContainer.innerHTML = `
+        <p class="name">Total</p>
+        <pre class="score" id="total">0.00</pre>
+      `;
+      votingContainer.appendChild(totalContainer);
+      
+      // Add line break
+      const lineBreak = document.createElement('br');
+      votingContainer.appendChild(lineBreak);
+      
+      // Initialize voting logic - delay slightly to ensure DOM is ready
+      setTimeout(() => initializeVoting(), 10);
+    }
+    
     // Initialize voting sliders
     function initializeVoting() {
       const sliders = document.getElementsByClassName("slider");
@@ -666,64 +683,67 @@
       var scores = [];
       const n = sliders.length;
       
-      // Initialize sliders values
-      if (!window.votes || window.votes.length == 0) {
-        window.votes = new Array();
-        for (let j = 0; j < n; ++j) {
-          scores[j] = window.votes[j] = 1000.0 / n;
-          sliders[j].value = Math.round(scores[j]);
-          outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
-        }
-      } else {
-        for (let j = 0; j < n; ++j) {
-          sliders[j].value = window.votes[j];
-          scores[j] = window.votes[j];
-          outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
-        }
+      // Always create fresh votes array to match current number of sliders
+      window.votes = new Array(n).fill(0);
+      
+      // Initialize sliders and displays - ensure no NaN values
+      for (let j = 0; j < n; ++j) {
+        scores[j] = window.votes[j] || 0; // Ensure it's never undefined/NaN
+        sliders[j].value = Math.round(scores[j]);
+        const displayValue = isNaN(scores[j]) ? 0 : scores[j] / 10.0;
+        outputs[j].innerHTML = displayValue.toFixed(2);
       }
       
       var total = 0.0;
       for (const score of scores) {
-        total += score;
+        total += (isNaN(score) ? 0 : score);
       }
-      document.getElementById("total").innerHTML = (total / 10.0).toFixed(2);
+      const totalDisplay = document.getElementById("total");
+      if (totalDisplay) {
+        totalDisplay.innerHTML = (total / 10.0).toFixed(2);
+      }
       
       // Add event listeners to sliders
       [...sliders].forEach(function (slider, k) {
         slider.addEventListener("input", function() {
-          scores[k] = window.votes[k] = parseFloat(this.value);
-          outputs[k].innerHTML = parseFloat(scores[k] / 10.0);
+          const newValue = parseFloat(this.value);
+          scores[k] = window.votes[k] = isNaN(newValue) ? 0 : newValue;
+          
+          // Update the current slider's display
+          const displayValue = scores[k] / 10.0;
+          outputs[k].innerHTML = displayValue.toFixed(2);
           
           // Calculate surplus value
           var subtotal = 0;
           for (const score of scores) {
-            subtotal += score;
+            subtotal += (isNaN(score) ? 0 : score);
           }
           var surplus = 1000.0 - subtotal;
-          var adjustment = surplus / (n - 1);
+          var adjustment = (n > 1) ? surplus / (n - 1) : 0;
           
           // Adjust other sliders proportionally
           for (let j = 0; j < n; ++j) {
             if (j != k) {
-              scores[j] = window.votes[j] += adjustment;
-              if (scores[j] < 0) scores[j] = window.votes[j] = 0;
+              scores[j] = window.votes[j] = Math.max(0, (window.votes[j] || 0) + adjustment);
+              if (isNaN(scores[j])) scores[j] = window.votes[j] = 0;
               sliders[j].value = Math.round(scores[j]);
-              outputs[j].innerHTML = (scores[j] / 10.0).toFixed(2);
+              const adjustedDisplayValue = scores[j] / 10.0;
+              outputs[j].innerHTML = adjustedDisplayValue.toFixed(2);
             }
           }
           
           // Update total
           var newTotal = 0.0;
           for (const score of scores) {
-            newTotal += score;
+            newTotal += (isNaN(score) ? 0 : score);
           }
-          document.getElementById("total").innerHTML = (newTotal / 10.0).toFixed(2);
+          const totalDisplay = document.getElementById("total");
+          if (totalDisplay) {
+            totalDisplay.innerHTML = (newTotal / 10.0).toFixed(2);
+          }
         });
       });
     }
-    
-    // Initialize voting when page loads
-    initializeVoting();
     
     // Load users on page load
     loadUsers();
