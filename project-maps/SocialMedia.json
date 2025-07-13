@@ -7,7 +7,7 @@
     {
       "id": 1,
       "label": "business plan",
-      "percentage": 0,
+      "percentage": 15.1,
       "labelEN": "business plan",
       "labelZH": "商业计划书",
       "children": [
@@ -24,26 +24,26 @@
     {
       "id": 3,
       "label": "web site development",
-      "percentage": 0,
+      "percentage": 22.9,
       "labelEN": "web site development",
       "children": [
         {
           "id": 36,
           "label": "front end",
-          "percentage": 0,
+          "percentage": 60,
           "labelEN": "front end",
           "children": []
         },
         {
           "id": 37,
           "label": "back end",
-          "percentage": 0,
+          "percentage": 40,
           "labelEN": "back end",
           "children": [
             {
               "id": 35,
               "label": "data storage",
-              "percentage": 0,
+              "percentage": 59.3,
               "labelEN": "data storage",
               "children": []
             }
@@ -54,20 +54,20 @@
     {
       "id": 7,
       "label": "crypto tokens",
-      "percentage": 0,
+      "percentage": 39.2,
       "labelEN": "crypto tokens",
       "children": [
         {
           "id": 2,
           "label": "technical white paper",
-          "percentage": 0,
+          "percentage": 35.8,
           "labelEN": "technical white paper",
           "labelZH": "技术白皮书",
           "children": [
             {
               "id": 38,
               "label": "how to accept funding",
-              "percentage": 0,
+              "percentage": 66.4,
               "labelEN": "how to accept funding",
               "status": "research",
               "children": []
@@ -77,14 +77,14 @@
         {
           "id": 39,
           "label": "smart contract",
-          "percentage": 0,
+          "percentage": 24.5,
           "labelEN": "smart contract",
           "children": []
         },
         {
           "id": 40,
           "label": "dApp",
-          "percentage": 0,
+          "percentage": 39.7,
           "labelEN": "dApp",
           "children": []
         }
@@ -93,41 +93,41 @@
     {
       "id": 34,
       "label": "user contents",
-      "percentage": 0,
+      "percentage": 22.8,
       "labelEN": "user contents",
       "children": [
         {
           "id": 25,
           "label": "comments",
-          "percentage": 0,
+          "percentage": 17.3,
           "labelEN": "comments",
           "children": []
         },
         {
           "id": 10,
           "label": "posts",
-          "percentage": 0,
+          "percentage": 22.4,
           "labelEN": "posts",
           "children": []
         },
         {
           "id": 24,
           "label": "likes / reactions",
-          "percentage": 0,
+          "percentage": 7.6,
           "labelEN": "likes / reactions",
           "children": []
         },
         {
           "id": 9,
           "label": "spam detection",
-          "percentage": 0,
+          "percentage": 45.1,
           "labelEN": "spam detection",
           "children": []
         },
         {
           "id": 6,
           "label": "chatroom?",
-          "percentage": 0,
+          "percentage": 7.6,
           "labelEN": "chatroom?",
           "status": "research",
           "children": []

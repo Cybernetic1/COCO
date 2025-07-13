@@ -51,7 +51,19 @@ app.use('/saveJSON', (req, res, next) => {
   }
   
   // Construct the full file path (relative to project root)
-  const filePath = path.join('../', relativePath);
+  // If we're running from server/ subdirectory, go up one level
+  // If we're running from project root, stay in current directory
+  const isInServerSubdir = process.cwd().endsWith('/server');
+  const filePath = isInServerSubdir ? path.join('../', relativePath) : relativePath;
+  
+  // Debug logging
+  console.log('=== SAVE DEBUG ===');
+  console.log('Request URL:', req.url);
+  console.log('Relative path:', relativePath);
+  console.log('Is in server subdir:', isInServerSubdir);
+  console.log('Resolved file path:', path.resolve(filePath));
+  console.log('Current working directory:', process.cwd());
+  console.log('==================');
   
   try {
     // Ensure the directory exists

@@ -67,6 +67,10 @@ class ProjectMapModalManager {
     
     if (!newLabel) {
       alert('Node label cannot be empty');
+      // Play failure sound for validation error
+      if (typeof techFail === 'object' && techFail.play) {
+        techFail.play().catch(() => {}); // Ignore audio errors
+      }
       return;
     }
 
@@ -118,6 +122,10 @@ class ProjectMapModalManager {
         }
       } else {
         alert('Please enter a valid percentage between 0 and 100');
+        // Play failure sound for validation error
+        if (typeof techFail === 'object' && techFail.play) {
+          techFail.play().catch(() => {}); // Ignore audio errors
+        }
       }
     }
   }

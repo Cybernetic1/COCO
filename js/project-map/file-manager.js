@@ -21,6 +21,10 @@ class ProjectMapFileManager {
           this.loadProjectFromJSON(json, file.name);
         } catch (err) {
           alert('Invalid JSON map file!\n' + err);
+          // Play failure sound for JSON parsing errors
+          if (typeof techFail === 'object' && techFail.play) {
+            techFail.play().catch(() => {}); // Ignore audio errors
+          }
         }
       };
       reader.readAsText(file);
@@ -73,6 +77,11 @@ class ProjectMapFileManager {
       if (typeof markProjectMapSaved === 'function') {
         markProjectMapSaved();
       }
+      
+      // Play sound effect for successful map load
+      if (typeof techClick2 === 'object' && techClick2.play) {
+        techClick2.play().catch(() => {}); // Ignore audio errors
+      }
     } else {
       throw new Error('Unrecognized JSON map format: root node must have id:0 and children array');
     }
@@ -120,8 +129,18 @@ class ProjectMapFileManager {
           if (typeof markProjectMapSaved === 'function') {
             markProjectMapSaved();
           }
+          // Play success sound for successful save
+          if (typeof techClick2 === 'object' && techClick2.play) {
+            techClick2.play().catch(() => {}); // Ignore audio errors
+          }
         } else {
-          return r.text().then(t => alert('Error: ' + t));
+          return r.text().then(t => {
+            alert('Error: ' + t);
+            // Play failure sound for server save errors
+            if (typeof techFail === 'object' && techFail.play) {
+              techFail.play().catch(() => {}); // Ignore audio errors
+            }
+          });
         }
       })
       .catch(e => {
@@ -158,6 +177,11 @@ class ProjectMapFileManager {
     // Mark as saved after download
     if (typeof markProjectMapSaved === 'function') {
       markProjectMapSaved();
+    }
+    
+    // Play success sound for successful download save
+    if (typeof techClick2 === 'object' && techClick2.play) {
+      techClick2.play().catch(() => {}); // Ignore audio errors
     }
   }
 
@@ -205,6 +229,10 @@ class ProjectMapFileManager {
         .catch(error => {
           console.warn('Auto-load failed:', error);
           alert(`Failed to auto-load project "${autoLoad}": ${error.message}`);
+          // Play failure sound for auto-load errors
+          if (typeof techFail === 'object' && techFail.play) {
+            techFail.play().catch(() => {}); // Ignore audio errors
+          }
         });
     }
   }

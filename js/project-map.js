@@ -321,12 +321,17 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCurrentMap(); // Simple render - use whatever percentages are in the JSON
             saveMapToLocalStorage();
             console.log(`Auto-loaded project map: ${projectName}`);
+            
+            // Play sound effect for successful auto-load
+            techClick2.play().catch(() => {}); // Ignore audio errors
           } else {
             throw new Error('Invalid JSON map format: root node must have id:0 and children array');
           }
         })
         .catch(error => {
           console.warn(`Could not auto-load project map for "${projectNameParam}":`, error);
+          // Play failure sound for auto-load errors
+          techFail.play().catch(() => {}); // Ignore audio errors
           // Fall back to default behavior - the existing projectMapRoot will be used
         });
     }
