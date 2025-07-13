@@ -160,8 +160,17 @@ class ProjectMapRenderer {
   showNodeMenu(event, node, menuBtn, callbacks) {
     const { onNodeEdit, onAddChild, onDeleteNode, onPercentageEdit } = callbacks;
     
+    // Remove any existing menus first
+    const existingMenus = document.querySelectorAll('.node-context-menu');
+    existingMenus.forEach(menu => {
+      if (document.body.contains(menu)) {
+        document.body.removeChild(menu);
+      }
+    });
+    
     // Show dropdown menu
     let menu = document.createElement('div');
+    menu.className = 'node-context-menu'; // Add class for easier cleanup
     menu.style.position = 'absolute';
     menu.style.background = '#fff';
     menu.style.border = '1px solid #ccc';
@@ -169,6 +178,7 @@ class ProjectMapRenderer {
     menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
     menu.style.padding = '4px 0';
     menu.style.minWidth = '140px';
+    menu.style.borderRadius = '4px';
     
     // Position menu near button
     const rect = menuBtn.getBoundingClientRect();
@@ -184,22 +194,28 @@ class ProjectMapRenderer {
     addChild.onmouseover = () => addChild.style.background = '#f0f0f0';
     addChild.onmouseout = () => addChild.style.background = '';
     addChild.onclick = () => {
-      document.body.removeChild(menu);
+      this.removeContextMenu(menu);
       if (onAddChild) onAddChild(node);
     };
     menu.appendChild(addChild);
 
     // Add 'Edit Node' option
     const editNode = document.createElement('div');
-    editNode.textContent = 'Edit Node';
+    editNode.textContent = 'Edit Node Label';
     editNode.style.padding = '8px 12px';
     editNode.style.cursor = 'pointer';
     editNode.style.borderBottom = '1px solid #eee';
     editNode.onmouseover = () => editNode.style.background = '#f0f0f0';
     editNode.onmouseout = () => editNode.style.background = '';
     editNode.onclick = () => {
-      document.body.removeChild(menu);
-      if (onNodeEdit) onNodeEdit(node);
+      console.log('Edit Node clicked for node:', node);
+      this.removeContextMenu(menu);
+      if (onNodeEdit) {
+        console.log('Calling onNodeEdit callback');
+        onNodeEdit(node);
+      } else {
+        console.error('onNodeEdit callback not provided');
+      }
     };
     menu.appendChild(editNode);
 
@@ -212,7 +228,7 @@ class ProjectMapRenderer {
     editPercent.onmouseover = () => editPercent.style.background = '#f0f0f0';
     editPercent.onmouseout = () => editPercent.style.background = '';
     editPercent.onclick = () => {
-      document.body.removeChild(menu);
+      this.removeContextMenu(menu);
       if (onPercentageEdit) onPercentageEdit(node);
     };
     menu.appendChild(editPercent);
@@ -227,24 +243,50 @@ class ProjectMapRenderer {
       deleteNode.onmouseover = () => deleteNode.style.background = '#f0f0f0';
       deleteNode.onmouseout = () => deleteNode.style.background = '';
       deleteNode.onclick = () => {
-        document.body.removeChild(menu);
+        this.removeContextMenu(menu);
         if (onDeleteNode) onDeleteNode(node);
       };
       menu.appendChild(deleteNode);
     }
 
+    // Store reference for cleanup
+    menu.dataset.menuId = Date.now();
+
     // Function to remove menu when clicking elsewhere
-    function removeMenu(ev) {
-      if (menu && !menu.contains(ev.target)) {
-        if (document.body.contains(menu)) {
-          document.body.removeChild(menu);
-        }
-        document.removeEventListener('click', removeMenu);
+    const removeMenuHandler = (ev) => {
+      if (menu && !menu.contains(ev.target) && !menuBtn.contains(ev.target)) {
+        this.removeContextMenu(menu);
+        document.removeEventListener('click', removeMenuHandler);
       }
-    }
-    setTimeout(() => document.addEventListener('click', removeMenu), 0);
+    };
+    
+    // Add click listener after a short delay to prevent immediate closing
+    setTimeout(() => {
+      document.addEventListener('click', removeMenuHandler);
+    }, 10);
+
+    // Add escape key handler
+    const escapeHandler = (ev) => {
+      if (ev.key === 'Escape') {
+        this.removeContextMenu(menu);
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
 
     document.body.appendChild(menu);
+  }
+
+  // Helper method to properly remove context menu
+  removeContextMenu(menu) {
+    if (menu && document.body.contains(menu)) {
+      try {
+        document.body.removeChild(menu);
+        console.log('Context menu removed successfully');
+      } catch (error) {
+        console.warn('Error removing context menu:', error);
+      }
+    }
   }
 
   renderCurrentMap(projectMapRoot, containerId, options = {}) {

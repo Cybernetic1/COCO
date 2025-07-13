@@ -16,7 +16,11 @@ const ProjectMapDataManager = {
    * @returns {Object|null} Found node or null
    */
   findNodeById(node, targetId) {
-    if (node.id === targetId) return node;
+    // Convert both to numbers for comparison to handle string/number mismatch
+    const nodeIdNum = typeof node.id === 'string' ? parseInt(node.id, 10) : node.id;
+    const targetIdNum = typeof targetId === 'string' ? parseInt(targetId, 10) : targetId;
+    
+    if (nodeIdNum === targetIdNum) return node;
     
     if (node.children) {
       for (const child of node.children) {

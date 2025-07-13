@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (fileManager) {
     fileManager.autoLoadProjectMap();
   }
-  document.getElementById('modal-overlay').onclick = hideNodeModal;
+  // Note: Modal overlay click handler is now managed by modalManager
 
   // Auto-load project map from URL parameter
   function autoLoadProjectMap() {
