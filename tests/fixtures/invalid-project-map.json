@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "id": "invalid-project",
+      "name": "",
+      "x": "not-a-number",
+      "y": null,
+      "percentage": 150,
+      "connections": "should-be-array"
+    }
+  ]
+}

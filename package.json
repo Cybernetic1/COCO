@@ -7,7 +7,11 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "test"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -36,5 +40,32 @@
     "passport-local": "^1.0.0",
     "passport-wechat": "^2.0.4",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "supertest": "^6.3.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "server/**/*.js",
+      "!js/libs/**",
+      "!**/node_modules/**"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "coverageDirectory": "coverage",
+    "verbose": true
   }
 }

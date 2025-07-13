@@ -267,7 +267,9 @@ const ProjectMapDataManager = {
 };
 
 // Make data manager available globally (for backwards compatibility during transition)
-window.ProjectMapDataManager = ProjectMapDataManager;
+if (typeof window !== 'undefined') {
+  window.ProjectMapDataManager = ProjectMapDataManager;
+}
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {

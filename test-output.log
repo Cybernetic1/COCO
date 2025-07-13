@@ -1,0 +1,4 @@
+
+> snow-crossing@1.0.0 test
+> jest "tests/integration/server-api.test.js" "--testNamePattern=should handle invalid JSON"
+

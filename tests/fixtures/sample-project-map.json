@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "id": "project1",
+      "name": "Test Project 1",
+      "description": "A sample project for testing",
+      "x": 100,
+      "y": 150,
+      "percentage": 75.5,
+      "connections": ["project2"]
+    },
+    {
+      "id": "project2", 
+      "name": "Test Project 2",
+      "description": "Another sample project",
+      "x": 250,
+      "y": 300,
+      "percentage": 42.3,
+      "connections": ["project1", "project3"]
+    },
+    {
+      "id": "project3",
+      "name": "Test Project 3", 
+      "description": "Third test project",
+      "x": 400,
+      "y": 200,
+      "percentage": 88.9,
+      "connections": ["project2"]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-01-01T00:00:00.000Z",
+    "modified": "2024-01-01T12:00:00.000Z"
+  }
+}

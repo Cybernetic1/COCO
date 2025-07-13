@@ -17,7 +17,27 @@ const app = express();
 app.use(session({ secret: 'your-secret', resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.json());
+
+// JSON parsing with error handling for circular references and malformed JSON
+app.use(express.json({
+  limit: '10mb', // Set size limit
+  verify: (req, res, buf, encoding) => {
+    // Store raw body for debugging if needed
+    req.rawBody = buf;
+  }
+}));
+
+// Handle JSON parsing errors
+app.use((error, req, res, next) => {
+  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid JSON format in request body'
+    });
+  }
+  next(error);
+});
+
 app.use(express.urlencoded({ extended: true }));
 
 // Configure passport strategies
@@ -34,59 +54,153 @@ app.use('/', authRoutes);
 app.use('/api', initializeApiRoutes(db));
 
 // Add saveJSON route for saving project map JSON files
-app.use('/saveJSON', (req, res, next) => {
-  if (req.method !== 'POST') {
-    return next(); // Only handle POST requests
-  }
-  
+app.post('/saveJSON', (req, res) => {
   const fs = require('fs');
   const path = require('path');
   
-  // Extract the path after /saveJSON/
-  const relativePath = req.url.substring(1); // Remove leading slash
-  
-  // Security: prevent directory traversal
-  if (relativePath.includes('..') || path.isAbsolute(relativePath)) {
-    return res.status(400).send('Invalid file path');
-  }
-  
-  // Construct the full file path (relative to project root)
-  // If we're running from server/ subdirectory, go up one level
-  // If we're running from project root, stay in current directory
-  const isInServerSubdir = process.cwd().endsWith('/server');
-  const filePath = isInServerSubdir ? path.join('../', relativePath) : relativePath;
-  
-  // Debug logging
-  console.log('=== SAVE DEBUG ===');
-  console.log('Request URL:', req.url);
-  console.log('Relative path:', relativePath);
-  console.log('Is in server subdir:', isInServerSubdir);
-  console.log('Resolved file path:', path.resolve(filePath));
-  console.log('Current working directory:', process.cwd());
-  console.log('==================');
-  
   try {
+    // Debug: log the received data structure
+    console.log('=== REQUEST DEBUG ===');
+    console.log('Request body keys:', Object.keys(req.body));
+    console.log('Filename:', req.body.filename);
+    console.log('Data type:', typeof req.body.data);
+    console.log('Data keys:', req.body.data ? Object.keys(req.body.data) : 'null');
+    if (req.body.data && req.body.data.circular) {
+      console.log('Circular reference detected:', typeof req.body.data.circular);
+      console.log('Circular === data:', req.body.data.circular === req.body.data);
+    }
+    console.log('==================');
+
+    // Validate request body
+    if (!req.body.filename) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing filename in request body'
+      });
+    }
+    
+    if (!req.body.data) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing data in request body'
+      });
+    }
+    
+    // Check for circular references in the data
+    function hasCircularReference(obj, seen = new WeakSet()) {
+      if (obj !== null && typeof obj === 'object') {
+        if (seen.has(obj)) {
+          return true;
+        }
+        seen.add(obj);
+        for (let key in obj) {
+          if (hasCircularReference(obj[key], seen)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    
+    if (hasCircularReference(req.body.data)) {
+      return res.status(500).json({
+        success: false,
+        error: 'Circular reference detected in data structure'
+      });
+    }
+    
+    // Get filename and sanitize it
+    const filename = req.body.filename;
+    
+    // Security: prevent directory traversal and validate filename
+    if (filename.includes('..') || path.isAbsolute(filename) || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid filename - no path separators or traversal allowed'
+      });
+    }
+    
+    // Ensure filename has .json extension
+    const sanitizedFilename = filename.endsWith('.json') ? filename : `${filename}.json`;
+    
+    // Construct the full file path (save to project-maps directory)
+    // If we're running from server/ subdirectory, go up one level
+    const isInServerSubdir = process.cwd().endsWith('/server');
+    const mapsDir = isInServerSubdir ? '../project-maps' : 'project-maps';
+    const filePath = path.join(mapsDir, sanitizedFilename);
+    
+    // Debug logging
+    console.log('=== SAVE DEBUG ===');
+    console.log('Filename from request:', filename);
+    console.log('Sanitized filename:', sanitizedFilename);
+    console.log('Is in server subdir:', isInServerSubdir);
+    console.log('Maps directory:', mapsDir);
+    console.log('Final file path:', filePath);
+    console.log('Resolved file path:', path.resolve(filePath));
+    console.log('Current working directory:', process.cwd());
+    console.log('==================');
+    
     // Ensure the directory exists
     const dirPath = path.dirname(filePath);
     fs.mkdirSync(dirPath, { recursive: true });
     
-    // Write the JSON data to file
-    const jsonData = JSON.stringify(req.body, null, 2);
+    // Try to serialize the data to detect circular references
+    let jsonData;
+    try {
+      jsonData = JSON.stringify(req.body.data, null, 2);
+    } catch (serializationError) {
+      console.error('JSON serialization error:', serializationError);
+      return res.status(500).json({
+        success: false,
+        error: `Invalid data structure: ${serializationError.message}`
+      });
+    }
+    
+    // Check if payload is too large (simple heuristic: > 10MB)
+    if (jsonData.length > 10 * 1024 * 1024) {
+      return res.status(413).json({
+        success: false,
+        error: 'Payload too large'
+      });
+    }
     
     // Debug: log what we're actually saving
     console.log('DEBUG: Saving to path:', filePath);
+    console.log('DEBUG: JSON data size:', jsonData.length, 'bytes');
     console.log('DEBUG: First few chars of JSON data:', jsonData.substring(0, 200));
-    if (req.body.children && req.body.children.length > 0) {
-      console.log('DEBUG: First child percentage:', req.body.children[0].percentage);
+    if (req.body.data.children && req.body.data.children.length > 0) {
+      console.log('DEBUG: First child percentage:', req.body.data.children[0].percentage);
     }
     
     fs.writeFileSync(filePath, jsonData, 'utf8');
     
     console.log('Saved JSON file:', filePath);
-    res.status(200).send('File saved successfully');
+    res.status(200).json({
+      success: true,
+      message: `File ${sanitizedFilename} saved successfully`,
+      filepath: filePath
+    });
+    
   } catch (error) {
     console.error('Error saving JSON file:', error);
-    res.status(500).send('Error saving file: ' + error.message);
+    
+    // Handle specific error types
+    if (error.code === 'ENOENT') {
+      res.status(400).json({
+        success: false,
+        error: 'Directory does not exist and could not be created'
+      });
+    } else if (error.code === 'EACCES') {
+      res.status(400).json({
+        success: false,
+        error: 'Permission denied writing to file'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: `Error saving file: ${error.message}`
+      });
+    }
   }
 });
 
