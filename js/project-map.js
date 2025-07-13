@@ -1,5 +1,4 @@
-// New project-graph.js (tree version, clean slate)
-// This file is for the new, more readable and intuitive tree-based project graph UI.
+// This file is for a visually different project map UI.
 // - Enforces a tree structure (one parent per node, except root)
 // - No Vis.js dependency by default (add if needed)
 // - Right-click on a node brings up a modal for editing
@@ -444,7 +443,7 @@ function renderMap(node, depth = 0) {
 }
 
 // Save the current projectMapRoot to localStorage whenever the map is updated
-function saveProjectMap() {
+function saveMapToLocalStorage() {
   localStorage.setItem('projectMapRoot', JSON.stringify(projectMapRoot));
 }
 
@@ -507,17 +506,12 @@ function initializeSliders() {
       // Update all sliders and score displays for this node
       updateNodeSliders(nodeId);
       
-      // Save percentages using PercentageManager
-      if (percentageManager) {
-        const childPercentages = children.map(child => ({
-          childId: child.id.toString(),
-          percentage: child.percentage || 0
-        }));
-        percentageManager.savePercentages(nodeId.toString(), childPercentages);
-      }
+      // Mark that percentages have changed (for batch saving later)
+      window.percentagesChanged = true;
+      updateSaveButtonState();
       
-      // Save changes to localStorage (project structure)
-      saveProjectMap();
+      // Note: Percentages are now saved in batches via save button or page unload
+      // instead of on every slider movement for better performance
     });
   });
 }
@@ -573,12 +567,15 @@ function renderCurrentMap() {
     initializeSliders();
     // Load saved percentages after sliders are initialized
     loadSavedPercentages();
+    // Initialize save button state
+    updateSaveButtonState();
   }, 100);
   
   saveMapToLocalStorage(); // Save after rendering (and after any change)
   // Always update projectName from root node, prioritizing project-name property
   projectName = projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
   document.title = projectName + ' - Project Map';
+  updateSaveButtonState(); // This will update the h1 with proper asterisk state
   window.projectMapRoot = projectMapRoot; // keep updated for debugging
   window.projectName = projectName; // keep updated for debugging
 }
@@ -670,12 +667,9 @@ function readJSONMap() {
           window.projectMapRoot = projectMapRoot;
           selected_node = null;
           
-          // Update page title and header
+          // Update page title and header using the state-aware function
           document.title = `${projectName} - Project Map`;
-          const h1Element = document.getElementsByTagName('h1')[0];
-          if (h1Element) {
-            h1Element.innerHTML = projectName;
-          }
+          updateSaveButtonState(); // This will update the h1 with proper asterisk state
           
           renderCurrentMap();
           saveMapToLocalStorage();
@@ -842,12 +836,9 @@ document.addEventListener('DOMContentLoaded', function() {
             window.projectMapRoot = projectMapRoot;
             selected_node = null;
             
-            // Update page title and header
+            // Update page title and header using the state-aware function
             document.title = `${projectName} - Project Map`;
-            const h1Element = document.getElementsByTagName('h1')[0];
-            if (h1Element) {
-              h1Element.innerHTML = projectName;
-            }
+            updateSaveButtonState(); // This will update the h1 with proper asterisk state
             
             renderCurrentMap();
             saveMapToLocalStorage();
@@ -874,17 +865,17 @@ function editProjectName() {
     projectName = newName.trim();
     projectMapRoot["project-name"] = projectName;
     
-    // Update page title and header
+    // Update page title and header using the state-aware function
     document.title = `${projectName} - Project Map`;
-    const h1Element = document.getElementsByTagName('h1')[0];
-    if (h1Element) {
-      h1Element.innerHTML = projectName;
-    }
+    updateSaveButtonState(); // This will update the h1 with proper asterisk state
     
     saveMapToLocalStorage();
     techClick2.play().catch(() => {}); // Ignore audio errors
   }
 }
+
+// Global flag to track if percentages have been modified
+window.percentagesChanged = false;
 
 // Function to save all current percentage assignments for all nodes with children
 function saveAllPercentages() {
@@ -899,9 +890,22 @@ function saveAllPercentages() {
   
   let savedCount = 0;
   let errorCount = 0;
+  let serverFailureDetected = false;
+  
+  // Temporarily override the alert function to suppress multiple server warnings
+  const originalAlert = window.alert;
+  let suppressAlerts = false;
+  
+  window.alert = function(message) {
+    if (suppressAlerts && message.includes('Server connection failed')) {
+      // Suppress duplicate server connection alerts
+      return;
+    }
+    originalAlert.call(window, message);
+  };
   
   // Helper function to recursively walk through all nodes
-  function walkNodes(node) {
+  async function walkNodes(node) {
     // If this node has children, save their percentages
     if (node.children && node.children.length > 0) {
       try {
@@ -910,35 +914,190 @@ function saveAllPercentages() {
           percentage: child.percentage || 0
         }));
         
-        percentageManager.savePercentages(node.id.toString(), childPercentages);
+        await percentageManager.savePercentages(node.id.toString(), childPercentages);
         savedCount++;
         console.log(`Saved percentages for node ${node.id} (${node.label}):`, childPercentages);
       } catch (error) {
         console.error(`Error saving percentages for node ${node.id}:`, error);
         errorCount++;
+        if (error.message && error.message.includes('Server')) {
+          serverFailureDetected = true;
+        }
       }
     }
     
     // Recursively process all children
     if (node.children) {
       for (const child of node.children) {
-        walkNodes(child);
+        await walkNodes(child);
       }
     }
   }
   
-  // Start the walk from the root node
-  walkNodes(projectMapRoot);
-  
-  // Provide user feedback
-  if (errorCount === 0) {
-    if (savedCount > 0) {
-      alert(`Successfully saved percentages for ${savedCount} node(s).`);
-      techClick2.play().catch(() => {}); // Play success sound
-    } else {
-      alert('No nodes with children found to save percentages for.');
+  // Process all nodes asynchronously
+  (async () => {
+    try {
+      // Suppress alerts after the first server failure
+      let isFirstSave = true;
+      
+      // Override the percentageManager's savePercentages to detect server failures
+      const originalSavePercentages = percentageManager.savePercentages.bind(percentageManager);
+      percentageManager.savePercentages = async function(nodeId, childPercentages) {
+        try {
+          const result = await originalSavePercentages(nodeId, childPercentages);
+          return result;
+        } catch (error) {
+          if (!serverFailureDetected && isFirstSave) {
+            serverFailureDetected = true;
+            isFirstSave = false;
+            // Allow the first server failure alert to show
+            throw error;
+          } else {
+            // Suppress subsequent alerts but still save to localStorage
+            suppressAlerts = true;
+            const result = await originalSavePercentages(nodeId, childPercentages);
+            suppressAlerts = false;
+            return result;
+          }
+        }
+      };
+      
+      // Start the walk from the root node
+      await walkNodes(projectMapRoot);
+      
+      // Restore original functions
+      percentageManager.savePercentages = originalSavePercentages;
+      window.alert = originalAlert;
+      
+      // Reset the changed flag after saving
+      window.percentagesChanged = false;
+      updateSaveButtonState();
+      
+      // Provide user feedback
+      let message = '';
+      if (errorCount === 0) {
+        if (savedCount > 0) {
+          message = `Successfully saved percentages for ${savedCount} node(s).`;
+          techClick2.play().catch(() => {}); // Play success sound
+        } else {
+          message = 'No nodes with children found to save percentages for.';
+        }
+      } else {
+        message = `Saved percentages for ${savedCount} node(s), but encountered ${errorCount} error(s).`;
+        if (serverFailureDetected) {
+          message += '\nNote: Server connection failed, percentages saved to local storage only.';
+        }
+        message += ' Check console for details.';
+      }
+      
+      alert(message);
+      
+    } catch (error) {
+      // Restore original functions in case of error
+      window.alert = originalAlert;
+      console.error('Failed to save percentages:', error);
+      alert('Error: Failed to save percentages. Please try again.');
     }
-  } else {
-    alert(`Saved percentages for ${savedCount} node(s), but encountered ${errorCount} error(s). Check console for details.`);
+  })();
+}
+
+// Update save button visual state based on whether changes exist
+function updateSaveButtonState() {
+  // Update the h1 title to show unsaved changes with a red asterisk
+  const h1Element = document.getElementsByTagName('h1')[0];
+  if (h1Element) {
+    const baseTitle = projectName || 'Project Name';
+    if (window.percentagesChanged) {
+      // Add red asterisk to indicate unsaved changes
+      h1Element.innerHTML = baseTitle + ' <span style="color: #d63384; font-weight: bold;">*</span>';
+      h1Element.title = 'You have unsaved percentage changes';
+    } else {
+      // Remove asterisk when changes are saved
+      h1Element.innerHTML = baseTitle;
+      h1Element.title = '';
+    }
+  }
+  
+  // Also update the page title to indicate unsaved changes
+  const currentTitle = document.title;
+  if (window.percentagesChanged && !currentTitle.includes('*')) {
+    document.title = currentTitle + ' *';
+  } else if (!window.percentagesChanged && currentTitle.includes('*')) {
+    document.title = currentTitle.replace(' *', '');
   }
 }
+
+// Auto-save percentages when page is about to unload
+window.addEventListener('beforeunload', function(event) {
+  if (window.percentagesChanged && percentageManager) {
+    // Try to save percentages synchronously
+    try {
+      saveAllPercentagesSync();
+    } catch (error) {
+      console.error('Failed to auto-save percentages on page unload:', error);
+    }
+    
+    // Show warning to user about unsaved changes
+    event.preventDefault();
+    event.returnValue = 'You have unsaved percentage changes. Are you sure you want to leave?';
+    return event.returnValue;
+  }
+});
+
+// Synchronous version for page unload (uses sendBeacon or fetch with keepalive)
+function saveAllPercentagesSync() {
+  if (!percentageManager || !window.percentagesChanged) return;
+  
+  // Collect all percentage data
+  const allPercentageData = [];
+  
+  function collectPercentages(node) {
+    if (node.children && node.children.length > 0) {
+      const childPercentages = node.children.map(child => ({
+        childId: child.id.toString(),
+        percentage: child.percentage || 0
+      }));
+      
+      allPercentageData.push({
+        nodeId: node.id.toString(),
+        percentages: childPercentages
+      });
+    }
+    
+    if (node.children) {
+      for (const child of node.children) {
+        collectPercentages(child);
+      }
+    }
+  }
+  
+  collectPercentages(projectMapRoot);
+  
+  // Try to send data using sendBeacon (more reliable for page unload)
+  if (navigator.sendBeacon && allPercentageData.length > 0) {
+    const data = JSON.stringify({
+      projectName: percentageManager.projectName,
+      userId: percentageManager.userId,
+      percentageData: allPercentageData
+    });
+    
+    navigator.sendBeacon('/api/save-all-percentages', data);
+    console.log('Auto-saved percentages using sendBeacon');
+  }
+}
+
+// Add keyboard shortcut for saving (Ctrl+S)
+document.addEventListener('keydown', function(event) {
+  if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+    event.preventDefault();
+    if (window.percentagesChanged) {
+      saveAllPercentages();
+    } else {
+      alert('No percentage changes to save.');
+    }
+  }
+});
+
+// Function to save all current percentage assignments for all nodes with children
+// (This is the existing function - keeping it for compatibility but updating the implementation)
+// ...existing code...
