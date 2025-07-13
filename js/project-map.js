@@ -90,17 +90,8 @@ function switchLang() {
 }
 
 function getColorShade(level) {
-  // Returns a cyan shade with both lightness and saturation changes for better distinction
-  // Deeper levels are darker AND more vibrant
-  const maxLightness = 95;
-  const minLightness = 40;  // Darker minimum for better contrast
-  const maxSaturation = 70; // Higher saturation for deeper levels
-  const minSaturation = 20; // Lower saturation for root level
-  
-  const lightness = Math.max(minLightness, maxLightness - (level * 8));
-  const saturation = Math.min(maxSaturation, minSaturation + (level * 8));
-  
-  return `hsl(180, ${saturation}%, ${lightness}%)`;
+  // Use the config module's color function
+  return ProjectMapConfig.getColorShade(level);
 }
 
 function renderMap(node, depth = 0) {
@@ -109,8 +100,8 @@ function renderMap(node, depth = 0) {
 	el.style.background = getColorShade(depth);
 	// Highlight if selected (compare by id)
 	if (selected_node && selected_node.id === node.id) {
-		el.style.border = '4px solid #f00';
-		el.style.background = '#fee';
+		el.style.border = '4px solid ' + ProjectMapConfig.colors.selectedNodeBorder;
+		el.style.background = ProjectMapConfig.colors.selectedNodeBackground;
 	}
 	// Show only one language label at a time
 	let label = '';
@@ -136,7 +127,7 @@ function renderMap(node, depth = 0) {
 	menuBtn.style.position = 'absolute';
 	menuBtn.style.top = '4px';
 	menuBtn.style.right = '6px';
-	menuBtn.style.color = '#AAA';
+	menuBtn.style.color = ProjectMapConfig.colors.menuButtonColor;
 	menuBtn.style.background = 'transparent';
 	menuBtn.style.border = 'none';
 	menuBtn.style.cursor = 'pointer';
@@ -390,8 +381,8 @@ function renderMap(node, depth = 0) {
 			// Slider
 			const slider = document.createElement('input');
 			slider.type = 'range';
-			slider.min = '0';
-			slider.max = '1000';
+			slider.min = ProjectMapConfig.slider.min.toString();
+			slider.max = ProjectMapConfig.slider.max.toString();
 			slider.value = (child.percentage || 0) * 10; // Convert from % to 0-1000 scale
 			slider.className = 'slider';
 			slider.dataset.childIndex = index;
