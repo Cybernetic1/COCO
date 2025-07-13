@@ -296,14 +296,23 @@ class ProjectMapModalManager {
     if (newValue !== null) {
       const numValue = parseFloat(newValue);
       if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
+        const oldPercentage = node.percentage || 0;
         node.percentage = Math.round(numValue * 10) / 10; // Round to 1 decimal
+        
+        // Rescale sibling nodes to maintain 100% total
+        this.rescaleSiblingPercentages(node, oldPercentage, node.percentage);
+        
+        // Mark as changed for save indication
+        if (typeof markProjectMapChanged === 'function') {
+          markProjectMapChanged();
+        }
         
         // Trigger re-render if available
         if (typeof renderCurrentMap === 'function') {
           renderCurrentMap();
         }
         
-        // Mark as changed for save indication
+        // Update save button state
         if (typeof updateSaveButtonState === 'function') {
           updateSaveButtonState();
         }
@@ -315,6 +324,62 @@ class ProjectMapModalManager {
         }
       }
     }
+  }
+
+  /**
+   * Rescale sibling node percentages to maintain 100% total
+   * @param {Object} editedNode - The node that was edited
+   * @param {number} oldPercentage - Previous percentage value
+   * @param {number} newPercentage - New percentage value
+   */
+  rescaleSiblingPercentages(editedNode, oldPercentage, newPercentage) {
+    // Find the parent and siblings
+    const parentInfo = this.dataManager.findParentAndIndex(window.projectMapRoot, editedNode.id);
+    if (!parentInfo || !parentInfo.parent.children || parentInfo.parent.children.length <= 1) {
+      return; // No siblings to rescale
+    }
+    
+    const siblings = parentInfo.parent.children;
+    const otherSiblings = siblings.filter(sibling => sibling.id !== editedNode.id);
+    
+    // Calculate current total of other siblings
+    let otherSiblingsTotal = otherSiblings.reduce((sum, sibling) => sum + (sibling.percentage || 0), 0);
+    
+    // Calculate the remaining percentage for other siblings
+    const remainingPercentage = 100 - newPercentage;
+    
+    if (remainingPercentage < 0) {
+      // If new percentage is > 100, set others to 0
+      otherSiblings.forEach(sibling => {
+        sibling.percentage = 0;
+      });
+      return;
+    }
+    
+    if (remainingPercentage === 0) {
+      // If new percentage is 100, set all others to 0
+      otherSiblings.forEach(sibling => {
+        sibling.percentage = 0;
+      });
+      return;
+    }
+    
+    if (otherSiblingsTotal === 0) {
+      // If all other siblings were 0, distribute remaining equally
+      const equalShare = remainingPercentage / otherSiblings.length;
+      otherSiblings.forEach(sibling => {
+        sibling.percentage = Math.round(equalShare * 10) / 10;
+      });
+    } else {
+      // Proportionally rescale other siblings
+      const scaleFactor = remainingPercentage / otherSiblingsTotal;
+      otherSiblings.forEach(sibling => {
+        const currentPercentage = sibling.percentage || 0;
+        sibling.percentage = Math.round(currentPercentage * scaleFactor * 10) / 10;
+      });
+    }
+    
+    console.log(`Rescaled siblings: edited node ${editedNode.id} from ${oldPercentage}% to ${newPercentage}%, remaining ${remainingPercentage}% distributed among ${otherSiblings.length} siblings`);
   }
 }
 
