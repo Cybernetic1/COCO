@@ -1,14 +1,132 @@
-// File Operations Module
-// All file I/O operations (save/load graphs, Git operations)
-//
-// Functions to move here:
-// - listJSONfiles()
-// - ifRemoteUser()
-// - saveJSONgraph()
-// - loadJSONgraph()
-// - saveGitDir()
-// - loadGitDir()
-// - saveJSONmap()
+/**
+ * FILE OPERATIONS MODULE
+ * 
+ * Handles all file I/O operations including JSON persistence, Git integration, 
+ * and automatic project loading. Manages communication with the Express.js server
+ * for saving and loading project graph data.
+ * 
+ * RESPONSIBILITIES:
+ * - JSON file save/load operations with server endpoints
+ * - Git directory integration for version control
+ * - Automatic project loading from URL parameters
+ * - File listing and management for load/save dialogs
+ * - Remote user detection and handling
+ * - Project graph persistence and restoration
+ * - Network reconstruction after loading data
+ * 
+ * KEY FEATURES:
+ * - Auto-loading: Automatically loads project graphs based on URL ?projectName parameter
+ * - Git integration: Save/load graphs as Git directory structures
+ * - File management: Lists available JSON files for user selection
+ * - Remote support: Detects remote users and enables ID postfix for testing
+ * - Network rebuilding: Properly reconstructs network visualization after data load
+ * - Error handling: Graceful fallbacks when files are not found
+ * 
+ * DEPENDENCIES:
+ * - Global: network, nodes, edges, data, options, viz (network visualization)
+ * - Global: projectName (current project identifier)
+ * - jQuery: For AJAX operations ($)
+ * - Functions: init_nodes(), update_node_index(), setupNetworkEvents()
+ * - Functions: updateChineseNameSectionVisibility() from ui-operations.js
+ * - Server endpoints: /saveJSON, /loadJSON, /fileList, /saveGitDir, /loadGitDir
+ * - DOM: Modal elements (json_modal, git_modal)
+ * 
+ * EXPORTS:
+ * - autoLoadProjectGraph(): Loads project from URL parameter
+ * - initializeAutoLoad(): DOM ready initialization function
+ * - listJSONfiles(): Populates file dropdown menus
+ * - saveJSONgraph(): Saves current graph to JSON file
+ * - loadJSONgraph(): Loads graph from selected JSON file
+ * - saveGitDir(): Saves graph as Git directory structure
+ * - loadGitDir(): Loads graph from Git directory
+ * - ifRemoteUser(): Detects and handles remote users
+ * 
+ * USAGE:
+ * Auto-initializes on DOM ready. Provides file operations for user actions
+ * and automatic loading based on URL parameters.
+ * 
+ * @author Your Name
+ * @version 1.0
+ * @since 2025-01-13
+ */
+
+// Auto-load project graph from URL parameter
+function autoLoadProjectGraph() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectNameParam = urlParams.get('projectName');
+    
+    if (projectNameParam) {
+        // Construct the JSON file path
+        const jsonFilePath = `/loadJSON/project-graphs/${encodeURIComponent(projectNameParam)}.json`;
+        
+        // Try to fetch and load the JSON file
+        $.ajax({
+            method: "GET",
+            url: jsonFilePath,
+            cache: false,
+            success: function(data0) {
+                if (data0 && data0.nodes && data0.edges) {
+                    // Destroy existing network if it exists
+                    if (typeof network !== 'undefined' && network) {
+                        network.destroy();
+                    }
+                    
+                    // Load the new data
+                    nodes = new vis.DataSet(data0.nodes);
+                    edges = new vis.DataSet(data0.edges);
+                    data.nodes = nodes;
+                    data.edges = edges;
+                    init_nodes();
+                    network = new vis.Network(viz, data, options);
+                    update_node_index();
+                    network.once('afterDrawing', function() {
+                        setTimeout(function() {
+                            if (typeof setupNetworkEvents === 'function') {
+                                setupNetworkEvents(network);
+                            }
+                        }, 100);
+                    });
+                    
+                    // Update project name and UI
+                    projectName = projectNameParam;
+                    document.title = `${projectName} - Project Graph`;
+                    const h1Element = document.getElementsByTagName('h1')[0];
+                    if (h1Element) {
+                        h1Element.innerHTML = projectName;
+                    }
+                    
+                    console.log(`Auto-loaded project graph: ${projectNameParam}`);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.warn(`Could not auto-load project graph for "${projectNameParam}":`, status, error);
+                // Fall back to default behavior - empty graph will be shown
+            }
+        });
+    }
+}
+
+// Initialize auto-loading and other file operations on DOM ready
+function initializeAutoLoad() {
+    $(document).ready(function() {
+        // Initialize keyboard event listeners first
+        if (typeof initializeKeyboardEvents === 'function') {
+            initializeKeyboardEvents();
+        }
+        
+        // Then handle auto-loading
+        autoLoadProjectGraph();
+        
+        // Initialize Chinese name section visibility
+        updateChineseNameSectionVisibility("");
+    });
+}
+
+// Make function globally available
+window.initializeAutoLoad = initializeAutoLoad;
+
+// Auto-initialize when this module loads
+initializeAutoLoad();
 
 // Populate dropdown menu with JSON file found in directory
 function listJSONfiles() {
@@ -153,8 +271,12 @@ async function loadJSONgraph() {
                 init_nodes();
                 network = new vis.Network(viz, data, options);
                 update_node_index();
-                network.once('stabilized', function() {
-                    setupNetworkEvents(network);
+                network.once('afterDrawing', function() {
+                    setTimeout(function() {
+                        if (typeof setupNetworkEvents === 'function') {
+                            setupNetworkEvents(network);
+                        }
+                    }, 100);
                 });
 
                 // Update project name from loaded filename
@@ -339,8 +461,12 @@ async function loadGitDir() {
             init_nodes();		// set lang, colors, ... from existing data
             network = new vis.Network(viz, data, options);
             update_node_index();
-            network.once('stabilized', function() {
-                setupNetworkEvents(network);
+            network.once('afterDrawing', function() {
+                setTimeout(function() {
+                    if (typeof setupNetworkEvents === 'function') {
+                        setupNetworkEvents(network);
+                    }
+                }, 100);
             });
 
             git_modal.style.display = "none";		// close window

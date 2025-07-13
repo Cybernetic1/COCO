@@ -1,13 +1,63 @@
-// Network Events Module
-// Network interaction handling
-//
-// Functions to move here:
-// - setupNetworkEvents()
-// - onClick()
+/**
+ * NETWORK EVENTS MODULE
+ * 
+ * Handles all network interaction events and user input for the Vis.js network visualization.
+ * This module manages mouse interactions, keyboard shortcuts, and network event listeners.
+ * 
+ * RESPONSIBILITIES:
+ * - Drag-to-link functionality (Ctrl+drag between nodes)
+ * - Node/edge selection and highlighting
+ * - Right-click context menu positioning and detection
+ * - Mouse hover effects and visual feedback
+ * - Click handling for nodes, edges, and canvas
+ * - Coordinate transformations between DOM and network space
+ * 
+ * KEY FEATURES:
+ * - Ctrl+drag linking: Hold Ctrl and drag from one node to another to create edges
+ * - Context-sensitive menus: Right-click nodes, edges, or canvas for different options
+ * - Visual feedback: Nodes highlight on hover, selection states update UI
+ * - Geometric edge detection: Custom algorithm for detecting edge clicks with tolerance
+ * - Error handling: Robust error handling for network API calls
+ * 
+ * DEPENDENCIES:
+ * - Global: network, nodes, edges, data, options, viz
+ * - Global: selectedNodeId, selectedEdgeId, contextMenuNodeId, contextMenuEdgeId
+ * - Global: dragSourceNodeId, dragToLinkActive (defined in this module)
+ * - Functions: updateChineseNameSectionVisibility() from ui-operations.js
+ * - Audio: techClick, techClick2 from main project-graph.js
+ * 
+ * EXPORTS:
+ * - setupNetworkEvents(network): Main initialization function
+ * - onClick(params): Click event handler for network elements
+ * 
+ * USAGE:
+ * Called automatically when network is stabilized. Sets up all event listeners
+ * and interaction handlers for the network visualization.
+ * 
+ * @author Your Name
+ * @version 1.0
+ * @since 2025-01-13
+ */
+
+// --- Drag-to-link functionality variables ---
+let dragSourceNodeId = null;
+let dragToLinkActive = false;
 
 
 // Helper function to set up network event listeners
 function setupNetworkEvents(network) {
+    // Ensure network is fully initialized before setting up events
+    if (!network || !network.body || !network.body.container || !network.getNodeAt) {
+        console.warn('Network not fully initialized, skipping event setup');
+        return;
+    }
+    
+    // Additional check for selection handler
+    if (!network.selectionHandler && !network.body.selectionHandler) {
+        console.warn('Network selection handler not ready, skipping event setup');
+        return;
+    }
+    
     // Helper function to calculate distance from a point to a line segment
     function distanceToLineSegment(point, lineStart, lineEnd) {
         const A = point.x - lineStart.x;
@@ -42,6 +92,106 @@ function setupNetworkEvents(network) {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    // --- Drag-to-link hover events ---
+    // Highlight hovered node for feedback (use bold font, not color)
+    network.on("hoverNode", function(params) {
+        nodes.update({ id: params.node, font: { bold: true } });
+    });
+    network.on("blurNode", function(params) {
+        nodes.update({ id: params.node, font: { bold: false } });
+    });
+
+    // --- Drag-to-link mouse events ---
+    // Listen for mousedown to start drag-to-link if Ctrl is pressed
+    viz.addEventListener('mousedown', function(e) {
+        // Only proceed if network is fully initialized
+        if (!network || !network.body || !network.body.container) return;
+        
+        const rect = viz.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        let nodeId;
+        try {
+            // Try getNodeAt with proper error handling
+            nodeId = network.getNodeAt.call(network, {x, y});
+        } catch (error) {
+            console.warn('getNodeAt failed in mousedown:', error);
+            return;
+        }
+        
+        if (nodeId !== undefined && e.ctrlKey) {
+            dragSourceNodeId = nodeId;
+            dragToLinkActive = true;
+            network.body.container.style.cursor = "crosshair";
+            // Prevent panning and node dragging when Ctrl is held and node is clicked
+            network.setOptions({ interaction: { ...options.interaction, dragView: false, dragNodes: false } });
+            // Disable physics for the whole network during drag-to-link
+            network.setOptions({ physics: { enabled: false } });
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Listen for mousemove to highlight possible target node (use bold font, not color)
+    viz.addEventListener('mousemove', function(e) {
+        // Only proceed if network is fully initialized
+        if (!network || !network.body || !network.body.container) return;
+        
+        if (dragToLinkActive && dragSourceNodeId !== null) {
+            const rect = viz.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            let targetNodeId;
+            try {
+                // Try getNodeAt with proper error handling
+                targetNodeId = network.getNodeAt.call(network, {x, y});
+            } catch (error) {
+                console.warn('getNodeAt failed in mousemove:', error);
+                return;
+            }
+            
+            // Optionally highlight target node (not source)
+            if (targetNodeId !== undefined && targetNodeId !== dragSourceNodeId) {
+                nodes.update({ id: targetNodeId, font: { bold: true } });
+            }
+        }
+    });
+
+    // Listen for mouseup to finish drag-to-link
+    viz.addEventListener('mouseup', function(e) {
+        // Only proceed if network is fully initialized
+        if (!network || !network.body || !network.body.container) return;
+        
+        if (dragToLinkActive && dragSourceNodeId !== null) {
+            const rect = viz.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            let targetNodeId;
+            try {
+                // Try getNodeAt with proper error handling
+                targetNodeId = network.getNodeAt.call(network, {x, y});
+            } catch (error) {
+                console.warn('getNodeAt failed in mouseup:', error);
+                targetNodeId = undefined;
+            }
+            
+            if (targetNodeId !== undefined && targetNodeId !== dragSourceNodeId) {
+                data.edges.add({ from: dragSourceNodeId, to: targetNodeId });
+                techClick2.play();
+            }
+            dragSourceNodeId = null;
+            dragToLinkActive = false;
+            network.body.container.style.cursor = "";
+            // Restore panning and node dragging after drag-to-link
+            network.setOptions({ interaction: { ...options.interaction, dragView: true, dragNodes: true } });
+            // Re-enable physics for the network
+            network.setOptions({ physics: { enabled: true } });
+        }
+    });
+
     network.on("click", onClick);
     
     // Right-click event handler for nodes
@@ -55,7 +205,7 @@ function setupNetworkEvents(network) {
         } else {
             // Alternative method: use getNodeAt with canvas coordinates
             try {
-                const nodeAtPosition = network.getNodeAt(params.pointer);
+                const nodeAtPosition = network.getNodeAt.call(network, params.pointer);
                 if (nodeAtPosition !== undefined) {
                     nodeId = nodeAtPosition;
                 }
@@ -210,7 +360,7 @@ function setupNetworkEvents(network) {
         let nodeId = null;
         try {
             // Try to get node at position, with error handling
-            nodeId = network.getNodeAt({x: x, y: y});
+            nodeId = network.getNodeAt.call(network, {x: x, y: y});
         } catch (error) {
             console.warn('getNodeAt failed, network may not be ready:', error);
             return;
@@ -351,11 +501,6 @@ function setupNetworkEvents(network) {
     });
 }
 
-// Set up events for the initial network - wait for stabilization
-network.once('stabilized', function() {
-    setupNetworkEvents(network);
-});
-
 // On clicking a node or edge on Vis.js canvas
 function onClick(params) {
     if (dragToLinkActive) return;
@@ -445,4 +590,7 @@ function onClick(params) {
         if (edgeNameEN) edgeNameEN.value = "";
     }
 }
+
+// Make setupNetworkEvents globally available
+window.setupNetworkEvents = setupNetworkEvents;
 

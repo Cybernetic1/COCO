@@ -1,16 +1,54 @@
-/*
- * Module 3: js/project-graph/ui-operations.js
-Purpose: UI controls and modal management
-
-toggleSidePane() - Show/hide side panel
-close_json_modal() - Close JSON file modal
-close_git_modal() - Close Git modal
-close_node_modal() - Close node edit modal
-close_help_modal() - Close help modal
-switchLang() - Switch between languages
-updateChineseNameSectionVisibility() - Show/hide Chinese fields
-openNodePageFromSidePane() - Open node page from side panel
-*/
+/**
+ * UI OPERATIONS MODULE
+ * 
+ * Manages user interface controls, modal dialogs, and visual layout operations.
+ * Handles side panel management, modal window lifecycle, and language switching
+ * for the project graph editor interface.
+ * 
+ * RESPONSIBILITIES:
+ * - Side panel show/hide toggle with responsive layout adjustment
+ * - Modal dialog management (open/close for JSON, Git, Node, Help modals)
+ * - Language switching between English and Chinese
+ * - Chinese input field visibility management
+ * - Visualization area resizing and layout updates
+ * - Node page navigation from side panel
+ * - Audio feedback for user interactions
+ * 
+ * KEY FEATURES:
+ * - Responsive side panel: Automatically adjusts visualization area when toggled
+ * - Modal lifecycle: Proper show/hide management for all dialog types
+ * - Bilingual support: Dynamic language switching with field visibility
+ * - Layout management: Maintains proper sizing for visualization canvas
+ * - Navigation integration: Opens dedicated node pages from side panel
+ * - Audio feedback: Plays appropriate sounds for user actions
+ * 
+ * DEPENDENCIES:
+ * - Global: viz (visualization canvas element)
+ * - Global: pane (side panel DOM element)
+ * - Global: lang (current language setting)
+ * - DOM: Modal elements (json_modal, git_modal, node_modal, help_modal)
+ * - DOM: Side panel elements and buttons
+ * - Audio: techClick2 for user feedback
+ * - Window: innerHeight, innerWidth for responsive sizing
+ * 
+ * EXPORTS:
+ * - toggleSidePane(): Shows/hides side panel and adjusts layout
+ * - close_json_modal(): Closes JSON file operations modal
+ * - close_git_modal(): Closes Git operations modal  
+ * - close_node_modal(): Closes node editing modal
+ * - close_help_modal(): Closes help documentation modal
+ * - switchLang(): Toggles between English and Chinese languages
+ * - updateChineseNameSectionVisibility(): Shows/hides Chinese input fields
+ * - openNodePageFromSidePane(): Opens dedicated page for selected node
+ * 
+ * USAGE:
+ * Functions are called by HTML onclick handlers and UI event listeners.
+ * Provides centralized UI state management for the entire application.
+ * 
+ * @author Your Name
+ * @version 1.0
+ * @since 2025-01-13
+ */
 
 // Side pane starts hidden - no need to auto-click the button
 // document.getElementById("SidePaneButton").click();

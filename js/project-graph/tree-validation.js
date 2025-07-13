@@ -1,4 +1,54 @@
-// --- Tree structure violation highlighting ---
+/**
+ * TREE VALIDATION MODULE
+ * 
+ * Validates graph structure and highlights tree structure violations.
+ * Ensures the project graph maintains a valid tree structure with auxiliary edges
+ * for non-tree connections, supporting project hierarchy visualization.
+ * 
+ * RESPONSIBILITIES:
+ * - Tree structure validation and cycle detection
+ * - Auxiliary edge identification and highlighting
+ * - Graph structure analysis and reporting
+ * - Visual feedback for structural violations
+ * - Preservation of manually set auxiliary edges
+ * - Root node identification and validation
+ * 
+ * KEY FEATURES:
+ * - Cycle detection: Identifies and marks edges that create cycles
+ * - Auxiliary edge preservation: Maintains user-set auxiliary edges
+ * - Visual highlighting: Uses dashed lines for auxiliary/non-tree edges
+ * - Tree verification: Validates that graph forms a proper tree structure
+ * - Root-based analysis: Performs tree validation from identified root nodes
+ * - Incremental updates: Can re-validate after graph modifications
+ * 
+ * DEPENDENCIES:
+ * - Global: edges (Vis.js DataSet for graph edges)
+ * - Global: nodes (Vis.js DataSet for graph nodes) 
+ * - Graph theory: Uses DFS and topological concepts
+ * - Visual feedback: Updates edge appearance (dashes, colors)
+ * 
+ * EXPORTS:
+ * - highlightTreeViolations(): Main validation function, identifies and marks violations
+ * - verifyTreeIgnoringAuxEdges(): Validates tree structure ignoring auxiliary edges
+ * - [Internal helper functions for graph analysis]
+ * 
+ * USAGE:
+ * Called after graph modifications to maintain tree structure integrity.
+ * Automatically highlights violations and preserves user-designated auxiliary edges.
+ * Used by UI actions that need to verify graph structure validity.
+ * 
+ * ALGORITHM:
+ * 1. Preserve manually set auxiliary edges
+ * 2. Build adjacency maps for graph traversal  
+ * 3. Identify root nodes (nodes with no incoming edges)
+ * 4. Perform DFS from roots to find spanning tree
+ * 5. Mark remaining edges as auxiliary (cycle-creating)
+ * 6. Update visual representation with dashed lines
+ * 
+ * @author Your Name
+ * @version 1.0
+ * @since 2025-01-13
+ */
 function highlightTreeViolations() {
     // Store manually set auxiliary edges before resetting
     const manuallyAuxEdges = new Set();

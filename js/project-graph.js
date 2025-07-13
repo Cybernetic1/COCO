@@ -169,81 +169,7 @@ var options = {
 var viz = document.getElementById("viz");
 var network = new vis.Network(viz, data, options);
 
-var pane = document.getElementById("side-pane");
-pane.style.display = "none";
-
-// Initialize viz size properly without needing to toggle side pane
-viz.style.height = window.innerHeight - 40 + "px";
-viz.style.width = window.innerWidth - 16 + "px";
-
-// --- Drag-to-link with Ctrl key implementation ---
-let dragSourceNodeId = null;
-let dragToLinkActive = false;
-
-// Highlight hovered node for feedback (use bold font, not color)
-network.on("hoverNode", function(params) {
-	nodes.update({ id: params.node, font: { bold: true } });
-});
-network.on("blurNode", function(params) {
-	nodes.update({ id: params.node, font: { bold: false } });
-});
-
-// Listen for mousedown to start drag-to-link if Ctrl is pressed
-viz.addEventListener('mousedown', function(e) {
-	const rect = viz.getBoundingClientRect();
-	const x = e.clientX - rect.left;
-	const y = e.clientY - rect.top;
-	const nodeId = network.getNodeAt({x, y});
-	if (nodeId !== undefined && e.ctrlKey) {
-		dragSourceNodeId = nodeId;
-		dragToLinkActive = true;
-		network.body.container.style.cursor = "crosshair";
-		// Prevent panning and node dragging when Ctrl is held and node is clicked
-		network.setOptions({ interaction: { ...options.interaction, dragView: false, dragNodes: false } });
-		// Disable physics for the whole network during drag-to-link
-		network.setOptions({ physics: { enabled: false } });
-		e.preventDefault();
-		return false;
-	}
-});
-
-// Listen for mousemove to highlight possible target node (use bold font, not color)
-viz.addEventListener('mousemove', function(e) {
-	if (dragToLinkActive && dragSourceNodeId !== null) {
-		const rect = viz.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-		const targetNodeId = network.getNodeAt({x, y});
-		// Optionally highlight target node (not source)
-		if (targetNodeId !== undefined && targetNodeId !== dragSourceNodeId) {
-			nodes.update({ id: targetNodeId, font: { bold: true } });
-		}
-	}
-});
-
-// Listen for mouseup to finish drag-to-link
-viz.addEventListener('mouseup', function(e) {
-	if (dragToLinkActive && dragSourceNodeId !== null) {
-		const rect = viz.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-		const targetNodeId = network.getNodeAt({x, y});
-		if (targetNodeId !== undefined && targetNodeId !== dragSourceNodeId) {
-			data.edges.add({ from: dragSourceNodeId, to: targetNodeId });
-			techClick2.play();
-		}
-		dragSourceNodeId = null;
-		dragToLinkActive = false;
-		network.body.container.style.cursor = "";
-		// Restore panning and node dragging after drag-to-link
-		network.setOptions({ interaction: { ...options.interaction, dragView: true, dragNodes: true } });
-		// Re-enable physics for the network
-		network.setOptions({ physics: { enabled: true } });
-	}
-});
-// --- End of Drag-to-link with Ctrl key implementation ---
-
-
+// --- Global variables for module communication ---
 // Track the currently selected node and edge for deletion
 let selectedNodeId = null;
 let selectedEdgeId = null;
@@ -254,128 +180,30 @@ let contextMenuNodeId = null;
 // Context menu functionality for edge type selection
 let contextMenuEdgeId = null;
 
-// Hide context menu when clicking elsewhere
-document.addEventListener('click', function(e) {
-    const nodeContextMenu = document.getElementById('node-context-menu');
-    const edgeContextMenu = document.getElementById('edge-context-menu');
-    const canvasContextMenu = document.getElementById('canvas-context-menu');
-    
-    if (nodeContextMenu && !nodeContextMenu.contains(e.target)) {
-        nodeContextMenu.style.display = 'none';
-        contextMenuNodeId = null;
-    }
-    
-    if (edgeContextMenu && !edgeContextMenu.contains(e.target)) {
-        edgeContextMenu.style.display = 'none';
-        contextMenuEdgeId = null;
-    }
-    
-    if (canvasContextMenu && !canvasContextMenu.contains(e.target)) {
-        canvasContextMenu.style.display = 'none';
-    }
-});
+var pane = document.getElementById("side-pane");
+pane.style.display = "none";
 
-// Hide context menu on Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const nodeContextMenu = document.getElementById('node-context-menu');
-        const edgeContextMenu = document.getElementById('edge-context-menu');
-        const canvasContextMenu = document.getElementById('canvas-context-menu');
-        
-        if (nodeContextMenu) {
-            nodeContextMenu.style.display = 'none';
-            contextMenuNodeId = null;
-        }
-        
-        if (edgeContextMenu) {
-            edgeContextMenu.style.display = 'none';
-            contextMenuEdgeId = null;
-        }
-        
-        if (canvasContextMenu) {
-            canvasContextMenu.style.display = 'none';
-        }
-    }
-});
+// Initialize viz size properly without needing to toggle side pane
+viz.style.height = window.innerHeight - 40 + "px";
+viz.style.width = window.innerWidth - 16 + "px";
 
-// Listen for Delete key to delete selected node or edge with confirmation
-window.addEventListener('keydown', function(e) {
-	if (e.key === 'Delete' || e.key === 'Del') {
-		if (selectedNodeId !== null) {
-			if (confirm('Delete node #' + selectedNodeId + ' and all its edges?')) {
-				data.nodes.remove({id: selectedNodeId});
-				selectedNodeId = null;
-				techClick2.play();
-			}
-			e.preventDefault();
-		} else if (selectedEdgeId !== null) {
-			if (confirm('Delete edge #' + selectedEdgeId + '?')) {
-				data.edges.remove({id: selectedEdgeId});
-				selectedEdgeId = null;
-				techClick2.play();
-			}
-			e.preventDefault();
-		}
-	}
-});
-
-
-// Auto-load project graph from URL parameter
-function autoLoadProjectGraph() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const projectNameParam = urlParams.get('projectName');
-  
-  if (projectNameParam) {
-    // Construct the JSON file path
-    const jsonFilePath = `/loadJSON/project-graphs/${encodeURIComponent(projectNameParam)}.json`;
-    
-    // Try to fetch and load the JSON file
-    $.ajax({
-      method: "GET",
-      url: jsonFilePath,
-      cache: false,
-      success: function(data0) {
-        if (data0 && data0.nodes && data0.edges) {
-          // Destroy existing network if it exists
-          if (typeof network !== 'undefined' && network) {
-            network.destroy();
-          }
-          
-          // Load the new data
-          nodes = new vis.DataSet(data0.nodes);
-          edges = new vis.DataSet(data0.edges);
-          data.nodes = nodes;
-          data.edges = edges;
-          init_nodes();
-          network = new vis.Network(viz, data, options);
-          update_node_index();
-          network.once('stabilized', function() {
+// Set up initial network events after network is fully ready
+network.once('afterDrawing', function() {
+    // Add a small delay to ensure network is completely ready
+    setTimeout(function() {
+        if (typeof setupNetworkEvents === 'function') {
             setupNetworkEvents(network);
-          });
-          
-          // Update project name and UI
-          projectName = projectNameParam;
-          document.title = `${projectName} - Project Graph`;
-          const h1Element = document.getElementsByTagName('h1')[0];
-          if (h1Element) {
-            h1Element.innerHTML = projectName;
-          }
-          
-          console.log(`Auto-loaded project graph: ${projectNameParam}`);
         }
-      },
-      error: function(xhr, status, error) {
-        console.warn(`Could not auto-load project graph for "${projectNameParam}":`, status, error);
-        // Fall back to default behavior - empty graph will be shown
-      }
-    });
-  }
-}
-
-// Call auto-load when DOM is ready
-$(document).ready(function() {
-  autoLoadProjectGraph();
-  // Initialize Chinese name section visibility
-  updateChineseNameSectionVisibility("");
+    }, 100);
 });
+
+// --- Drag-to-link functionality moved to network-events.js ---
+
+
+// --- Event listeners moved to appropriate modules ---
+
+
+// --- Auto-load functionality moved to file-operations.js ---
+
+// --- Module initialization handled by file-operations.js ---
 
