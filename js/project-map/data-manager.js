@@ -4,6 +4,13 @@
  * Handles core data operations for the project map tree structure.
  * Manages CRUD operations, tree traversal, and data persistence.
  * 
+ * CRITICAL: LABEL PROPERTY STRUCTURE
+ * ==================================
+ * - ONLY use labelEN and labelZH properties
+ * - labelEN: English label (required)
+ * - labelZH: Chinese label (optional)
+ * - NO 'label' property should exist - keep data structure lean!
+ * 
  * @module project-map/data-manager
  */
 
@@ -55,7 +62,7 @@ const ProjectMapDataManager = {
   /**
    * Add a child node to a parent
    * @param {Object} parentNode - Parent node to add child to
-   * @param {string} label - Label for the new node
+   * @param {string} label - English label for the new node
    * @returns {Object} The newly created node
    */
   addChildNode(parentNode, label) {
@@ -65,8 +72,7 @@ const ProjectMapDataManager = {
     
     const newNode = {
       id: Date.now(),
-      label: label,
-      labelEN: label,
+      labelEN: label, // Only use labelEN, no 'label' property
       percentage: ProjectMapConfig.defaults.newNodePercentage,
       children: []
     };
@@ -173,7 +179,8 @@ const ProjectMapDataManager = {
     } else if (node.labelEN) {
       return node.labelEN;
     } else {
-      return node.label || '';
+      // No fallback to 'label' property - only use labelEN/labelZH
+      return '';
     }
   },
   
@@ -267,7 +274,24 @@ const ProjectMapDataManager = {
    */
   deepCopy(projectMapRoot) {
     return JSON.parse(JSON.stringify(projectMapRoot));
-  }
+  },
+  
+  /**
+   * Clean up node data by removing 'label' properties to keep structure lean
+   * @param {Object} node - Node to clean
+   */
+  cleanupNodeLabels(node) {
+    // Remove 'label' property if it exists - we only want labelEN/labelZH
+    if (node.hasOwnProperty('label')) {
+      console.log('Removing label property from node ID:', node.id, 'label was:', node.label);
+      delete node.label;
+    }
+    
+    // Recursively clean children
+    if (node.children && Array.isArray(node.children)) {
+      node.children.forEach(child => this.cleanupNodeLabels(child));
+    }
+  },
 };
 
 // Make data manager available globally (for backwards compatibility during transition)

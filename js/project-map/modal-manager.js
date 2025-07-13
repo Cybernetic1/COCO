@@ -1,4 +1,12 @@
 // Modal management for node editing
+// 
+// CRITICAL: LABEL PROPERTY HANDLING
+// =================================
+// - ONLY use labelEN and labelZH properties
+// - labelEN: English label (required)
+// - labelZH: Chinese label (optional)  
+// - NO 'label' property should exist - keep data structure lean!
+//
 class ProjectMapModalManager {
   constructor(dataManager) {
     this.dataManager = dataManager;
@@ -88,7 +96,7 @@ class ProjectMapModalManager {
   showNodeModal(node) {
     console.log('showNodeModal called for node:', node);
     console.log('Node ID:', node.id, 'Type:', typeof node.id);
-    console.log('Node label:', node.label);
+    console.log('Node labelEN:', node.labelEN);
     
     const modal = document.getElementById('node-modal');
     const labelInput = document.getElementById('modal-node-label');
@@ -98,10 +106,10 @@ class ProjectMapModalManager {
       console.error('Modal elements not found:', { modal: !!modal, labelInput: !!labelInput, overlay: !!overlay });
       
       // Fallback to simple prompt if modal elements are missing
-      const newLabel = prompt('Enter new node label:', node.label || '');
+      const newLabel = prompt('Enter new node label:', node.labelEN || '');
       if (newLabel && newLabel.trim()) {
-        node.label = newLabel.trim();
-        node.labelEN = newLabel.trim(); // Also update English label
+        // Only update labelEN property - no 'label' property should exist
+        node.labelEN = newLabel.trim();
         
         // Trigger re-render if available
         if (typeof renderCurrentMap === 'function') {
@@ -122,7 +130,8 @@ class ProjectMapModalManager {
     }
 
     console.log('Setting modal values and showing...');
-    labelInput.value = node.label || '';
+    // Only use labelEN - no fallback to 'label' property
+    labelInput.value = node.labelEN || '';
     modal.style.display = 'block';
     modal.dataset.nodeId = String(node.id); // Ensure it's a string
     overlay.style.display = 'block';
@@ -201,13 +210,16 @@ class ProjectMapModalManager {
     console.log('Search result for node ID', nodeId, ':', node);
     
     if (node) {
-      console.log('Found node, updating label from', node.label, 'to', newLabel);
+      console.log('Found node, updating labelEN from', node.labelEN, 'to', newLabel);
       
-      const oldLabel = node.label;
-      node.label = newLabel;
-      node.labelEN = newLabel; // Also update English label
+      const oldLabel = node.labelEN;
       
-      console.log('Node updated successfully. Old:', oldLabel, 'New:', node.label);
+      // Only update labelEN property - no 'label' property should exist
+      node.labelEN = newLabel;
+      
+      console.log('Node updated successfully. Old:', oldLabel, 'New labelEN:', node.labelEN);
+      
+      console.log('Node updated successfully. Old:', oldLabel, 'New:', node.labelEN);
       
       // Hide modal first
       this.hideNodeModal();

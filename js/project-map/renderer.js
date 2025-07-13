@@ -103,7 +103,7 @@ class ProjectMapRenderer {
       // Child name
       const nameElement = document.createElement('div');
       nameElement.className = 'slider-name';
-      nameElement.textContent = child.labelEN || child.label || `Child ${child.id}`;
+      nameElement.textContent = child.labelEN || `Child ${child.id}`;
       slidecontainer.appendChild(nameElement);
       
       // Slider
@@ -121,7 +121,7 @@ class ProjectMapRenderer {
       const scoreElement = document.createElement('div');
       scoreElement.className = 'slider-score';
       const percentageValue = child.percentage || 0;
-      console.log('DEBUG: Displaying percentage for child', child.label || child.labelEN, ':', percentageValue);
+      console.log('DEBUG: Displaying percentage for child', child.labelEN, ':', percentageValue);
       scoreElement.textContent = percentageValue.toFixed(1) + '%';
       slidecontainer.appendChild(scoreElement);
       
@@ -188,7 +188,7 @@ class ProjectMapRenderer {
     // Add 'Add Child Node' option
     const addChild = document.createElement('div');
     addChild.textContent = 'Add Child Node';
-    addChild.style.padding = '8px 12px';
+    addChild.style.padding = '4px 4px';
     addChild.style.cursor = 'pointer';
     addChild.style.borderBottom = '1px solid #eee';
     addChild.onmouseover = () => addChild.style.background = '#f0f0f0';
@@ -202,7 +202,7 @@ class ProjectMapRenderer {
     // Add 'Edit Node' option
     const editNode = document.createElement('div');
     editNode.textContent = 'Edit Node Label';
-    editNode.style.padding = '8px 12px';
+    editNode.style.padding = '4px 4px';
     editNode.style.cursor = 'pointer';
     editNode.style.borderBottom = '1px solid #eee';
     editNode.onmouseover = () => editNode.style.background = '#f0f0f0';
@@ -222,7 +222,7 @@ class ProjectMapRenderer {
     // Add 'Edit Percentage' option
     const editPercent = document.createElement('div');
     editPercent.textContent = 'Edit Percentage';
-    editPercent.style.padding = '8px 12px';
+    editPercent.style.padding = '4px 4px';
     editPercent.style.cursor = 'pointer';
     editPercent.style.borderBottom = '1px solid #eee';
     editPercent.onmouseover = () => editPercent.style.background = '#f0f0f0';
@@ -237,7 +237,7 @@ class ProjectMapRenderer {
     if (node.id !== 0) {
       const deleteNode = document.createElement('div');
       deleteNode.textContent = 'Delete Node';
-      deleteNode.style.padding = '8px 12px';
+      deleteNode.style.padding = '4px 4px';
       deleteNode.style.cursor = 'pointer';
       deleteNode.style.color = '#d00';
       deleteNode.onmouseover = () => deleteNode.style.background = '#f0f0f0';

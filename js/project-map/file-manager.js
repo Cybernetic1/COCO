@@ -38,6 +38,12 @@ class ProjectMapFileManager {
       // Update both global and window references
       window.projectMapRoot = json;
       
+      // Clean up any 'label' properties to keep data structure lean
+      if (typeof ProjectMapDataManager !== 'undefined' && ProjectMapDataManager.cleanupNodeLabels) {
+        console.log('Cleaning up label properties from loaded data...');
+        ProjectMapDataManager.cleanupNodeLabels(window.projectMapRoot);
+      }
+      
       // Determine project name with proper precedence:
       // 1. JSON's project-name property (highest precedence)
       // 2. filename (extracted from filename)
@@ -88,15 +94,24 @@ class ProjectMapFileManager {
   }
 
   saveJSONMap(filename) {
+    console.log('saveJSONMap called with filename:', filename);
+    console.log('Current window.projectMapRoot:', window.projectMapRoot);
+    
     // Always use projectMapRoot as the data to save
     let defaultName = window.projectName || 
                      window.projectMapRoot["project-name"] || 
                      window.projectMapRoot.labelEN || 
-                     window.projectMapRoot.label || 
                      'project-map';
     
+    console.log('Default name determined:', defaultName);
+    
     let saveName = prompt('Enter project name for saving (will be used as filename):', defaultName);
-    if (!saveName) return;
+    if (!saveName) {
+      console.log('Save cancelled by user');
+      return;
+    }
+    
+    console.log('User entered save name:', saveName);
     
     // Sanitize filename
     saveName = saveName.replace(/[^a-zA-Z0-9-_]/g, '_');
@@ -106,51 +121,64 @@ class ProjectMapFileManager {
     window.projectMapRoot["project-name"] = saveName;
     
     const fileName = `${saveName}.json`;
-    const jsonStr = JSON.stringify(window.projectMapRoot, null, 2);
+    console.log('Sanitized filename:', fileName);
+    
+    try {
+      const jsonStr = JSON.stringify(window.projectMapRoot, null, 2);
+      console.log('JSON serialization successful, length:', jsonStr.length);
 
-    // Debug: log what we're actually saving
-    console.log('DEBUG: About to save projectMapRoot:', window.projectMapRoot);
-    if (window.projectMapRoot.children && window.projectMapRoot.children.length > 0) {
-      console.log('DEBUG: First child before save:', window.projectMapRoot.children[0]);
-      console.log('DEBUG: First child percentage before save:', window.projectMapRoot.children[0].percentage);
-    }
-    console.log('DEBUG: JSON string first 200 chars:', jsonStr.substring(0, 200));
+      // Debug: log what we're actually saving
+      console.log('DEBUG: About to save projectMapRoot:', window.projectMapRoot);
+      if (window.projectMapRoot.children && window.projectMapRoot.children.length > 0) {
+        console.log('DEBUG: First child before save:', window.projectMapRoot.children[0]);
+        console.log('DEBUG: First child percentage before save:', window.projectMapRoot.children[0].percentage);
+      }
+      console.log('DEBUG: JSON string first 200 chars:', jsonStr.substring(0, 200));
 
-    // Try to save to project-maps/ via server if possible
-    fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: jsonStr
-    })
-      .then(r => {
-        if (r.ok) {
-          alert('Saved to server: project-maps/' + fileName);
-          // Mark as saved when successfully saved to server
+      // Try to save to project-maps/ via server if possible
+      console.log('Attempting to save to server...');
+      fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: jsonStr
+      })
+        .then(r => {
+          console.log('Server response status:', r.status, r.statusText);
+          if (r.ok) {
+            alert('Saved to server: project-maps/' + fileName);
+            // Mark as saved when successfully saved to server
+            if (typeof markProjectMapSaved === 'function') {
+              markProjectMapSaved();
+            }
+            // Play success sound for successful save
+            if (typeof techClick2 === 'object' && techClick2.play) {
+              techClick2.play().catch(() => {}); // Ignore audio errors
+            }
+          } else {
+            return r.text().then(t => {
+              console.error('Server error response:', t);
+              alert('Error: ' + t);
+              // Play failure sound for server save errors
+              if (typeof techFail === 'object' && techFail.play) {
+                techFail.play().catch(() => {}); // Ignore audio errors
+              }
+            });
+          }
+        })
+        .catch(e => {
+          console.log('Server save failed, falling back to download:', e);
+          // Fallback: download to user's default download folder
+          this.downloadJSON(jsonStr, fileName);
+          // Mark as saved even for fallback download
           if (typeof markProjectMapSaved === 'function') {
             markProjectMapSaved();
           }
-          // Play success sound for successful save
-          if (typeof techClick2 === 'object' && techClick2.play) {
-            techClick2.play().catch(() => {}); // Ignore audio errors
-          }
-        } else {
-          return r.text().then(t => {
-            alert('Error: ' + t);
-            // Play failure sound for server save errors
-            if (typeof techFail === 'object' && techFail.play) {
-              techFail.play().catch(() => {}); // Ignore audio errors
-            }
-          });
-        }
-      })
-      .catch(e => {
-        // Fallback: download to user's default download folder
-        this.downloadJSON(jsonStr, fileName);
-        // Mark as saved even for fallback download
-        if (typeof markProjectMapSaved === 'function') {
-          markProjectMapSaved();
-        }
-      });
+        });
+    } catch (error) {
+      console.error('JSON serialization failed:', error);
+      alert('Error: Failed to serialize project data - ' + error.message);
+      return;
+    }
     
     // Update page title after save
     document.title = window.projectName + ' - Project Map';
