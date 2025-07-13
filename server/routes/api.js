@@ -160,4 +160,156 @@ router.post('/projects', (req, res) => {
   });
 });
 
+// --- API: Percentage Management ---
+
+// Save percentages for a specific node
+router.post('/percentages', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const { projectName, nodeId, childPercentages, graphVersion } = req.body;
+  const userId = req.user.id;
+  
+  if (!projectName || !nodeId || !childPercentages) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  // Delete existing percentages for this node
+  db.run('DELETE FROM node_percentages WHERE userId = ? AND projectName = ? AND nodeId = ?', 
+    [userId, projectName, nodeId], function(deleteErr) {
+    if (deleteErr) {
+      console.error('Error deleting old percentages:', deleteErr);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    // Insert new percentages
+    const stmt = db.prepare(`INSERT INTO node_percentages 
+      (userId, projectName, nodeId, childId, percentage, graphVersion, updatedAt) 
+      VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`);
+    
+    let insertErrors = 0;
+    let inserted = 0;
+    
+    childPercentages.forEach(child => {
+      stmt.run([userId, projectName, nodeId, child.childId, child.percentage, graphVersion], function(err) {
+        if (err) {
+          console.error('Error inserting percentage:', err);
+          insertErrors++;
+        } else {
+          inserted++;
+        }
+        
+        // Check if all inserts are complete
+        if (inserted + insertErrors === childPercentages.length) {
+          stmt.finalize();
+          if (insertErrors > 0) {
+            return res.status(500).json({ error: 'Some percentages failed to save' });
+          }
+          res.json({ success: true });
+        }
+      });
+    });
+  });
+});
+
+// Load percentages for a specific node
+router.get('/percentages', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const { projectName, nodeId } = req.query;
+  const userId = req.user.id;
+  
+  if (!projectName || !nodeId) {
+    return res.status(400).json({ error: 'Missing projectName or nodeId' });
+  }
+  
+  db.all(`SELECT childId, percentage, graphVersion, updatedAt 
+          FROM node_percentages 
+          WHERE userId = ? AND projectName = ? AND nodeId = ?
+          ORDER BY updatedAt DESC`, 
+    [userId, projectName, nodeId], (err, rows) => {
+    if (err) {
+      console.error('Error loading percentages:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    if (!rows || rows.length === 0) {
+      return res.json({ found: false, childPercentages: [] });
+    }
+    
+    // Group by childId and take the most recent for each
+    const percentageMap = new Map();
+    rows.forEach(row => {
+      if (!percentageMap.has(row.childId)) {
+        percentageMap.set(row.childId, {
+          childId: row.childId,
+          percentage: row.percentage
+        });
+      }
+    });
+    
+    res.json({
+      found: true,
+      childPercentages: Array.from(percentageMap.values()),
+      graphVersion: rows[0].graphVersion
+    });
+  });
+});
+
+// Get all percentages for a project (for syncing)
+router.get('/percentages/all', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const { projectName } = req.query;
+  const userId = req.user.id;
+  
+  if (!projectName) {
+    return res.status(400).json({ error: 'Missing projectName' });
+  }
+  
+  db.all(`SELECT nodeId, childId, percentage, graphVersion, updatedAt 
+          FROM node_percentages 
+          WHERE userId = ? AND projectName = ?
+          ORDER BY nodeId, updatedAt DESC`, 
+    [userId, projectName], (err, rows) => {
+    if (err) {
+      console.error('Error loading all percentages:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    // Group by nodeId and childId, taking the most recent for each
+    const nodeMap = new Map();
+    rows.forEach(row => {
+      if (!nodeMap.has(row.nodeId)) {
+        nodeMap.set(row.nodeId, new Map());
+      }
+      const childMap = nodeMap.get(row.nodeId);
+      if (!childMap.has(row.childId)) {
+        childMap.set(row.childId, {
+          childId: row.childId,
+          percentage: row.percentage
+        });
+      }
+    });
+    
+    // Convert to the expected format
+    const percentages = [];
+    for (const [nodeId, childMap] of nodeMap) {
+      percentages.push({
+        nodeId: nodeId,
+        childPercentages: Array.from(childMap.values()),
+        graphVersion: rows.find(r => r.nodeId === nodeId)?.graphVersion,
+        updatedAt: rows.find(r => r.nodeId === nodeId)?.updatedAt
+      });
+    }
+    
+    res.json({ percentages });
+  });
+});
+
 module.exports = initializeApiRoutes;
