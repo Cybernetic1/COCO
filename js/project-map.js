@@ -15,47 +15,31 @@ let projectMapRoot = {
   ]
 };
 
-// Try to load projectMapRoot from localStorage on page load
-if (localStorage.getItem('projectMapRoot')) {
-  try {
-    const loaded = JSON.parse(localStorage.getItem('projectMapRoot'));
-    if (loaded && typeof loaded === 'object') {
-      projectMapRoot = loaded;
-      
-      // Get URL parameter for project name (if any)
-      const urlParams = new URLSearchParams(window.location.search);
-      const projectNameParam = urlParams.get('projectName');
-      
-      // Determine project name with proper precedence:
-      // 1. JSON's project-name property (highest precedence)
-      // 2. URL/filename parameter
-      // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
-      projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
-      
-      // If JSON doesn't have project-name but we got it from URL, store it
-      if (!projectMapRoot["project-name"] && projectNameParam) {
-        projectMapRoot["project-name"] = projectNameParam;
-      }
-      
-      window.projectMapRoot = projectMapRoot; // update global for debugging
-    }
-  } catch (e) {
-    console.warn('Could not parse projectMapRoot from localStorage:', e);
-  }
-}
-
-let selected_node = null; // Track selected node
-let currentLanguage = 'EN';
-
 // Get URL parameter for project name (if any) for initial load
 const urlParams = new URLSearchParams(window.location.search);
 const projectNameParam = urlParams.get('projectName');
 
-// Determine project name with proper precedence:
-// 1. JSON's project-name property (highest precedence)
-// 2. URL/filename parameter  
-// 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
-let projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
+// Initialize project name variable
+let projectName = ProjectMapDataManager.getProjectName(projectMapRoot, projectNameParam);
+
+// Try to load projectMapRoot from localStorage on page load
+const loadedData = ProjectMapDataManager.loadFromLocalStorage();
+if (loadedData && ProjectMapDataManager.validateProjectMapData(loadedData)) {
+  projectMapRoot = loadedData;
+  
+  // Determine project name using data manager
+  projectName = ProjectMapDataManager.getProjectName(projectMapRoot, projectNameParam);
+  
+  // If JSON doesn't have project-name but we got it from URL, store it
+  if (!projectMapRoot["project-name"] && projectNameParam) {
+    ProjectMapDataManager.setProjectName(projectMapRoot, projectNameParam);
+  }
+  
+  window.projectMapRoot = projectMapRoot; // update global for debugging
+}
+
+let selected_node = null; // Track selected node
+let currentLanguage = 'EN';
 
 // Initialize PercentageManager
 // TODO: Get actual user ID from authentication system
@@ -104,12 +88,7 @@ function renderMap(node, depth = 0) {
 		el.style.background = ProjectMapConfig.colors.selectedNodeBackground;
 	}
 	// Show only one language label at a time
-	let label = '';
-	if (currentLanguage === 'ZH' && node.labelZH)
-		label = node.labelZH;
-	else if (node.labelEN)
-		label = node.labelEN;
-	else label = node.label || '';
+	let label = ProjectMapDataManager.getNodeDisplayLabel(node, currentLanguage);
 
 	// Create a node as a container
 	const labelDiv = document.createElement('div');
@@ -157,11 +136,9 @@ function renderMap(node, depth = 0) {
 		addChild.onmouseout = () => addChild.style.background = '';
 		addChild.onclick = function(ev) {
 		  ev.stopPropagation();
-		  let label = prompt('Enter label for new node:');
+		  let label = prompt(ProjectMapConfig.text.prompts.newNodeLabel);
 		  if (!label) return;
-		  if (!node.children) node.children = [];
-		  let newId = Date.now();
-		  node.children.push({ id: newId, label: label, percentage: 0, children: [] });
+		  ProjectMapDataManager.addChildNode(node, label);
 		  document.body.removeChild(menu);
 		  renderCurrentMap();
 		  saveMapToLocalStorage();
@@ -195,26 +172,7 @@ function renderMap(node, depth = 0) {
 		  deleteNode.onmouseout = () => deleteNode.style.background = '';
 		  deleteNode.onclick = function(ev) {
 			ev.stopPropagation();
-			// Find parent and reassign children
-			function findAndDelete(parent) {
-			  if (!parent.children) return false;
-			  const idx = parent.children.findIndex(child => child.id === node.id);
-			  if (idx !== -1) {
-				// Move node's children to parent
-				const nodeToDelete = parent.children[idx];
-				if (nodeToDelete.children && nodeToDelete.children.length > 0) {
-				  parent.children.splice(idx, 1, ...nodeToDelete.children);
-				} else {
-				  parent.children.splice(idx, 1);
-				}
-				return true;
-			  }
-			  for (let child of parent.children) {
-				if (findAndDelete(child)) return true;
-			  }
-			  return false;
-			}
-			findAndDelete(projectMapRoot);
+			ProjectMapDataManager.deleteNode(projectMapRoot, node.id);
 			selected_node = null;
 			document.body.removeChild(menu);
 			renderCurrentMap();
@@ -231,10 +189,9 @@ function renderMap(node, depth = 0) {
 		renameNode.onmouseout = () => renameNode.style.background = '';
 		renameNode.onclick = function(ev) {
 		  ev.stopPropagation();
-		  let newLabel = prompt('Enter new label (EN) for this node:', node.labelEN || node.label || '');
+		  let newLabel = prompt(ProjectMapConfig.text.prompts.newNodeLabelEN, node.labelEN || node.label || '');
 		  if (newLabel && newLabel.trim()) {
-			node.labelEN = newLabel.trim();
-			node.label = newLabel.trim();
+			ProjectMapDataManager.updateNodeLabels(node, newLabel.trim());
 			renderCurrentMap();
 			saveMapToLocalStorage();
 		  }
@@ -250,9 +207,9 @@ function renderMap(node, depth = 0) {
 		editChineseLabel.onmouseout = () => editChineseLabel.style.background = '';
 		editChineseLabel.onclick = function(ev) {
 		  ev.stopPropagation();
-		  let newLabelZH = prompt('输入中文标签 (Chinese label) for this node:', node.labelZH || '');
+		  let newLabelZH = prompt(ProjectMapConfig.text.prompts.newNodeLabelZH, node.labelZH || '');
 		  if (newLabelZH && newLabelZH.trim()) {
-			node.labelZH = newLabelZH.trim();
+			ProjectMapDataManager.updateNodeLabels(node, null, newLabelZH.trim());
 			renderCurrentMap();
 			saveMapToLocalStorage();
 		  }
@@ -269,31 +226,17 @@ function renderMap(node, depth = 0) {
 		  moveNode.onmouseout = () => moveNode.style.background = '';
 		  moveNode.onclick = function(ev) {
 			ev.stopPropagation();
-			// Find parent and index of this node
-			function findParentAndIndex(parent) {
-			  if (!parent.children) return null;
-			  const idx = parent.children.findIndex(child => child.id === node.id);
-			  if (idx !== -1) return { parent, idx };
-			  for (let child of parent.children) {
-				const res = findParentAndIndex(child);
-				if (res) return res;
-			  }
-			  return null;
-			}
-			const res = findParentAndIndex(projectMapRoot);
-			if (!res) return;
-			const { parent, idx } = res;
+			const result = ProjectMapDataManager.findParentAndIndex(projectMapRoot, node.id);
+			if (!result) return;
+			const { parent, index } = result;
 			const maxPos = parent.children.length;
-			let newPosStr = prompt(`Enter new position for this node (1-${maxPos}):`, (idx+1));
+			let newPosStr = prompt(ProjectMapConfig.text.prompts.newPosition.replace('{max}', maxPos), (index + 1));
 			if (!newPosStr) return;
 			let newPos = parseInt(newPosStr, 10) - 1;
-			if (isNaN(newPos) || newPos < 0 || newPos >= maxPos || newPos === idx) return;
-			// Remove node from current position
-			const [movingNode] = parent.children.splice(idx, 1);
-			// Insert node at new position
-			parent.children.splice(newPos, 0, movingNode);
-			renderCurrentMap();
-			saveMapToLocalStorage();
+			if (ProjectMapDataManager.moveNode(projectMapRoot, node.id, newPos)) {
+			  renderCurrentMap();
+			  saveMapToLocalStorage();
+			}
 			document.body.removeChild(menu);
 		  };
 		  menu.appendChild(moveNode);
@@ -307,14 +250,14 @@ function renderMap(node, depth = 0) {
 		editPercent.onmouseout = () => editPercent.style.background = '';
 		editPercent.onclick = function(ev) {
 		  ev.stopPropagation();
-		  let val = prompt('Enter percentage (0-100):', node.percentage != null ? node.percentage : 0);
+		  let val = prompt(ProjectMapConfig.text.prompts.percentage, node.percentage != null ? node.percentage : 0);
 		  if (val === null) return;
 		  let num = parseInt(val, 10);
 		  if (isNaN(num) || num < 0 || num > 100) {
-			alert('Please enter a number between 0 and 100.');
+			alert(ProjectMapConfig.text.errors.invalidPercentage);
 			return;
 		  }
-		  node.percentage = num;
+		  ProjectMapDataManager.updateNodePercentage(node, num);
 		  renderCurrentMap();
 		  saveMapToLocalStorage();
 		  document.body.removeChild(menu);
@@ -435,7 +378,7 @@ function renderMap(node, depth = 0) {
 
 // Save the current projectMapRoot to localStorage whenever the map is updated
 function saveMapToLocalStorage() {
-  localStorage.setItem('projectMapRoot', JSON.stringify(projectMapRoot));
+  ProjectMapDataManager.saveToLocalStorage(projectMapRoot);
 }
 
 // Initialize slider event listeners after map is rendered
@@ -509,16 +452,7 @@ function initializeSliders() {
 
 // Helper function to find a node by ID in the tree
 function findNodeById(node, targetId) {
-  if (node.id === targetId) return node;
-  
-  if (node.children) {
-    for (const child of node.children) {
-      const found = findNodeById(child, targetId);
-      if (found) return found;
-    }
-  }
-  
-  return null;
+  return ProjectMapDataManager.findNodeById(node, targetId);
 }
 
 // Update sliders and displays for a specific node
