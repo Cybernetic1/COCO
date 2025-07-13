@@ -137,7 +137,7 @@
     }
     
     .add-author-btn {
-      background: #90EE90;
+      background: #CFF;
       font-size: 14px;
       padding: 6px 12px;
     }
@@ -293,18 +293,18 @@
       </div>
 
       <div class="section">
-        <label disabled>Expected tokens</label>
-        <input type="number" id="expTokens" name="expTokens" style="width:9em;" disabled>
+        <label>Expected tokens</label>
+        <input type="number" id="expTokens" name="expTokens" style="width:9em;">
       </div>
       
       <div class="section">
-        <label disabled>Expected days</label>
-        <input type="number" id="expTime" name="expTime" style="width:4em;" disabled>
+        <label>Expected days</label>
+        <input type="number" id="expTime" name="expTime" style="width:4em;">
       </div>
       
       <div class="section">
-        <label disabled>Expected # workers</label>
-        <input type="number" id="expWorkers" name="expWorkers" style="width:4em;" disabled>
+        <label>Expected # workers</label>
+        <input type="number" id="expWorkers" name="expWorkers" style="width:4em;">
       </div>
 
       <div class="section vote-section">
@@ -611,9 +611,29 @@
       nodeData.labelZH = document.getElementById('labelZH').value;
       nodeData.edgeLabel = document.getElementById('edgeLabel').value;
       nodeData.details = document.getElementById('details').value;
-      nodeData.expTokens = document.getElementById('expTokens').value;
-      nodeData.expTime = document.getElementById('expTime').value;
-      nodeData.expWorkers = document.getElementById('expWorkers').value;
+      
+      // Only save these properties if they have values
+      const expTokens = document.getElementById('expTokens').value;
+      const expTime = document.getElementById('expTime').value;
+      const expWorkers = document.getElementById('expWorkers').value;
+      
+      if (expTokens && expTokens.trim() !== '') {
+        nodeData.expTokens = expTokens;
+      } else {
+        delete nodeData.expTokens;
+      }
+      
+      if (expTime && expTime.trim() !== '') {
+        nodeData.expTime = expTime;
+      } else {
+        delete nodeData.expTime;
+      }
+      
+      if (expWorkers && expWorkers.trim() !== '') {
+        nodeData.expWorkers = expWorkers;
+      } else {
+        delete nodeData.expWorkers;
+      }
       
       // Save authors as array of objects
       nodeData.authors = currentAuthors;
