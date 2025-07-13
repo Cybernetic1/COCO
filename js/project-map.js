@@ -47,11 +47,6 @@ let sliderManager = null;
 let modalManager = null;
 let fileManager = null;
 
-// Initialize PercentageManager
-// TODO: Get actual user ID from authentication system
-const currentUserId = 'user-' + (localStorage.getItem('currentUserId') || 'default');
-let percentageManager = null;
-
 // Initialize all modules when DOM is ready
 function initializeModules() {
   const dataManager = ProjectMapDataManager;
@@ -65,21 +60,6 @@ function initializeModules() {
   renderer.currentLanguage = currentLanguage;
   
   console.log('All modules initialized');
-}
-
-// Initialize percentage manager when DOM is ready
-function initializePercentageManager() {
-  const currentProjectName = projectName || 'project-map';
-  percentageManager = new PercentageManager(currentProjectName, currentUserId);
-  console.log('PercentageManager initialized for project:', currentProjectName, 'user:', currentUserId);
-}
-
-// Reinitialize percentage manager when project name changes
-function updatePercentageManagerProjectName() {
-  if (percentageManager && percentageManager.projectId !== projectName) {
-    console.log('Project name changed from', percentageManager.projectId, 'to', projectName, '- reinitializing PercentageManager');
-    initializePercentageManager();
-  }
 }
 
 // Make projectMapRoot available on window for debugging
@@ -117,7 +97,6 @@ const nodeOperations = {
     let label = prompt(ProjectMapConfig.text.prompts.newNodeLabel);
     if (!label) return;
     ProjectMapDataManager.addChildNode(node, label);
-    console.log('DEBUG onAddChild: After adding child, project name:', projectMapRoot["project-name"]);
     renderCurrentMap();
   },
   
@@ -177,9 +156,6 @@ function renderCurrentMap() {
   // Always use the global window.projectMapRoot to ensure we have the latest data
   const currentRoot = window.projectMapRoot || projectMapRoot;
   
-  console.log('DEBUG renderCurrentMap: Current root project name:', currentRoot["project-name"]);
-  console.log('DEBUG renderCurrentMap: Current root children count:', currentRoot.children?.length);
-  
   if (renderer) {
     renderer.renderCurrentMap(currentRoot, 'map-container', {
       ...nodeOperations,
@@ -190,8 +166,6 @@ function renderCurrentMap() {
   // Initialize sliders after rendering
   setTimeout(() => {
     initializeSliders();
-    // No need to load percentages from anywhere - just use what's in the JSON
-    // If percentages don't exist in nodes, they'll display as 0.0%
     updateSaveButtonState();
   }, 100);
   
@@ -208,7 +182,7 @@ function renderCurrentMap() {
     h1Element.innerHTML = projectName;
   }
   
-  updateSaveButtonState(); // This will update the h1 with proper asterisk state
+  updateSaveButtonState();
   window.projectMapRoot = projectMapRoot; // keep updated for debugging
   window.projectName = projectName; // keep updated for debugging
 }
@@ -293,9 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize all modules
   initializeModules();
   
-  // Initialize percentage manager
-  initializePercentageManager();
-  
   // Render the initial map
   renderCurrentMap();
   
@@ -376,215 +347,21 @@ function editProjectName() {
   }
 }
 
-// Global flag to track if percentages have been modified
-window.percentagesChanged = false;
-
 // Function to save all current percentage assignments for all nodes with children
+// NOTE: For JSON workflow, percentages are saved directly in the JSON file via saveJSONMap()
+// This function is kept for legacy compatibility but simplified
 function saveAllPercentages() {
-  if (!percentageManager) {
-    initializePercentageManager();
-  }
-  
-  if (!percentageManager) {
-    alert('Error: Could not initialize percentage manager');
-    return;
-  }
-  
-  let savedCount = 0;
-  let errorCount = 0;
-  let serverFailureDetected = false;
-  
-  // Temporarily override the alert function to suppress multiple server warnings
-  const originalAlert = window.alert;
-  let suppressAlerts = false;
-  
-  window.alert = function(message) {
-    if (suppressAlerts && message.includes('Server connection failed')) {
-      // Suppress duplicate server connection alerts
-      return;
-    }
-    originalAlert.call(window, message);
-  };
-  
-  // Helper function to recursively walk through all nodes
-  async function walkNodes(node) {
-    // If this node has children, save their percentages
-    if (node.children && node.children.length > 0) {
-      try {
-        const childPercentages = node.children.map(child => ({
-          childId: child.id.toString(),
-          percentage: child.percentage || 0
-        }));
-        
-        await percentageManager.savePercentages(node.id.toString(), childPercentages);
-        savedCount++;
-        console.log(`Saved percentages for node ${node.id} (${node.label}):`, childPercentages);
-      } catch (error) {
-        console.error(`Error saving percentages for node ${node.id}:`, error);
-        errorCount++;
-        if (error.message && error.message.includes('Server')) {
-          serverFailureDetected = true;
-        }
-      }
-    }
-    
-    // Recursively process all children
-    if (node.children) {
-      for (const child of node.children) {
-        await walkNodes(child);
-      }
-    }
-  }
-  
-  // Process all nodes asynchronously
-  (async () => {
-    try {
-      // Suppress alerts after the first server failure
-      let isFirstSave = true;
-      
-      // Override the percentageManager's savePercentages to detect server failures
-      const originalSavePercentages = percentageManager.savePercentages.bind(percentageManager);
-      percentageManager.savePercentages = async function(nodeId, childPercentages) {
-        try {
-          const result = await originalSavePercentages(nodeId, childPercentages);
-          return result;
-        } catch (error) {
-          if (!serverFailureDetected && isFirstSave) {
-            serverFailureDetected = true;
-            isFirstSave = false;
-            // Allow the first server failure alert to show
-            throw error;
-          } else {
-            // Suppress subsequent alerts but still save to localStorage
-            suppressAlerts = true;
-            const result = await originalSavePercentages(nodeId, childPercentages);
-            suppressAlerts = false;
-            return result;
-          }
-        }
-      };
-      
-      // Start the walk from the root node
-      await walkNodes(projectMapRoot);
-      
-      // Restore original functions
-      percentageManager.savePercentages = originalSavePercentages;
-      window.alert = originalAlert;
-      
-      // Reset the changed flag after saving
-      window.percentagesChanged = false;
-      updateSaveButtonState();
-      
-      // Provide user feedback
-      let message = '';
-      if (errorCount === 0) {
-        if (savedCount > 0) {
-          message = `Successfully saved percentages for ${savedCount} node(s).`;
-          techClick2.play().catch(() => {}); // Play success sound
-        } else {
-          message = 'No nodes with children found to save percentages for.';
-        }
-      } else {
-        message = `Saved percentages for ${savedCount} node(s), but encountered ${errorCount} error(s).`;
-        if (serverFailureDetected) {
-          message += '\nNote: Server connection failed, percentages saved to local storage only.';
-        }
-        message += ' Check console for details.';
-      }
-      
-      alert(message);
-      
-    } catch (error) {
-      // Restore original functions in case of error
-      window.alert = originalAlert;
-      console.error('Failed to save percentages:', error);
-      alert('Error: Failed to save percentages. Please try again.');
-    }
-  })();
+  alert('💡 Tip: Percentages are now saved directly in the JSON file.\n\nTo save your current percentages:\n1. Use "Save JSON map" from the menu\n2. This will include all percentage data in the JSON file\n3. When you load the JSON file later, percentages will be restored automatically\n\nThe database percentage storage is no longer the primary workflow.');
 }
 
 // Update save button visual state based on whether changes exist
 function updateSaveButtonState() {
-  // Update the h1 title to show unsaved changes with a red asterisk
+  // Update the h1 title to show the project name
   const h1Element = document.getElementsByTagName('h1')[0];
   if (h1Element) {
     const baseTitle = projectName || 'Project Name';
-    if (window.percentagesChanged) {
-      // Add red asterisk to indicate unsaved changes
-      h1Element.innerHTML = baseTitle + ' <span style="color: #d63384; font-weight: bold;">*</span>';
-      h1Element.title = 'You have unsaved percentage changes';
-    } else {
-      // Remove asterisk when changes are saved
-      h1Element.innerHTML = baseTitle;
-      h1Element.title = '';
-    }
-  }
-  
-  // Also update the page title to indicate unsaved changes
-  const currentTitle = document.title;
-  if (window.percentagesChanged && !currentTitle.includes('*')) {
-    document.title = currentTitle + ' *';
-  } else if (!window.percentagesChanged && currentTitle.includes('*')) {
-    document.title = currentTitle.replace(' *', '');
-  }
-}
-
-// Auto-save percentages when page is about to unload
-window.addEventListener('beforeunload', function(event) {
-  if (window.percentagesChanged && percentageManager) {
-    // Try to save percentages synchronously
-    try {
-      saveAllPercentagesSync();
-    } catch (error) {
-      console.error('Failed to auto-save percentages on page unload:', error);
-    }
-    
-    // Show warning to user about unsaved changes
-    event.preventDefault();
-    event.returnValue = 'You have unsaved percentage changes. Are you sure you want to leave?';
-    return event.returnValue;
-  }
-});
-
-// Synchronous version for page unload (uses sendBeacon or fetch with keepalive)
-function saveAllPercentagesSync() {
-  if (!percentageManager || !window.percentagesChanged) return;
-  
-  // Collect all percentage data
-  const allPercentageData = [];
-  
-  function collectPercentages(node) {
-    if (node.children && node.children.length > 0) {
-      const childPercentages = node.children.map(child => ({
-        childId: child.id.toString(),
-        percentage: child.percentage || 0
-      }));
-      
-      allPercentageData.push({
-        nodeId: node.id.toString(),
-        percentages: childPercentages
-      });
-    }
-    
-    if (node.children) {
-      for (const child of node.children) {
-        collectPercentages(child);
-      }
-    }
-  }
-  
-  collectPercentages(projectMapRoot);
-  
-  // Try to send data using sendBeacon (more reliable for page unload)
-  if (navigator.sendBeacon && allPercentageData.length > 0) {
-    const data = JSON.stringify({
-      projectName: percentageManager.projectName,
-      userId: percentageManager.userId,
-      percentageData: allPercentageData
-    });
-    
-    navigator.sendBeacon('/api/save-all-percentages', data);
-    console.log('Auto-saved percentages using sendBeacon');
+    h1Element.innerHTML = baseTitle;
+    h1Element.title = 'Use "Save JSON map" to save percentages and project data';
   }
 }
 
@@ -592,11 +369,8 @@ function saveAllPercentagesSync() {
 document.addEventListener('keydown', function(event) {
   if ((event.ctrlKey || event.metaKey) && event.key === 's') {
     event.preventDefault();
-    if (window.percentagesChanged) {
-      saveAllPercentages();
-    } else {
-      alert('No percentage changes to save.');
-    }
+    // Use JSON save instead of database save
+    saveJSONMap();
   }
 });
 

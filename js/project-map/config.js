@@ -73,8 +73,6 @@ const ProjectMapConfig = {
   api: {
     endpoints: {
       chat: '/api/chat',
-      percentages: '/api/percentages',
-      saveAllPercentages: '/api/save-all-percentages',
       saveJSON: '/saveJSON/project-maps/'
     }
   },
