@@ -21,6 +21,14 @@ class PercentageManager {
     }
 
     /**
+     * Update the current graph version (call this when the project structure changes)
+     */
+    updateGraphVersion() {
+        this.currentGraphVersion = this.generateGraphVersion();
+        console.log('Updated graph version to:', this.currentGraphVersion);
+    }
+
+    /**
      * Generate a simple graph version based on current graph structure
      */
     generateGraphVersion() {

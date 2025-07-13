@@ -48,8 +48,17 @@ let percentageManager = null;
 
 // Initialize percentage manager when DOM is ready
 function initializePercentageManager() {
-  percentageManager = new PercentageManager(projectName, currentUserId);
-  console.log('PercentageManager initialized for project:', projectName, 'user:', currentUserId);
+  const currentProjectName = projectName || 'project-map';
+  percentageManager = new PercentageManager(currentProjectName, currentUserId);
+  console.log('PercentageManager initialized for project:', currentProjectName, 'user:', currentUserId);
+}
+
+// Reinitialize percentage manager when project name changes
+function updatePercentageManagerProjectName() {
+  if (percentageManager && percentageManager.projectId !== projectName) {
+    console.log('Project name changed from', percentageManager.projectId, 'to', projectName, '- reinitializing PercentageManager');
+    initializePercentageManager();
+  }
 }
 
 // Make projectMapRoot available on window for debugging
@@ -482,68 +491,22 @@ function renderCurrentMap() {
   container.innerHTML = '';
   container.appendChild(renderMap(projectMapRoot, 0));
   
-  // Initialize percentage manager if not already done
-  if (!percentageManager) {
-    initializePercentageManager();
-  }
-  
-  // Initialize sliders after rendering with a longer delay to ensure DOM is ready
+  // Initialize sliders after rendering
   setTimeout(() => {
     initializeSliders();
-    // Load saved percentages after sliders are initialized
-    loadSavedPercentages();
-    // Initialize save button state
+    // No need to load percentages from anywhere - just use what's in the JSON
+    // If percentages don't exist in nodes, they'll display as 0.0%
     updateSaveButtonState();
   }, 100);
   
-  saveMapToLocalStorage(); // Save after rendering (and after any change)
-  // Always update projectName from root node, prioritizing project-name property
+  saveMapToLocalStorage(); // Save current state to localStorage as backup
+  
+  // Always update projectName from root node
   projectName = projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
   document.title = projectName + ' - Project Map';
   updateSaveButtonState(); // This will update the h1 with proper asterisk state
   window.projectMapRoot = projectMapRoot; // keep updated for debugging
   window.projectName = projectName; // keep updated for debugging
-}
-
-// Load saved percentages for all nodes with children
-async function loadSavedPercentages() {
-  if (!percentageManager) return;
-  
-  try {
-    await loadPercentagesForNode(projectMapRoot);
-    console.log('Saved percentages loaded successfully');
-  } catch (error) {
-    console.error('Failed to load saved percentages:', error);
-  }
-}
-
-// Recursively load percentages for a node and its children
-async function loadPercentagesForNode(node) {
-  if (node.children && node.children.length > 0) {
-    try {
-      const savedPercentages = await percentageManager.loadPercentages(node.id.toString());
-      
-      if (savedPercentages && savedPercentages.length > 0) {
-        // Apply saved percentages to the node's children
-        savedPercentages.forEach(saved => {
-          const child = node.children.find(c => c.id.toString() === saved.childId);
-          if (child) {
-            child.percentage = saved.percentage;
-          }
-        });
-        
-        // Update the sliders for this node
-        updateNodeSliders(node.id);
-      }
-    } catch (error) {
-      console.warn('Failed to load percentages for node:', node.id, error);
-    }
-    
-    // Recursively load for children
-    for (const child of node.children) {
-      await loadPercentagesForNode(child);
-    }
-  }
 }
 
 function showNodeModal(node) {
@@ -592,11 +555,11 @@ function readJSONMap() {
           window.projectMapRoot = projectMapRoot;
           selected_node = null;
           
-          // Update page title and header using the state-aware function
+          // Update page title and header
           document.title = `${projectName} - Project Map`;
-          updateSaveButtonState(); // This will update the h1 with proper asterisk state
+          updateSaveButtonState();
           
-          renderCurrentMap();
+          renderCurrentMap(); // Simple render - use whatever percentages are in the JSON
           saveMapToLocalStorage();
         } else {
           throw new Error('Unrecognized JSON map format: root node must have id:0 and children array');
@@ -624,6 +587,14 @@ function saveJSONMap(filename) {
   
   const fileName = `${saveName}.json`;
   const jsonStr = JSON.stringify(projectMapRoot, null, 2);
+
+  // Debug: log what we're actually saving
+  console.log('DEBUG: About to save projectMapRoot:', projectMapRoot);
+  if (projectMapRoot.children && projectMapRoot.children.length > 0) {
+    console.log('DEBUG: First child before save:', projectMapRoot.children[0]);
+    console.log('DEBUG: First child percentage before save:', projectMapRoot.children[0].percentage);
+  }
+  console.log('DEBUG: JSON string first 200 chars:', jsonStr.substring(0, 200));
 
   // Try to save to project-maps/ via server if possible
   fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
@@ -761,11 +732,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.projectMapRoot = projectMapRoot;
             selected_node = null;
             
-            // Update page title and header using the state-aware function
+            // Update page title and header
             document.title = `${projectName} - Project Map`;
-            updateSaveButtonState(); // This will update the h1 with proper asterisk state
+            updateSaveButtonState();
             
-            renderCurrentMap();
+            renderCurrentMap(); // Simple render - use whatever percentages are in the JSON
             saveMapToLocalStorage();
             console.log(`Auto-loaded project map: ${projectName}`);
           } else {

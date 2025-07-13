@@ -33,6 +33,51 @@ app.use((req, res, next) => {
 app.use('/', authRoutes);
 app.use('/api', initializeApiRoutes(db));
 
+// Add saveJSON route for saving project map JSON files
+app.use('/saveJSON', (req, res, next) => {
+  if (req.method !== 'POST') {
+    return next(); // Only handle POST requests
+  }
+  
+  const fs = require('fs');
+  const path = require('path');
+  
+  // Extract the path after /saveJSON/
+  const relativePath = req.url.substring(1); // Remove leading slash
+  
+  // Security: prevent directory traversal
+  if (relativePath.includes('..') || path.isAbsolute(relativePath)) {
+    return res.status(400).send('Invalid file path');
+  }
+  
+  // Construct the full file path (relative to project root)
+  const filePath = path.join('../', relativePath);
+  
+  try {
+    // Ensure the directory exists
+    const dirPath = path.dirname(filePath);
+    fs.mkdirSync(dirPath, { recursive: true });
+    
+    // Write the JSON data to file
+    const jsonData = JSON.stringify(req.body, null, 2);
+    
+    // Debug: log what we're actually saving
+    console.log('DEBUG: Saving to path:', filePath);
+    console.log('DEBUG: First few chars of JSON data:', jsonData.substring(0, 200));
+    if (req.body.children && req.body.children.length > 0) {
+      console.log('DEBUG: First child percentage:', req.body.children[0].percentage);
+    }
+    
+    fs.writeFileSync(filePath, jsonData, 'utf8');
+    
+    console.log('Saved JSON file:', filePath);
+    res.status(200).send('File saved successfully');
+  } catch (error) {
+    console.error('Error saving JSON file:', error);
+    res.status(500).send('Error saving file: ' + error.message);
+  }
+});
+
 // Serve static files from parent directory
 app.use(express.static('../'));
 

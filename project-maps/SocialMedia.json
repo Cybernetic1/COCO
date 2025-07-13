@@ -14,7 +14,7 @@
         {
           "id": 28,
           "label": "competitive advantage?",
-          "percentage": 0,
+          "percentage": 65.7,
           "labelEN": "competitive advantage?",
           "status": "research",
           "children": []
@@ -134,5 +134,6 @@
         }
       ]
     }
-  ]
+  ],
+  "project-name": "SocialMedia"
 }
