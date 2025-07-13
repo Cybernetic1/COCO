@@ -286,28 +286,31 @@
         <label class="colorKey" for="research">research area</label><br>
       </div>
 
-      <div class="section">
-        <label>Expected tokens</label>
-        <input type="number" id="expTokens" name="expTokens" style="width:9em;">
-      </div>
-      <div class="section">
-        <label>Expected days</label>
-        <input type="number" id="expTime" name="expTime" style="width:4em;">
-      </div>
-      <div class="section">
-        <label>Expected # workers</label>
-        <input type="number" id="expWorkers" name="expWorkers" style="width:4em;">
+      <div class="section" style="display:flex; align-items:flex-end; gap:18px;">
+        <div style="flex:1; min-width:120px;">
+          <label>Expected tokens</label>
+          <input type="number" id="expTokens" name="expTokens" style="width:100%; min-width:6em;">
+        </div>
+        <div style="flex:1; min-width:100px;">
+          <label>Expected days</label>
+          <input type="number" id="expTime" name="expTime" style="width:100%; min-width:4em;">
+        </div>
+        <div style="flex:1; min-width:120px;">
+          <label>Expected # workers</label>
+          <input type="number" id="expWorkers" name="expWorkers" style="width:100%; min-width:4em;">
+        </div>
       </div>
       <div class="section vote-section">
-        <label style="display:inline-block; margin-top:5px;">Authors:</label>
-        <div class="authors-section">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label style="display:inline-block; margin-top:5px; margin-bottom:0;">Authors:</label>
+          <button type="button" class="add-author-btn" onclick="showUserSelector()">Add Author</button>
+        </div>
+        <div class="authors-section" style="margin-top:6px;">
           <div class="authors-list" id="authors-list">
             <!-- Authors will be displayed here as tags -->
           </div>
-          <button type="button" class="add-author-btn" onclick="showUserSelector()">Add Author</button>
         </div>
       </div>
-      <!-- Voting section -->
       <div class="section">
         <label>Voting:</label>
         <div class="voting-container" id="voting-container">
