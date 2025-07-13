@@ -137,10 +137,13 @@ class ProjectMapFileManager {
 
       // Try to save to project-maps/ via server if possible
       console.log('Attempting to save to server...');
-      fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
+      fetch('/saveJSON', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: jsonStr
+        body: JSON.stringify({
+          filename: fileName,
+          data: window.projectMapRoot
+        })
       })
         .then(r => {
           console.log('Server response status:', r.status, r.statusText);
@@ -157,22 +160,35 @@ class ProjectMapFileManager {
           } else {
             return r.text().then(t => {
               console.error('Server error response:', t);
-              alert('Error: ' + t);
-              // Play failure sound for server save errors
+              
+              // Play failure sound BEFORE showing alert
               if (typeof techFail === 'object' && techFail.play) {
                 techFail.play().catch(() => {}); // Ignore audio errors
               }
+              
+              // Clean up error message - extract meaningful text from HTML response
+              let errorMsg = t;
+              if (t.includes('<pre>')) {
+                // Extract text from HTML error page
+                const match = t.match(/<pre>(.*?)<\/pre>/s);
+                if (match) {
+                  errorMsg = match[1].trim();
+                }
+              }
+              
+              alert('Server Error: ' + errorMsg);
             });
           }
         })
         .catch(e => {
-          console.log('Server save failed, falling back to download:', e);
-          // Fallback: download to user's default download folder
-          this.downloadJSON(jsonStr, fileName);
-          // Mark as saved even for fallback download
-          if (typeof markProjectMapSaved === 'function') {
-            markProjectMapSaved();
+          console.log('Network/fetch error:', e);
+          
+          // Play failure sound for network errors
+          if (typeof techFail === 'object' && techFail.play) {
+            techFail.play().catch(() => {}); // Ignore audio errors
           }
+          
+          alert('Network Error: ' + e.message);
         });
     } catch (error) {
       console.error('JSON serialization failed:', error);

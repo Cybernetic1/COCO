@@ -7,14 +7,14 @@
     {
       "id": 1,
       "label": "business plan",
-      "percentage": 0,
+      "percentage": 9.8,
       "labelEN": "business plan",
       "labelZH": "商业计划书",
       "children": [
         {
           "id": 14,
           "label": "tell 'Crossing the Snow' story",
-          "percentage": 0,
+          "percentage": 83,
           "labelEN": "tell 'Crossing the Snow' story",
           "labelZH": "讲《渡过雪原》故事",
           "status": "finished",
@@ -23,7 +23,7 @@
         {
           "id": 28,
           "label": "analyse competitors",
-          "percentage": 0,
+          "percentage": 17,
           "labelEN": "analyse competitors",
           "labelZH": "分析竞争者",
           "status": "in-progress",
@@ -34,7 +34,7 @@
     {
       "id": 2,
       "label": "technical white paper",
-      "percentage": 0,
+      "percentage": 38.1,
       "labelEN": "technical white paper",
       "labelZH": "技术白皮书",
       "children": []
@@ -42,7 +42,7 @@
     {
       "id": 3,
       "label": "web site",
-      "percentage": 0,
+      "percentage": 14.5,
       "labelEN": "web site",
       "labelZH": "网站",
       "children": []
@@ -50,20 +50,20 @@
     {
       "id": 4,
       "label": "Git UI",
-      "percentage": 0,
+      "percentage": 4.7,
       "labelEN": "Git UI",
       "labelZH": "Git 界面",
       "children": [
         {
           "id": 15,
           "label": "read Git repo",
-          "percentage": 0,
+          "percentage": 25.6,
           "labelEN": "read Git repo",
           "children": [
             {
               "id": 16,
               "label": "extract authors",
-              "percentage": 0,
+              "percentage": 44.6,
               "labelEN": "extract authors",
               "children": []
             }
@@ -74,13 +74,13 @@
     {
       "id": 5,
       "label": "Project Graph",
-      "percentage": 0,
+      "percentage": 10.3,
       "labelEN": "Project Graph",
       "children": [
         {
           "id": 17,
           "label": "Neo4j",
-          "percentage": 0,
+          "percentage": 27.7,
           "labelEN": "Neo4j",
           "status": "paused",
           "children": []
@@ -88,7 +88,7 @@
         {
           "id": 18,
           "label": "VisDCC interface",
-          "percentage": 0,
+          "percentage": 44.6,
           "labelEN": "VisDCC interface",
           "labelZH": "VisDCC 界面",
           "status": "paused",
@@ -97,7 +97,7 @@
             {
               "id": 21,
               "label": "test Neo4j server",
-              "percentage": 0,
+              "percentage": 17,
               "labelEN": "test Neo4j server",
               "status": "finished",
               "details": "@eatcosmos tested hosting the server.",
@@ -108,7 +108,7 @@
         {
           "id": 30,
           "label": "Vis.js interface",
-          "percentage": 0,
+          "percentage": 27.7,
           "labelEN": "Vis.js interface",
           "labelZH": "Vis.js 界面",
           "status": "in-progress",
@@ -116,14 +116,14 @@
             {
               "id": 26,
               "label": "per-Task voting",
-              "percentage": 0,
+              "percentage": 16.8,
               "labelEN": "per-Task voting",
               "labelZH": "per task 投票",
               "children": [
                 {
                   "id": 27,
                   "label": "send tokens",
-                  "percentage": 0,
+                  "percentage": 79.8,
                   "labelEN": "send tokens",
                   "labelZH": "发 token",
                   "children": []
@@ -133,7 +133,7 @@
             {
               "id": 19,
               "label": "lookup authors",
-              "percentage": 0,
+              "percentage": 49.6,
               "labelEN": "lookup authors",
               "labelZH": "查看作者",
               "children": []
@@ -141,7 +141,7 @@
             {
               "id": 31,
               "label": "bilingual",
-              "percentage": 0,
+              "percentage": 16.8,
               "labelEN": "bilingual",
               "labelZH": "双语",
               "status": "finished",
@@ -150,7 +150,7 @@
             {
               "id": 32,
               "label": "add \"research\" nodes",
-              "percentage": 0,
+              "percentage": 16.8,
               "labelEN": "add \"research\" nodes",
               "labelZH": "节点可以是 「研究范围」",
               "status": "finished",
@@ -163,26 +163,26 @@
     {
       "id": 6,
       "label": "chatroom interface",
-      "percentage": 0,
+      "percentage": 11.7,
       "labelEN": "chatroom interface",
       "labelZH": "聊天室 界面",
       "children": [
         {
           "id": 8,
           "label": "Discord",
-          "percentage": 0,
+          "percentage": 24.5,
           "labelEN": "Discord",
           "children": [
             {
               "id": 9,
               "label": "bot scripts",
-              "percentage": 0,
+              "percentage": 41.8,
               "labelEN": "bot scripts",
               "children": [
                 {
                   "id": 22,
                   "label": "hello world",
-                  "percentage": 0,
+                  "percentage": 37.6,
                   "labelEN": "hello world",
                   "status": "finished",
                   "children": []
@@ -190,7 +190,7 @@
                 {
                   "id": 23,
                   "label": "transfer messages to WeChat",
-                  "percentage": 0,
+                  "percentage": 62.4,
                   "labelEN": "transfer messages to WeChat",
                   "labelZH": "转发讯息到微信",
                   "children": []
@@ -202,14 +202,14 @@
         {
           "id": 24,
           "label": "WeChat Enterprise version",
-          "percentage": 0,
+          "percentage": 75.5,
           "labelEN": "WeChat Enterprise version",
           "labelZH": "企业微信",
           "children": [
             {
               "id": 10,
               "label": "extract WeChat logs",
-              "percentage": 0,
+              "percentage": 78.4,
               "labelEN": "extract WeChat logs",
               "labelZH": "extract 微信 chat logs",
               "children": []
@@ -217,7 +217,7 @@
             {
               "id": 25,
               "label": "send messages to Discord",
-              "percentage": 0,
+              "percentage": 21.6,
               "labelEN": "send messages to Discord",
               "labelZH": "转发讯息到 Discord",
               "children": []
@@ -229,14 +229,14 @@
     {
       "id": 7,
       "label": "DAO interface",
-      "percentage": 0,
+      "percentage": 10.8,
       "labelEN": "DAO interface",
       "labelZH": "DAO 界面",
       "children": [
         {
           "id": 11,
           "label": "connect Aragon",
-          "percentage": 0,
+          "percentage": 41.8,
           "labelEN": "connect Aragon",
           "children": [
             {
@@ -253,7 +253,7 @@
         {
           "id": 12,
           "label": "voting UI",
-          "percentage": 0,
+          "percentage": 58.2,
           "labelEN": "voting UI",
           "status": "finished",
           "children": [
@@ -270,5 +270,6 @@
         }
       ]
     }
-  ]
+  ],
+  "project-name": "DAO"
 }

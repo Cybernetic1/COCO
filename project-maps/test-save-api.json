@@ -1,0 +1,23 @@
+{
+  "id": 0,
+  "labelEN": "Test Project",
+  "labelZH": "æµ‹è¯•é¡¹ç›®",
+  "project-name": "test-save",
+  "percentage": 100,
+  "children": [
+    {
+      "id": 1,
+      "labelEN": "Child Node 1",
+      "labelZH": "å­èŠ‚ç‚¹1",
+      "percentage": 50,
+      "children": []
+    },
+    {
+      "id": 2,
+      "labelEN": "Child Node 2",
+      "labelZH": "å­èŠ‚ç‚¹2",
+      "percentage": 30,
+      "children": []
+    }
+  ]
+}
