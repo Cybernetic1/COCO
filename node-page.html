@@ -416,16 +416,69 @@
     }
     
     // Functions for author management
+    
+    /**
+     * Get the node's authors list, falling back to ROOT node's authors if empty
+     * @returns {Array} Array of author objects
+     */
+    function getNodeAuthors() {
+      // If current node has authors, return them
+      if (currentAuthors && currentAuthors.length > 0) {
+        return currentAuthors;
+      }
+      
+      // Fall back to ROOT node's authors (map is the root node)
+      if (map && map.authors && Array.isArray(map.authors)) {
+        return map.authors;
+      }
+      
+      // Return empty array if no authors found anywhere
+      return [];
+    }
+    
     function displayAuthors() {
       const authorsList = document.getElementById('authors-list');
       authorsList.innerHTML = '';
       
-      if (currentAuthors.length === 0) {
-        authorsList.innerHTML = '<span style="color: #999; font-style: italic;">No authors assigned</span>';
+      const authorsToDisplay = getNodeAuthors();
+      
+      // Check if we're using inherited authors from ROOT (node authors are empty)
+      const isUsingInheritedAuthors = (!currentAuthors || currentAuthors.length === 0);
+      
+      // Show inheritance note whenever we're using ROOT authors
+      if (isUsingInheritedAuthors) {
+        const inheritedNote = document.createElement('div');
+        inheritedNote.style.fontSize = '12px';
+        inheritedNote.style.color = '#666';
+        inheritedNote.style.fontStyle = 'italic';
+        inheritedNote.style.marginBottom = '5px';
+        
+        // Combine inheritance note with empty list message if no authors found
+        if (authorsToDisplay.length === 0) {
+          inheritedNote.textContent = '(Default authors from ROOT - empty list)';
+        } else {
+          inheritedNote.textContent = '(Default authors from ROOT)';
+        }
+        
+        authorsList.appendChild(inheritedNote);
+      }
+      
+      if (authorsToDisplay.length === 0) {
+        // If we already showed the combined message above, just return
+        if (isUsingInheritedAuthors) {
+          return;
+        }
+        
+        // This case shouldn't normally happen (node has authors but they're empty somehow)
+        const emptyMsg = document.createElement('span');
+        emptyMsg.style.color = '#999';
+        emptyMsg.style.fontStyle = 'italic';
+        emptyMsg.textContent = '[empty list]';
+        authorsList.appendChild(emptyMsg);
         return;
       }
       
-      currentAuthors.forEach((author, index) => {
+      authorsToDisplay.forEach((author, index) => {
         const authorTag = document.createElement('span');
         authorTag.className = 'author-tag';
         authorTag.innerHTML = `
@@ -558,6 +611,12 @@
           }));
         }
       }
+      
+      // If current node has no authors, inherit from ROOT node
+      if (!currentAuthors || currentAuthors.length === 0) {
+        currentAuthors = getNodeAuthors();
+      }
+      
       displayAuthors();
     } else {
       // Set default title when no node data found
@@ -566,6 +625,9 @@
       // Default to in-progress if no node data found
       const defaultRadio = document.getElementById('in-progress');
       if (defaultRadio) defaultRadio.checked = true;
+      
+      // Use ROOT node's authors as fallback
+      currentAuthors = getNodeAuthors();
       
       displayAuthors();
     }
