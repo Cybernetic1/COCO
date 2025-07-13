@@ -256,20 +256,24 @@
 </head>
 <body>
   <div class="container">
-    <h1 id="node-title">Node: Loading...</h1>
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h1 id="node-title" style="margin:0;">Node: Loading...</h1>
+      <form id="node-form" style="margin:0;">
+        <button type="submit" id="save-btn" style="margin-left:1em; font-size:16px;">Save</button>
+      </form>
+    </div>
     <div class="node-id" id="node-id"></div>
-
+    
       <div class="section">
         <label>Task name (English):</label>
         <input type="text" id="labelEN" name="labelEN">
       </div>
 
-      <div class="section">
+      <div class="section" id="zh-section">
         <label>工作名称（中文）：</label>
         <input type="text" id="labelZH" name="labelZH">
       </div>
 
-    <form id="node-form">
       <div class="section">
         <label>Status:</label>
         <input type="radio" id="in-progress" name="status" value="in-progress">
@@ -283,30 +287,17 @@
       </div>
 
       <div class="section">
-        <label>Edge label:</label>
-        <input type="text" id="edgeLabel" name="edgeLabel">
-      </div>
-
-      <div class="section">
-        <label>Comments:</label>
-        <textarea id="details" name="details" rows="8"></textarea>
-      </div>
-
-      <div class="section">
         <label>Expected tokens</label>
         <input type="number" id="expTokens" name="expTokens" style="width:9em;">
       </div>
-      
       <div class="section">
         <label>Expected days</label>
         <input type="number" id="expTime" name="expTime" style="width:4em;">
       </div>
-      
       <div class="section">
         <label>Expected # workers</label>
         <input type="number" id="expWorkers" name="expWorkers" style="width:4em;">
       </div>
-
       <div class="section vote-section">
         <label style="display:inline-block; margin-top:5px;">Authors:</label>
         <div class="authors-section">
@@ -316,7 +307,6 @@
           <button type="button" class="add-author-btn" onclick="showUserSelector()">Add Author</button>
         </div>
       </div>
-
       <!-- Voting section -->
       <div class="section">
         <label>Voting:</label>
@@ -325,9 +315,16 @@
         </div>
       </div>
 
-      <button type="submit" style="margin-top:1em;">Save</button>
     </form>
-    
+    <!-- Move Chat UI here, just above the back link -->
+    <div class="section">
+      <label><b>Chat about this node:</b></label>
+      <div id="chat-container" style="border:1px solid #aaa; background:#fff; border-radius:6px; padding:10px; max-height:300px; overflow-y:auto; margin-bottom:8px;"></div>
+      <div style="display:flex; gap:6px;">
+        <input id="chat-input" type="text" placeholder="Type a message..." style="flex:1; font-size:16px; padding:6px; border-radius:4px; border:1px solid #888;">
+        <button type="button" id="chat-send-btn">Send</button>
+      </div>
+    </div>
     <a href="project-graph.html" class="back-link">&larr; Back to Project Graph</a>
   </div>
 
@@ -547,7 +544,14 @@
       
       setField('labelEN', nodeData.labelEN || nodeData.label || '');
       setField('labelZH', nodeData.labelZH || '');
-      setField('edgeLabel', nodeData.edgeLabel || '');
+      const zhSection = document.getElementById('zh-section');
+      if (nodeData.labelZH && nodeData.labelZH.trim() !== '') {
+        zhSection.style.display = '';
+      } else {
+        zhSection.style.display = 'none';
+      }
+      // Remove Edge label section (already done above)
+      // setField('edgeLabel', nodeData.edgeLabel || '');
       setField('details', nodeData.details || '');
       setField('expTokens', nodeData.expTokens || '');
       setField('expTime', nodeData.expTime || '');
@@ -594,6 +598,9 @@
       // Use ROOT node's authors as fallback
       currentAuthors = getNodeAuthors();
       
+      const zhSection = document.getElementById('zh-section');
+      if (zhSection) zhSection.style.display = 'none';
+      
       displayAuthors();
     }
     
@@ -609,8 +616,90 @@
       nodeData.labelEN = document.getElementById('labelEN').value;
       nodeData.label = nodeData.labelEN;
       nodeData.labelZH = document.getElementById('labelZH').value;
-      nodeData.edgeLabel = document.getElementById('edgeLabel').value;
-      nodeData.details = document.getElementById('details').value;
+      // nodeData.edgeLabel = document.getElementById('edgeLabel').value; // Removed edge label
+      // nodeData.details = document.getElementById('details').value; // Comments replaced by chat
+    // --- Chat UI logic ---
+    // Get projectId and nodeId for unique chat room key
+    let projectId = null;
+    if (map && map.id) {
+      projectId = map.id;
+    } else if (map && map.projectId) {
+      projectId = map.projectId;
+    } else {
+      // fallback: try to get from localStorage or URL
+      projectId = localStorage.getItem('currentProjectId') || 'defaultProject';
+    }
+    // nodeId is already defined
+    const chatRoomKey = `${projectId}:${nodeId}`;
+
+    const chatContainer = document.getElementById('chat-container');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+
+    // Helper to escape HTML
+    function escapeHTML(str) {
+      return str.replace(/[&<>"']/g, function(tag) {
+        const chars = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'};
+        return chars[tag] || tag;
+      });
+    }
+
+    // Fetch and display chat messages
+    async function loadChatMessages() {
+      chatContainer.innerHTML = '<span style="color:#888;">Loading chat...</span>';
+      try {
+        const res = await fetch(`/api/chat?room=${encodeURIComponent(chatRoomKey)}`);
+        if (!res.ok) throw new Error('Failed to load chat');
+        const messages = await res.json();
+        if (!Array.isArray(messages) || messages.length === 0) {
+          chatContainer.innerHTML = '<span style="color:#888;">No messages yet.</span>';
+          return;
+        }
+        chatContainer.innerHTML = '';
+        messages.forEach(msg => {
+          const div = document.createElement('div');
+          div.style.marginBottom = '6px';
+          div.innerHTML = `<b style='color:#06c;'>${escapeHTML(msg.user||'Anon')}</b>: <span>${escapeHTML(msg.text||'')}</span> <span style='color:#aaa; font-size:11px;'>${msg.time ? new Date(msg.time).toLocaleString() : ''}</span>`;
+          chatContainer.appendChild(div);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      } catch (e) {
+        chatContainer.innerHTML = '<span style="color:#c00;">Failed to load chat.</span>';
+      }
+    }
+
+    // Send a chat message
+    async function sendChatMessage() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatSendBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/chat?room=${encodeURIComponent(chatRoomKey)}`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ text })
+        });
+        if (!res.ok) throw new Error('Failed to send');
+        chatInput.value = '';
+        await loadChatMessages();
+      } catch (e) {
+        alert('Failed to send message.');
+      } finally {
+        chatSendBtn.disabled = false;
+      }
+    }
+
+    chatSendBtn.addEventListener('click', sendChatMessage);
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        sendChatMessage();
+      }
+    });
+
+    // Initial load
+    loadChatMessages();
+    // Optionally, poll for new messages every 10s
+    setInterval(loadChatMessages, 10000);
       
       // Only save these properties if they have values
       const expTokens = document.getElementById('expTokens').value;
@@ -767,6 +856,13 @@
     
     // Load users on page load
     loadUsers();
+    
+    // In the script, after the form is loaded, move the Save button into the form for correct submission
+    const form = document.getElementById('node-form');
+    const saveBtn = document.getElementById('save-btn');
+    if (form && saveBtn) {
+      form.insertBefore(saveBtn, form.firstChild);
+    }
   </script>
 </body>
 </html>
