@@ -69,9 +69,9 @@ class ProjectMapFileManager {
       // Save to localStorage as backup
       this.saveMapToLocalStorage();
       
-      // Mark as saved
-      if (typeof updateSaveButtonState === 'function') {
-        updateSaveButtonState();
+      // Mark as saved since we just loaded fresh data
+      if (typeof markProjectMapSaved === 'function') {
+        markProjectMapSaved();
       }
     } else {
       throw new Error('Unrecognized JSON map format: root node must have id:0 and children array');
@@ -113,10 +113,24 @@ class ProjectMapFileManager {
       headers: { 'Content-Type': 'application/json' },
       body: jsonStr
     })
-      .then(r => r.ok ? alert('Saved to server: project-maps/' + fileName) : r.text().then(t => alert('Error: ' + t)))
+      .then(r => {
+        if (r.ok) {
+          alert('Saved to server: project-maps/' + fileName);
+          // Mark as saved when successfully saved to server
+          if (typeof markProjectMapSaved === 'function') {
+            markProjectMapSaved();
+          }
+        } else {
+          return r.text().then(t => alert('Error: ' + t));
+        }
+      })
       .catch(e => {
         // Fallback: download to user's default download folder
         this.downloadJSON(jsonStr, fileName);
+        // Mark as saved even for fallback download
+        if (typeof markProjectMapSaved === 'function') {
+          markProjectMapSaved();
+        }
       });
     
     // Update page title after save
@@ -140,6 +154,11 @@ class ProjectMapFileManager {
       URL.revokeObjectURL(a.href);
     }, 0);
     alert('Saved to local download folder as ' + fileName);
+    
+    // Mark as saved after download
+    if (typeof markProjectMapSaved === 'function') {
+      markProjectMapSaved();
+    }
   }
 
   saveMapToLocalStorage() {

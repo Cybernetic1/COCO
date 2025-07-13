@@ -84,7 +84,9 @@ class ProjectMapModalManager {
       }
       
       // Mark as changed for save indication
-      if (typeof updateSaveButtonState === 'function') {
+      if (typeof markProjectMapChanged === 'function') {
+        markProjectMapChanged();
+      } else if (typeof updateSaveButtonState === 'function') {
         updateSaveButtonState();
       }
     } else {

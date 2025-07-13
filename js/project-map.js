@@ -41,6 +41,9 @@ if (loadedData && ProjectMapDataManager.validateProjectMapData(loadedData)) {
 let selected_node = null; // Track selected node
 let currentLanguage = 'EN';
 
+// Global flag to track if project map has been modified and needs saving
+window.projectMapChanged = false;
+
 // Initialize module instances
 let renderer = null;
 let sliderManager = null;
@@ -73,9 +76,9 @@ if (h1Element) {
 }
 
 // Sound files (uncomment to use)
-// const techClick = new Audio('sounds/tech-click.wav');
+const techClick = new Audio('sounds/tech-click.wav');
 const techClick2 = new Audio('sounds/tech-click2.wav');
-// const techFail = new Audio('sounds/tech-fail.wav');
+const techFail = new Audio('sounds/tech-fail.wav');
 
 function switchLang() {
   if (renderer) {
@@ -97,12 +100,14 @@ const nodeOperations = {
     let label = prompt(ProjectMapConfig.text.prompts.newNodeLabel);
     if (!label) return;
     ProjectMapDataManager.addChildNode(node, label);
+    markProjectMapChanged(); // Mark as changed when adding nodes
     renderCurrentMap();
   },
   
   onDeleteNode: (node) => {
     if (confirm(`Delete node "${node.label}"?`)) {
       ProjectMapDataManager.deleteNode(projectMapRoot, node.id);
+      markProjectMapChanged(); // Mark as changed when deleting nodes
       renderCurrentMap();
     }
   },
@@ -338,6 +343,8 @@ function editProjectName() {
     projectName = newName.trim();
     projectMapRoot["project-name"] = projectName;
     
+    markProjectMapChanged(); // Mark as changed when editing project name
+    
     // Update page title and header using the state-aware function
     document.title = `${projectName} - Project Map`;
     updateSaveButtonState(); // This will update the h1 with proper asterisk state
@@ -354,14 +361,41 @@ function saveAllPercentages() {
   alert('💡 Tip: Percentages are now saved directly in the JSON file.\n\nTo save your current percentages:\n1. Use "Save JSON map" from the menu\n2. This will include all percentage data in the JSON file\n3. When you load the JSON file later, percentages will be restored automatically\n\nThe database percentage storage is no longer the primary workflow.');
 }
 
+// Function to mark project map as changed
+function markProjectMapChanged() {
+  window.projectMapChanged = true;
+  updateSaveButtonState();
+}
+
+// Function to mark project map as saved
+function markProjectMapSaved() {
+  window.projectMapChanged = false;
+  updateSaveButtonState();
+}
+
 // Update save button visual state based on whether changes exist
 function updateSaveButtonState() {
-  // Update the h1 title to show the project name
+  // Update the h1 title to show unsaved changes with a red asterisk
   const h1Element = document.getElementsByTagName('h1')[0];
   if (h1Element) {
     const baseTitle = projectName || 'Project Name';
-    h1Element.innerHTML = baseTitle;
-    h1Element.title = 'Use "Save JSON map" to save percentages and project data';
+    if (window.projectMapChanged) {
+      // Add red asterisk to indicate unsaved changes
+      h1Element.innerHTML = baseTitle + ' <span style="color: #d63384; font-weight: bold;">*</span>';
+      h1Element.title = 'You have unsaved changes - use "Save JSON map" to save';
+    } else {
+      // Remove asterisk when changes are saved
+      h1Element.innerHTML = baseTitle;
+      h1Element.title = 'Use "Save JSON map" to save percentages and project data';
+    }
+  }
+  
+  // Also update the page title to indicate unsaved changes
+  const currentTitle = document.title;
+  if (window.projectMapChanged && !currentTitle.includes('*')) {
+    document.title = currentTitle + ' *';
+  } else if (!window.projectMapChanged && currentTitle.includes('*')) {
+    document.title = currentTitle.replace(' *', '');
   }
 }
 
@@ -369,11 +403,22 @@ function updateSaveButtonState() {
 document.addEventListener('keydown', function(event) {
   if ((event.ctrlKey || event.metaKey) && event.key === 's') {
     event.preventDefault();
-    // Use JSON save instead of database save
-    saveJSONMap();
+    if (window.projectMapChanged) {
+      // Save if there are changes
+      saveJSONMap();
+    } else {
+      // Show helpful message if no changes
+      alert('💡 No unsaved changes detected.\n\nYour project map will show a red asterisk (*) when there are unsaved changes that need to be saved.');
+    }
   }
 });
 
-// Function to save all current percentage assignments for all nodes with children
-// (This is the existing function - keeping it for compatibility but updating the implementation)
-// ...existing code...
+// Warn user about unsaved changes when leaving the page
+window.addEventListener('beforeunload', function(event) {
+  if (window.projectMapChanged) {
+    // Show warning to user about unsaved changes
+    event.preventDefault();
+    event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    return event.returnValue;
+  }
+});
