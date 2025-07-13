@@ -63,6 +63,14 @@ class ProjectMapRenderer {
     };
     el.appendChild(menuBtn);
 
+    // Add percentage number display (for numeric mode)
+    if (node.percentage !== undefined && depth > 0) { // Don't show on root node
+      const percentageNumber = document.createElement('div');
+      percentageNumber.className = 'percentage-number';
+      percentageNumber.textContent = (node.percentage || 0).toFixed(1) + '%';
+      el.appendChild(percentageNumber);
+    }
+
     // Create percentage/slider display section
     if (node.children && node.children.length > 0) {
       const sliderContainer = this.createSliderContainer(node);
@@ -232,6 +240,21 @@ class ProjectMapRenderer {
       if (onPercentageEdit) onPercentageEdit(node);
     };
     menu.appendChild(editPercent);
+
+    // Add 'Open Node's Page' option
+    const openNodePage = document.createElement('div');
+    openNodePage.textContent = 'Open Node\'s Page';
+    openNodePage.style.padding = '4px 4px';
+    openNodePage.style.cursor = 'pointer';
+    openNodePage.style.borderBottom = '1px solid #eee';
+    openNodePage.onmouseover = () => openNodePage.style.background = '#f0f0f0';
+    openNodePage.onmouseout = () => openNodePage.style.background = '';
+    openNodePage.onclick = () => {
+      this.removeContextMenu(menu);
+      // Open node-page.html in a new tab with the node ID as a URL parameter
+      window.open(`node-page.html?id=${node.id}`, '_blank');
+    };
+    menu.appendChild(openNodePage);
 
     // Add 'Delete Node' option (if not root)
     if (node.id !== 0) {

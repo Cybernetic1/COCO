@@ -155,6 +155,36 @@
       color: #AAA;
       font-weight: bold;
     }
+    
+    /* Numeric percentage display when sliders are hidden */
+    .percentage-number {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: #888;
+      background: rgba(255,255,255,0.4);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: bold;
+      text-align: center;
+      border: 1px solid #ddd;
+      width: fit-content;
+    }
+    
+    /* Hide sliders when in numeric mode */
+    .sliders-hidden .slider-container {
+      display: none;
+    }
+    
+    /* Show percentage numbers when sliders are hidden */
+    .sliders-hidden .percentage-number {
+      display: block;
+    }
+    
+    /* Hide percentage numbers when sliders are visible */
+    .percentage-number {
+      display: none;
+    }
   </style>
   <script src="js/project-map/config.js"></script>
   <script src="js/project-map/data-manager.js"></script>
@@ -179,6 +209,7 @@
         <div id="menuDropdown" style="display:none; position:absolute; right:0; top:36px; background:#fff; border:1px solid #888; border-radius:6px; min-width:200px; box-shadow:0 2px 8px #888; z-index:100;">
           <div class="menu-item" onclick="editProjectName(); hideMenuDropdown();">Edit Project Name</div>
           <div class="menu-item" onclick="switchLang(); hideMenuDropdown();">Switch Language</div>
+          <div class="menu-item" onclick="toggleSlidersVisibility(); hideMenuDropdown();">Show/hide % Sliders</div>
           <div class="menu-item" onclick="readJSONMap(); hideMenuDropdown();">Load JSON map</div>
           <div class="menu-item" onclick="saveJSONMap(); hideMenuDropdown();">Save JSON map</div>
           <div class="menu-item" onclick="saveAllPercentages(); hideMenuDropdown();">🯄 About percentage saving</div>

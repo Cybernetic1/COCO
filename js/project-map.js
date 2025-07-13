@@ -40,6 +40,7 @@ if (loadedData && ProjectMapDataManager.validateProjectMapData(loadedData)) {
 
 let selected_node = null; // Track selected node
 let currentLanguage = 'EN';
+let slidersVisible = true; // Track whether sliders are visible or hidden
 
 // Global flag to track if project map has been modified and needs saving
 window.projectMapChanged = false;
@@ -86,6 +87,25 @@ function switchLang() {
     renderCurrentMap();
   }
   techClick2.play();
+}
+
+// Toggle between sliders view and numeric percentage view
+function toggleSlidersVisibility() {
+  slidersVisible = !slidersVisible;
+  const mapContainer = document.getElementById('map-container');
+  
+  if (slidersVisible) {
+    // Show sliders, hide numeric percentages
+    mapContainer.classList.remove('sliders-hidden');
+  } else {
+    // Hide sliders, show numeric percentages
+    mapContainer.classList.add('sliders-hidden');
+  }
+  
+  // Re-render to ensure percentage numbers are updated
+  renderCurrentMap();
+  
+  techClick.play().catch(() => {}); // Ignore audio errors
 }
 
 // Node operation callbacks for renderer
