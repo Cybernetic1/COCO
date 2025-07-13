@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Percentage Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test for Percentage Loading</h1>
+    <div id="output"></div>
+    <script>
+        // Test loading the test-percentages.json file
+        fetch('/project-maps/test-percentages.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Loaded JSON data:', data);
+                document.getElementById('output').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                // Check if percentages are present
+                if (data.children) {
+                    data.children.forEach(child => {
+                        console.log('Child:', child.label, 'Percentage:', child.percentage);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading JSON:', error);
+                document.getElementById('output').innerHTML = 'Error: ' + error;
+            });
+    </script>
+</body>
+</html>

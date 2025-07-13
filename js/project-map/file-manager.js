@@ -1,0 +1,195 @@
+// File I/O operations for project maps
+class ProjectMapFileManager {
+  constructor(dataManager) {
+    this.dataManager = dataManager;
+  }
+
+  readJSONMap() {
+    // Prompt for file (simple file input dialog)
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        let raw = e.target.result;
+        try {
+          const json = JSON.parse(raw);
+          this.loadProjectFromJSON(json, file.name);
+        } catch (err) {
+          alert('Invalid JSON map file!\n' + err);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  loadProjectFromJSON(json, filename = '') {
+    // Assume json is exactly the tree structure (ProjectMapRoot)
+    if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
+      // Update both global and window references
+      window.projectMapRoot = json;
+      
+      // Determine project name with proper precedence:
+      // 1. JSON's project-name property (highest precedence)
+      // 2. filename (extracted from filename)
+      // 3. Default fallback
+      const filenameWithoutExt = filename.replace(/\.[^/.]+$/, "");
+      window.projectName = window.projectMapRoot["project-name"] || filenameWithoutExt || 'project-map';
+      
+      // If JSON doesn't have project-name but we got it from filename, store it
+      if (!window.projectMapRoot["project-name"] && filenameWithoutExt) {
+        window.projectMapRoot["project-name"] = filenameWithoutExt;
+      }
+      
+      window.selected_node = null;
+      
+      // Update page title and header immediately
+      document.title = `${window.projectName} - Project Map`;
+      const h1Element = document.getElementsByTagName('h1')[0];
+      if (h1Element) {
+        h1Element.innerHTML = window.projectName;
+      }
+      
+      // Force a complete re-render by triggering the main render function
+      console.log('DEBUG loadProjectFromJSON: About to call renderCurrentMap');
+      console.log('DEBUG loadProjectFromJSON: New project name:', window.projectName);
+      console.log('DEBUG loadProjectFromJSON: New children count:', window.projectMapRoot.children?.length);
+      
+      if (typeof renderCurrentMap === 'function') {
+        renderCurrentMap();
+      } else {
+        console.warn('renderCurrentMap function not available');
+      }
+      
+      // Save to localStorage as backup
+      this.saveMapToLocalStorage();
+      
+      // Mark as saved
+      if (typeof updateSaveButtonState === 'function') {
+        updateSaveButtonState();
+      }
+    } else {
+      throw new Error('Unrecognized JSON map format: root node must have id:0 and children array');
+    }
+  }
+
+  saveJSONMap(filename) {
+    // Always use projectMapRoot as the data to save
+    let defaultName = window.projectName || 
+                     window.projectMapRoot["project-name"] || 
+                     window.projectMapRoot.labelEN || 
+                     window.projectMapRoot.label || 
+                     'project-map';
+    
+    let saveName = prompt('Enter project name for saving (will be used as filename):', defaultName);
+    if (!saveName) return;
+    
+    // Sanitize filename
+    saveName = saveName.replace(/[^a-zA-Z0-9-_]/g, '_');
+    window.projectName = saveName; // Update global projectName
+    
+    // Store the project name in the root node's project-name property
+    window.projectMapRoot["project-name"] = saveName;
+    
+    const fileName = `${saveName}.json`;
+    const jsonStr = JSON.stringify(window.projectMapRoot, null, 2);
+
+    // Debug: log what we're actually saving
+    console.log('DEBUG: About to save projectMapRoot:', window.projectMapRoot);
+    if (window.projectMapRoot.children && window.projectMapRoot.children.length > 0) {
+      console.log('DEBUG: First child before save:', window.projectMapRoot.children[0]);
+      console.log('DEBUG: First child percentage before save:', window.projectMapRoot.children[0].percentage);
+    }
+    console.log('DEBUG: JSON string first 200 chars:', jsonStr.substring(0, 200));
+
+    // Try to save to project-maps/ via server if possible
+    fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: jsonStr
+    })
+      .then(r => r.ok ? alert('Saved to server: project-maps/' + fileName) : r.text().then(t => alert('Error: ' + t)))
+      .catch(e => {
+        // Fallback: download to user's default download folder
+        this.downloadJSON(jsonStr, fileName);
+      });
+    
+    // Update page title after save
+    document.title = window.projectName + ' - Project Map';
+    
+    // Mark as saved
+    if (typeof updateSaveButtonState === 'function') {
+      updateSaveButtonState();
+    }
+  }
+
+  downloadJSON(jsonStr, fileName) {
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    }, 0);
+    alert('Saved to local download folder as ' + fileName);
+  }
+
+  saveMapToLocalStorage() {
+    try {
+      localStorage.setItem('projectMapData', JSON.stringify(window.projectMapRoot));
+    } catch (err) {
+      console.warn('Failed to save to localStorage:', err);
+    }
+  }
+
+  loadMapFromLocalStorage() {
+    try {
+      const data = localStorage.getItem('projectMapData');
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (this.dataManager.validateProjectMapData(parsed)) {
+          return parsed;
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load from localStorage:', err);
+    }
+    return null;
+  }
+
+  // Auto-load project map from URL parameter if specified
+  autoLoadProjectMap() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoLoad = urlParams.get('autoLoad');
+    
+    if (autoLoad) {
+      // Try to load the specified project
+      fetch(`/project-maps/${autoLoad}.json`)
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Project not found');
+          }
+        })
+        .then(json => {
+          this.loadProjectFromJSON(json, autoLoad);
+        })
+        .catch(error => {
+          console.warn('Auto-load failed:', error);
+          alert(`Failed to auto-load project "${autoLoad}": ${error.message}`);
+        });
+    }
+  }
+}
+
+// Export for use in main project-map.js
+window.ProjectMapFileManager = ProjectMapFileManager;

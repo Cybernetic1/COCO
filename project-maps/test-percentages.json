@@ -1,0 +1,30 @@
+{
+  "id": 0,
+  "label": "ROOT",
+  "labelEN": "ROOT",
+  "project-name": "test-percentages",
+  "percentage": 100,
+  "children": [
+    {
+      "id": 1,
+      "label": "Task A",
+      "labelEN": "Task A",
+      "percentage": 30.5,
+      "children": []
+    },
+    {
+      "id": 2,
+      "label": "Task B", 
+      "labelEN": "Task B",
+      "percentage": 45.2,
+      "children": []
+    },
+    {
+      "id": 3,
+      "label": "Task C",
+      "labelEN": "Task C", 
+      "percentage": 24.3,
+      "children": []
+    }
+  ]
+}

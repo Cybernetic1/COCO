@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Slider Percentage Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .slider-container { margin: 10px 0; }
+        .slider { width: 200px; }
+        .percentage-display { font-weight: bold; margin-left: 10px; }
+        #debug { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Slider Percentage Update Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Data Structure</h3>
+        <div id="debug"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Simulated Sliders</h3>
+        <div id="sliders"></div>
+    </div>
+    
+    <div class="test-section">
+        <button onclick="showDataStructure()">Show Current Data Structure</button>
+        <button onclick="simulateSave()">Simulate Save</button>
+        <button onclick="simulateLoad()">Simulate Load</button>
+    </div>
+    
+    <script>
+        // Simulate the data structure
+        let testData = {
+            id: 0,
+            label: "ROOT",
+            children: [
+                { id: 1, label: "Task A", percentage: 0, children: [] },
+                { id: 2, label: "Task B", percentage: 0, children: [] },
+                { id: 3, label: "Task C", percentage: 0, children: [] }
+            ]
+        };
+        
+        function createSliders() {
+            const container = document.getElementById('sliders');
+            container.innerHTML = '';
+            
+            testData.children.forEach((child, index) => {
+                const div = document.createElement('div');
+                div.className = 'slider-container';
+                
+                const label = document.createElement('span');
+                label.textContent = child.label + ': ';
+                div.appendChild(label);
+                
+                const slider = document.createElement('input');
+                slider.type = 'range';
+                slider.min = '0';
+                slider.max = '1000';
+                slider.value = (child.percentage || 0) * 10;
+                slider.className = 'slider';
+                div.appendChild(slider);
+                
+                const display = document.createElement('span');
+                display.className = 'percentage-display';
+                display.textContent = (child.percentage || 0).toFixed(1) + '%';
+                div.appendChild(display);
+                
+                slider.addEventListener('input', function() {
+                    const newPercentage = parseFloat(this.value) / 10;
+                    testData.children[index].percentage = newPercentage;
+                    display.textContent = newPercentage.toFixed(1) + '%';
+                    showDataStructure();
+                });
+                
+                container.appendChild(div);
+            });
+        }
+        
+        function showDataStructure() {
+            document.getElementById('debug').textContent = JSON.stringify(testData, null, 2);
+        }
+        
+        function simulateSave() {
+            const jsonStr = JSON.stringify(testData, null, 2);
+            localStorage.setItem('testData', jsonStr);
+            alert('Data saved to localStorage:\n' + jsonStr);
+        }
+        
+        function simulateLoad() {
+            const saved = localStorage.getItem('testData');
+            if (saved) {
+                testData = JSON.parse(saved);
+                createSliders();
+                showDataStructure();
+                alert('Data loaded from localStorage');
+            } else {
+                alert('No saved data found');
+            }
+        }
+        
+        // Initialize
+        createSliders();
+        showDataStructure();
+    </script>
+</body>
+</html>

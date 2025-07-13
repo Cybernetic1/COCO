@@ -41,10 +41,31 @@ if (loadedData && ProjectMapDataManager.validateProjectMapData(loadedData)) {
 let selected_node = null; // Track selected node
 let currentLanguage = 'EN';
 
+// Initialize module instances
+let renderer = null;
+let sliderManager = null;
+let modalManager = null;
+let fileManager = null;
+
 // Initialize PercentageManager
 // TODO: Get actual user ID from authentication system
 const currentUserId = 'user-' + (localStorage.getItem('currentUserId') || 'default');
 let percentageManager = null;
+
+// Initialize all modules when DOM is ready
+function initializeModules() {
+  const dataManager = ProjectMapDataManager;
+  
+  renderer = new ProjectMapRenderer(ProjectMapConfig);
+  sliderManager = new ProjectMapSliderManager(dataManager);
+  modalManager = new ProjectMapModalManager(dataManager);
+  fileManager = new ProjectMapFileManager(dataManager);
+  
+  // Set current language in renderer
+  renderer.currentLanguage = currentLanguage;
+  
+  console.log('All modules initialized');
+}
 
 // Initialize percentage manager when DOM is ready
 function initializePercentageManager() {
@@ -77,312 +98,55 @@ const techClick2 = new Audio('sounds/tech-click2.wav');
 // const techFail = new Audio('sounds/tech-fail.wav');
 
 function switchLang() {
-  currentLanguage = (currentLanguage === 'EN') ? 'ZH' : 'EN';
-  renderCurrentMap();
+  if (renderer) {
+    currentLanguage = renderer.switchLanguage();
+    renderCurrentMap();
+  }
   techClick2.play();
 }
 
-function getColorShade(level) {
-  // Use the config module's color function
-  return ProjectMapConfig.getColorShade(level);
-}
+// Node operation callbacks for renderer
+const nodeOperations = {
+  onNodeEdit: (node) => {
+    if (modalManager) {
+      modalManager.showNodeModal(node);
+    }
+  },
+  
+  onAddChild: (node) => {
+    let label = prompt(ProjectMapConfig.text.prompts.newNodeLabel);
+    if (!label) return;
+    ProjectMapDataManager.addChildNode(node, label);
+    console.log('DEBUG onAddChild: After adding child, project name:', projectMapRoot["project-name"]);
+    renderCurrentMap();
+  },
+  
+  onDeleteNode: (node) => {
+    if (confirm(`Delete node "${node.label}"?`)) {
+      ProjectMapDataManager.deleteNode(projectMapRoot, node.id);
+      renderCurrentMap();
+    }
+  },
+  
+  onPercentageEdit: (node) => {
+    if (modalManager) {
+      modalManager.showPercentageModal(node);
+    }
+  }
+};
 
+// Render map using the modular renderer
 function renderMap(node, depth = 0) {
-	const el = document.createElement('div');
-	el.className = 'map-node';
-	el.style.background = getColorShade(depth);
-	// Highlight if selected (compare by id)
-	if (selected_node && selected_node.id === node.id) {
-		el.style.border = '4px solid ' + ProjectMapConfig.colors.selectedNodeBorder;
-		el.style.background = ProjectMapConfig.colors.selectedNodeBackground;
-	}
-	// Show only one language label at a time
-	let label = ProjectMapDataManager.getNodeDisplayLabel(node, currentLanguage);
-
-	// Create a node as a container
-	const labelDiv = document.createElement('div');
-	labelDiv.textContent = label;
-	labelDiv.style.display = 'block';
-	labelDiv.style.marginBottom = '2px';
-	labelDiv.style.paddingRight = '28px'; // Prevent label from overspilling menuBtn
-	labelDiv.style.wordBreak = 'break-word'; // Allow wrapping
-	el.appendChild(labelDiv);
-
-	// Add dropdown menu button
-	const menuBtn = document.createElement('button');
-	menuBtn.textContent = '☰';
-	menuBtn.title = 'Node options';
-	menuBtn.style.position = 'absolute';
-	menuBtn.style.top = '4px';
-	menuBtn.style.right = '6px';
-	menuBtn.style.color = ProjectMapConfig.colors.menuButtonColor;
-	menuBtn.style.background = 'transparent';
-	menuBtn.style.border = 'none';
-	menuBtn.style.cursor = 'pointer';
-	menuBtn.style.zIndex = 2;
-	menuBtn.onclick = function(e) {
-		e.stopPropagation();
-		// Show dropdown menu
-		let menu = document.createElement('div');
-		menu.style.position = 'absolute';
-		menu.style.background = '#fff';
-		menu.style.border = '1px solid #ccc';
-		menu.style.zIndex = 1000;
-		menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-		menu.style.padding = '4px 0';
-		menu.style.minWidth = '140px';
-		// Position menu near button
-		const rect = menuBtn.getBoundingClientRect();
-		menu.style.left = (rect.right + window.scrollX) + 'px';
-		menu.style.top = (rect.bottom + window.scrollY) + 'px';
-
-		// Add 'Add Child Node' option
-		const addChild = document.createElement('div');
-		addChild.textContent = 'Add Child Node';
-		addChild.style.padding = '6px 16px';
-		addChild.style.cursor = 'pointer';
-		addChild.onmouseover = () => addChild.style.background = '#eee';
-		addChild.onmouseout = () => addChild.style.background = '';
-		addChild.onclick = function(ev) {
-		  ev.stopPropagation();
-		  let label = prompt(ProjectMapConfig.text.prompts.newNodeLabel);
-		  if (!label) return;
-		  ProjectMapDataManager.addChildNode(node, label);
-		  document.body.removeChild(menu);
-		  renderCurrentMap();
-		  saveMapToLocalStorage();
-		};
-		menu.appendChild(addChild);
-		
-		// Add 'Edit Project Name' option (only for root node)
-		if (node === projectMapRoot) {
-		  const editProjectNameOption = document.createElement('div');
-		  editProjectNameOption.textContent = 'Edit Project Name';
-		  editProjectNameOption.style.padding = '6px 16px';
-		  editProjectNameOption.style.cursor = 'pointer';
-		  editProjectNameOption.onmouseover = () => editProjectNameOption.style.background = '#eee';
-		  editProjectNameOption.onmouseout = () => editProjectNameOption.style.background = '';
-		  editProjectNameOption.onclick = function(ev) {
-			ev.stopPropagation();
-			editProjectName();
-			document.body.removeChild(menu);
-		  };
-		  menu.appendChild(editProjectNameOption);
-		}
-		
-		// Add 'Delete Node' option (except for root)
-		if (node !== projectMapRoot) {
-		  const deleteNode = document.createElement('div');
-		  deleteNode.textContent = 'Delete Node';
-		  deleteNode.style.padding = '6px 16px';
-		  deleteNode.style.cursor = 'pointer';
-		  deleteNode.style.color = '#b00';
-		  deleteNode.onmouseover = () => deleteNode.style.background = '#fee';
-		  deleteNode.onmouseout = () => deleteNode.style.background = '';
-		  deleteNode.onclick = function(ev) {
-			ev.stopPropagation();
-			ProjectMapDataManager.deleteNode(projectMapRoot, node.id);
-			selected_node = null;
-			document.body.removeChild(menu);
-			renderCurrentMap();
-			saveMapToLocalStorage();
-		  };
-		  menu.appendChild(deleteNode);
-		}
-		// Add 'Rename Node' option
-		const renameNode = document.createElement('div');
-		renameNode.textContent = 'Rename Node';
-		renameNode.style.padding = '6px 16px';
-		renameNode.style.cursor = 'pointer';
-		renameNode.onmouseover = () => renameNode.style.background = '#eee';
-		renameNode.onmouseout = () => renameNode.style.background = '';
-		renameNode.onclick = function(ev) {
-		  ev.stopPropagation();
-		  let newLabel = prompt(ProjectMapConfig.text.prompts.newNodeLabelEN, node.labelEN || node.label || '');
-		  if (newLabel && newLabel.trim()) {
-			ProjectMapDataManager.updateNodeLabels(node, newLabel.trim());
-			renderCurrentMap();
-			saveMapToLocalStorage();
-		  }
-		  document.body.removeChild(menu);
-		};
-		menu.appendChild(renameNode);
-		// Add 'Edit Chinese Label' option
-		const editChineseLabel = document.createElement('div');
-		editChineseLabel.textContent = 'Edit Chinese Label';
-		editChineseLabel.style.padding = '6px 16px';
-		editChineseLabel.style.cursor = 'pointer';
-		editChineseLabel.onmouseover = () => editChineseLabel.style.background = '#eee';
-		editChineseLabel.onmouseout = () => editChineseLabel.style.background = '';
-		editChineseLabel.onclick = function(ev) {
-		  ev.stopPropagation();
-		  let newLabelZH = prompt(ProjectMapConfig.text.prompts.newNodeLabelZH, node.labelZH || '');
-		  if (newLabelZH && newLabelZH.trim()) {
-			ProjectMapDataManager.updateNodeLabels(node, null, newLabelZH.trim());
-			renderCurrentMap();
-			saveMapToLocalStorage();
-		  }
-		  document.body.removeChild(menu);
-		};
-		menu.appendChild(editChineseLabel);
-		// Add 'Move Node' option (reorder within parent)
-		if (node !== projectMapRoot) {
-		  const moveNode = document.createElement('div');
-		  moveNode.textContent = 'Move Node (Change Order)';
-		  moveNode.style.padding = '6px 16px';
-		  moveNode.style.cursor = 'pointer';
-		  moveNode.onmouseover = () => moveNode.style.background = '#eee';
-		  moveNode.onmouseout = () => moveNode.style.background = '';
-		  moveNode.onclick = function(ev) {
-			ev.stopPropagation();
-			const result = ProjectMapDataManager.findParentAndIndex(projectMapRoot, node.id);
-			if (!result) return;
-			const { parent, index } = result;
-			const maxPos = parent.children.length;
-			let newPosStr = prompt(ProjectMapConfig.text.prompts.newPosition.replace('{max}', maxPos), (index + 1));
-			if (!newPosStr) return;
-			let newPos = parseInt(newPosStr, 10) - 1;
-			if (ProjectMapDataManager.moveNode(projectMapRoot, node.id, newPos)) {
-			  renderCurrentMap();
-			  saveMapToLocalStorage();
-			}
-			document.body.removeChild(menu);
-		  };
-		  menu.appendChild(moveNode);
-		}
-		// Add 'Edit Percentage' option
-		const editPercent = document.createElement('div');
-		editPercent.textContent = 'Edit Percentage';
-		editPercent.style.padding = '6px 16px';
-		editPercent.style.cursor = 'pointer';
-		editPercent.onmouseover = () => editPercent.style.background = '#eee';
-		editPercent.onmouseout = () => editPercent.style.background = '';
-		editPercent.onclick = function(ev) {
-		  ev.stopPropagation();
-		  let val = prompt(ProjectMapConfig.text.prompts.percentage, node.percentage != null ? node.percentage : 0);
-		  if (val === null) return;
-		  let num = parseInt(val, 10);
-		  if (isNaN(num) || num < 0 || num > 100) {
-			alert(ProjectMapConfig.text.errors.invalidPercentage);
-			return;
-		  }
-		  ProjectMapDataManager.updateNodePercentage(node, num);
-		  renderCurrentMap();
-		  saveMapToLocalStorage();
-		  document.body.removeChild(menu);
-		};
-		menu.appendChild(editPercent);
-
-		// Add 'Open Page' option
-		const openPage = document.createElement('div');
-		openPage.textContent = 'Open Page';
-		openPage.style.padding = '6px 16px';
-		openPage.style.cursor = 'pointer';
-		openPage.onmouseover = () => openPage.style.background = '#eee';
-		openPage.onmouseout = () => openPage.style.background = '';
-		openPage.onclick = function(ev) {
-		  ev.stopPropagation();
-		  window.open(`/node-page.html?id=${encodeURIComponent(node.id)}`, '_blank');
-		  document.body.removeChild(menu);
-		};
-		menu.appendChild(openPage);
-
-		// Remove any existing menu
-		document.querySelectorAll('.node-dropdown-menu').forEach(m => m.remove());
-		menu.className = 'node-dropdown-menu';
-		document.body.appendChild(menu);
-
-		// Remove menu on click outside
-		setTimeout(() => {
-		  function removeMenu(ev) {
-			if (!menu.contains(ev.target)) {
-			  menu.remove();
-			  document.removeEventListener('mousedown', removeMenu);
-			}
-		  }
-		  document.addEventListener('mousedown', removeMenu);
-		}, 0);
-	};
-	el.appendChild(menuBtn);
-
-	// Children
-	if (node.children && node.children.length) {
-	const children = document.createElement('div');
-	children.className = 'map-children';
-	node.children.forEach(child => children.appendChild(renderMap(child, depth + 1)));
-	el.appendChild(children);
-	}
-
-	// Create percentage/slider display section
-	if (node.children && node.children.length > 0) {
-		// Node has children - show sliders for each child
-		const sliderContainer = document.createElement('div');
-		sliderContainer.className = 'slider-container';
-		
-		// Create sliders for each child
-		node.children.forEach((child, index) => {
-			const slidecontainer = document.createElement('div');
-			slidecontainer.className = 'slidecontainer';
-			
-			// Child name
-			const nameElement = document.createElement('div');
-			nameElement.className = 'slider-name';
-			nameElement.textContent = child.labelEN || child.label || `Child ${child.id}`;
-			slidecontainer.appendChild(nameElement);
-			
-			// Slider
-			const slider = document.createElement('input');
-			slider.type = 'range';
-			slider.min = ProjectMapConfig.slider.min.toString();
-			slider.max = ProjectMapConfig.slider.max.toString();
-			slider.value = (child.percentage || 0) * 10; // Convert from % to 0-1000 scale
-			slider.className = 'slider';
-			slider.dataset.childIndex = index;
-			slider.dataset.nodeId = node.id;
-			slidecontainer.appendChild(slider);
-			
-			// Score display
-			const scoreElement = document.createElement('div');
-			scoreElement.className = 'slider-score';
-			scoreElement.textContent = (child.percentage || 0).toFixed(1) + '%';
-			slidecontainer.appendChild(scoreElement);
-			
-			sliderContainer.appendChild(slidecontainer);
-		});
-		
-		// Note: Total display is hidden to save space since it's always 100%
-		
-		el.appendChild(sliderContainer);
-	}
-	// Note: Individual node percentage displays removed as they're redundant with slider interface
-
-	// Add a small tube to root node's lower-right corner indicating "money in"
-	if (depth === 0) {
-	el.style.position = 'relative';
-	const protrusion = document.createElement('div');
-	protrusion.style.position = 'absolute';
-	protrusion.style.width = '28px';
-	protrusion.style.height = '50px';
-	protrusion.style.right = '20px';
-	protrusion.style.bottom = '-50px';
-	protrusion.style.background = getColorShade(0);
-	protrusion.style.border = '4px solid #CCC';
-	protrusion.style.borderTop = '0px';
-	protrusion.style.borderBottom = '0px';
-	// Add bold dollar sign
-	const dollar = document.createElement('p');
-	dollar.innerHTML = '↑<br>$';
-	dollar.style.fontWeight = 'bold';
-	dollar.style.fontSize = '1.3em';
-	dollar.style.color = '#AAA';
-	dollar.style.position = 'absolute';
-	dollar.style.bottom = '-12px';
-	dollar.style.right = '6px';
-	protrusion.appendChild(dollar);
-	el.appendChild(protrusion);
-	}
-
-	return el;
+  if (renderer) {
+    return renderer.renderMap(node, depth, {
+      ...nodeOperations,
+      selectedNode: selected_node
+    });
+  } else {
+    // Fallback if renderer not initialized
+    console.error('Renderer not initialized');
+    return document.createElement('div');
+  }
 }
 
 // Save the current projectMapRoot to localStorage whenever the map is updated
@@ -390,73 +154,11 @@ function saveMapToLocalStorage() {
   ProjectMapDataManager.saveToLocalStorage(projectMapRoot);
 }
 
-// Initialize slider event listeners after map is rendered
+// Initialize slider event listeners after map is rendered (use module)
 function initializeSliders() {
-  const sliders = document.querySelectorAll('.slider');
-  
-  sliders.forEach(slider => {
-    slider.addEventListener('input', function() {
-      const nodeId = parseInt(this.dataset.nodeId);
-      const childIndex = parseInt(this.dataset.childIndex);
-      const newValue = parseFloat(this.value);
-      
-      // Find the node in the tree
-      const node = findNodeById(projectMapRoot, nodeId);
-      if (!node || !node.children || !node.children[childIndex]) {
-        return;
-      }
-      
-      const children = node.children;
-      const n = children.length;
-      
-      // Update the changed child's percentage (convert from 0-1000 to 0-100 and round to 1 decimal)
-      const newPercentage = Math.round((newValue / 10.0) * 10) / 10;
-      children[childIndex].percentage = newPercentage;
-      
-      // Calculate what needs to be redistributed
-      let currentTotal = 0;
-      for (const child of children) {
-        currentTotal += (child.percentage || 0);
-      }
-      
-      const surplus = currentTotal - 100.0;
-      
-      if (n > 1 && Math.abs(surplus) > 0.01) { // Only redistribute if there's a meaningful surplus
-        // Calculate total of other children (excluding the one we just changed)
-        let otherChildrenTotal = 0;
-        for (let j = 0; j < n; j++) {
-          if (j !== childIndex) {
-            otherChildrenTotal += (children[j].percentage || 0);
-          }
-        }
-        
-        // Redistribute proportionally among other children
-        for (let j = 0; j < n; j++) {
-          if (j !== childIndex) {
-            if (otherChildrenTotal > 0.01) {
-              // Proportional reduction/increase
-              const proportion = (children[j].percentage || 0) / otherChildrenTotal;
-              const adjustment = surplus * proportion;
-              children[j].percentage = Math.max(0, Math.round((children[j].percentage - adjustment) * 10) / 10);
-            } else {
-              // If other children are all zero, distribute the surplus equally
-              children[j].percentage = Math.max(0, Math.round(((100.0 - newPercentage) / (n - 1)) * 10) / 10);
-            }
-          }
-        }
-      }
-      
-      // Update all sliders and score displays for this node
-      updateNodeSliders(nodeId);
-      
-      // Mark that percentages have changed (for batch saving later)
-      window.percentagesChanged = true;
-      updateSaveButtonState();
-      
-      // Note: Percentages are now saved in batches via save button or page unload
-      // instead of on every slider movement for better performance
-    });
-  });
+  if (sliderManager) {
+    sliderManager.initializeSliders();
+  }
 }
 
 // Helper function to find a node by ID in the tree
@@ -466,30 +168,24 @@ function findNodeById(node, targetId) {
 
 // Update sliders and displays for a specific node
 function updateNodeSliders(nodeId) {
-  const node = findNodeById(projectMapRoot, nodeId);
-  if (!node || !node.children) return;
-  
-  // Update sliders and score displays
-  const sliders = document.querySelectorAll(`[data-node-id="${nodeId}"]`);
-  sliders.forEach((slider, index) => {
-    const childIndex = parseInt(slider.dataset.childIndex);
-    if (childIndex < node.children.length) {
-      const percentage = node.children[childIndex].percentage || 0;
-      slider.value = Math.round(percentage * 10); // Convert to 0-1000 scale
-      
-      // Update score display with 1 decimal place
-      const scoreElement = slider.parentElement.querySelector('.slider-score');
-      if (scoreElement) {
-        scoreElement.textContent = percentage.toFixed(1) + '%';
-      }
-    }
-  });
+  if (sliderManager) {
+    sliderManager.updateNodeSliders(nodeId);
+  }
 }
 
 function renderCurrentMap() {
-  const container = document.getElementById('map-container');
-  container.innerHTML = '';
-  container.appendChild(renderMap(projectMapRoot, 0));
+  // Always use the global window.projectMapRoot to ensure we have the latest data
+  const currentRoot = window.projectMapRoot || projectMapRoot;
+  
+  console.log('DEBUG renderCurrentMap: Current root project name:', currentRoot["project-name"]);
+  console.log('DEBUG renderCurrentMap: Current root children count:', currentRoot.children?.length);
+  
+  if (renderer) {
+    renderer.renderCurrentMap(currentRoot, 'map-container', {
+      ...nodeOperations,
+      selectedNode: selected_node
+    });
+  }
   
   // Initialize sliders after rendering
   setTimeout(() => {
@@ -501,124 +197,46 @@ function renderCurrentMap() {
   
   saveMapToLocalStorage(); // Save current state to localStorage as backup
   
-  // Always update projectName from root node
-  projectName = projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
+  // Update local variables from the current root
+  projectMapRoot = currentRoot;
+  projectName = currentRoot["project-name"] || currentRoot.labelEN || currentRoot.label || 'project-map';
   document.title = projectName + ' - Project Map';
+  
+  // Update page header with project name
+  const h1Element = document.getElementsByTagName('h1')[0];
+  if (h1Element) {
+    h1Element.innerHTML = projectName;
+  }
+  
   updateSaveButtonState(); // This will update the h1 with proper asterisk state
   window.projectMapRoot = projectMapRoot; // keep updated for debugging
   window.projectName = projectName; // keep updated for debugging
 }
 
 function showNodeModal(node) {
-  const modal = document.getElementById('node-modal');
-  document.getElementById('modal-node-label').value = node.label;
-  modal.style.display = 'block';
-  modal.dataset.nodeId = node.id;
-  document.getElementById('modal-overlay').style.display = 'block';
+  if (modalManager) {
+    modalManager.showNodeModal(node);
+  }
 }
 
 function hideNodeModal() {
-  document.getElementById('node-modal').style.display = 'none';
-  document.getElementById('modal-overlay').style.display = 'none';
+  if (modalManager) {
+    modalManager.hideNodeModal();
+  }
 }
 
 // --- Read JSON map logic ---
 function readJSONMap() {
-  // Prompt for file (simple file input dialog)
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json,application/json';
-  input.onchange = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      let raw = e.target.result;
-      try {
-        const json = JSON.parse(raw);
-        // Assume json is exactly the tree structure (ProjectMapRoot)
-        if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
-          projectMapRoot = json;
-          
-          // Determine project name with proper precedence:
-          // 1. JSON's project-name property (highest precedence)
-          // 2. filename (extracted from file.name)
-          // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
-          const filenameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-          projectName = projectMapRoot["project-name"] || filenameWithoutExt || 'project-map';
-          
-          // If JSON doesn't have project-name but we got it from filename, store it
-          if (!projectMapRoot["project-name"] && filenameWithoutExt) {
-            projectMapRoot["project-name"] = filenameWithoutExt;
-          }
-          
-          window.projectMapRoot = projectMapRoot;
-          selected_node = null;
-          
-          // Update page title and header
-          document.title = `${projectName} - Project Map`;
-          updateSaveButtonState();
-          
-          renderCurrentMap(); // Simple render - use whatever percentages are in the JSON
-          saveMapToLocalStorage();
-        } else {
-          throw new Error('Unrecognized JSON map format: root node must have id:0 and children array');
-        }
-      } catch (err) {
-        alert('Invalid JSON map file!\n' + err);
-      }
-    };
-    reader.readAsText(file);
-  };
-  input.click();
+  if (fileManager) {
+    fileManager.readJSONMap();
+  }
 }
+
 // --- Save JSON map logic ---
 function saveJSONMap(filename) {
-  // Always use projectMapRoot as the data to save
-  let defaultName = projectName || projectMapRoot["project-name"] || projectMapRoot.labelEN || projectMapRoot.label || 'project-map';
-  let saveName = prompt('Enter project name for saving (will be used as filename):', defaultName);
-  if (!saveName) return;
-  // Sanitize filename
-  saveName = saveName.replace(/[^a-zA-Z0-9-_]/g, '_');
-  projectName = saveName; // Update global projectName
-  
-  // Store the project name in the root node's project-name property
-  projectMapRoot["project-name"] = saveName;
-  
-  const fileName = `${saveName}.json`;
-  const jsonStr = JSON.stringify(projectMapRoot, null, 2);
-
-  // Debug: log what we're actually saving
-  console.log('DEBUG: About to save projectMapRoot:', projectMapRoot);
-  if (projectMapRoot.children && projectMapRoot.children.length > 0) {
-    console.log('DEBUG: First child before save:', projectMapRoot.children[0]);
-    console.log('DEBUG: First child percentage before save:', projectMapRoot.children[0].percentage);
+  if (fileManager) {
+    fileManager.saveJSONMap(filename);
   }
-  console.log('DEBUG: JSON string first 200 chars:', jsonStr.substring(0, 200));
-
-  // Try to save to project-maps/ via server if possible
-  fetch(`/saveJSON/project-maps/${encodeURIComponent(saveName)}.json`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: jsonStr
-  })
-    .then(r => r.ok ? alert('Saved to server: project-maps/' + fileName) : r.text().then(t => alert('Error: ' + t)))
-    .catch(e => {
-      // Fallback: download to user's default download folder
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(a.href);
-      }, 0);
-      alert('Saved to local download folder as ' + fileName);
-    });
-  // Update page title after save
-  document.title = projectName + ' - Project Map';
 }
 
 // --- Chat logic ---
@@ -672,31 +290,19 @@ setInterval(fetchChatMessages, 5000);
 fetchChatMessages();
 
 document.addEventListener('DOMContentLoaded', function() {
-  const container = document.getElementById('map-container');
-  container.innerHTML = '';
+  // Initialize all modules
+  initializeModules();
+  
+  // Initialize percentage manager
+  initializePercentageManager();
+  
+  // Render the initial map
   renderCurrentMap();
-  document.getElementById('modal-cancel-btn').onclick = hideNodeModal;
-  document.getElementById('modal-save-btn').onclick = function() {
-    // Save logic here (update label, etc.)
-    const modal = document.getElementById('node-modal');
-    const nodeId = modal.dataset.nodeId;
-    // Update the node's label
-    const newLabel = document.getElementById('modal-node-label').value;
-    if (newLabel && newLabel.trim()) {
-      // Find the node by id and update its label
-      function updateNodeLabel(node) {
-        if (node.id == nodeId) {
-          node.label = newLabel.trim();
-          node.labelEN = newLabel.trim();
-        } else if (node.children) {
-          node.children.forEach(updateNodeLabel);
-        }
-      }
-      updateNodeLabel(projectMapRoot);
-    }
-    hideNodeModal();
-    renderCurrentMap();
-  };
+  
+  // Auto-load project if specified in URL
+  if (fileManager) {
+    fileManager.autoLoadProjectMap();
+  }
   document.getElementById('modal-overlay').onclick = hideNodeModal;
 
   // Auto-load project map from URL parameter

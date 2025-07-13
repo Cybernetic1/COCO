@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Percentage Test</title>
+    <style>
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Manual Percentage Load Test</h1>
+    <button onclick="testLoadJSON()">Test Load JSON with Percentages</button>
+    <div id="results"></div>
+    
+    <script>
+        function addResult(message, isSuccess = true) {
+            const div = document.createElement('div');
+            div.className = 'test-result ' + (isSuccess ? 'success' : 'error');
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        async function testLoadJSON() {
+            document.getElementById('results').innerHTML = '';
+            
+            try {
+                // Step 1: Load the test JSON file
+                addResult('Step 1: Loading test-percentages.json...');
+                const response = await fetch('/project-maps/test-percentages.json');
+                const jsonData = await response.json();
+                addResult('✓ JSON loaded successfully');
+                
+                // Step 2: Check the structure
+                addResult('Step 2: Checking JSON structure...');
+                if (jsonData.id === 0 && Array.isArray(jsonData.children)) {
+                    addResult('✓ JSON structure is valid');
+                } else {
+                    addResult('✗ JSON structure is invalid', false);
+                    return;
+                }
+                
+                // Step 3: Check percentage values
+                addResult('Step 3: Checking percentage values...');
+                jsonData.children.forEach((child, index) => {
+                    const percentage = child.percentage || 0;
+                    addResult(`Child ${index + 1} (${child.label}): ${percentage}%`);
+                });
+                
+                // Step 4: Simulate the save process
+                addResult('Step 4: Simulating save process...');
+                const jsonStr = JSON.stringify(jsonData, null, 2);
+                addResult('✓ JSON stringified successfully');
+                
+                // Step 5: Simulate reload process
+                addResult('Step 5: Simulating reload process...');
+                const reloadedData = JSON.parse(jsonStr);
+                reloadedData.children.forEach((child, index) => {
+                    const percentage = child.percentage || 0;
+                    addResult(`Reloaded Child ${index + 1} (${child.label}): ${percentage}%`);
+                });
+                
+                addResult('✓ Test completed - check if percentages are preserved');
+                
+            } catch (error) {
+                addResult('✗ Error: ' + error.message, false);
+            }
+        }
+    </script>
+</body>
+</html>
