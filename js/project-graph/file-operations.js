@@ -77,6 +77,7 @@ function autoLoadProjectGraph() {
                     data.nodes = nodes;
                     data.edges = edges;
                     init_nodes();
+                    // No longer change root node id; only projectId property is set on save
                     network = new vis.Network(viz, data, options);
                     update_node_index();
                     network.once('afterDrawing', function() {
@@ -166,14 +167,25 @@ function ifRemoteUser() {
     }
 
 async function saveJSONgraph() {
+
+    // Enforce convention: add projectId property to root node (id: 0)
+    let projectId = typeof projectName !== 'undefined' ? projectName : (window.projectName || 'project-graph');
+    let allNodes = nodes.get();
+    let rootNode = allNodes.find(n => n.id === 0);
+    if (rootNode) {
+        // Add or update projectId property
+        rootNode.projectId = projectId;
+        nodes.update(rootNode);
+    }
+
     // For all nodes:
     var str = "{\"nodes\":[";
     nodes.forEach(function(n) {
         const nodeCopy = Object.assign({}, n);
-        delete nodeCopy['label'];		// only save labelEN and labelZH
+        delete nodeCopy['label']; // only save labelEN and labelZH
         str += JSON.stringify(nodeCopy);
         str += ",";
-        });
+    });
     str = str.slice(0,-1) + "],";
 
     // For all edges:
@@ -183,9 +195,8 @@ async function saveJSONgraph() {
         // Keep the edge ID and color information
         str += JSON.stringify(edgeCopy);
         str += ",";
-        });
+    });
     str = str.slice(0,-1) + "]}";
-    // console.log(str);
 
     // Open modal window and ask for filename
     json_modal.style.display = "block";

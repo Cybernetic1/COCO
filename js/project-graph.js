@@ -109,18 +109,16 @@ const url = window.location.href;
 var regex = new RegExp('[?&]lang=([a-zA-Z]{2})');
 var params = regex.exec(url);
 if (params && params[1]) {
-    lang = params[1].toUpperCase();
+	lang = params[1].toUpperCase();
 }
 
-// Project name handling - similar to project-map.js
-// Get URL parameter for project name (if any)
-const urlParams = new URLSearchParams(window.location.search);
-const projectNameParam = urlParams.get('projectName');
 
-// Determine project name with proper precedence:
-// 1. URL/filename parameter (primary source for project-graph)
-// 2. Default fallback
-let projectName = projectNameParam || 'project-graph';
+// Project ID/name handling - always enforce as root node id
+const urlParams = new URLSearchParams(window.location.search);
+const projectIdParam = urlParams.get('projectName');
+let projectName = projectIdParam || 'project-graph';
+
+
 
 // Update page title and header
 document.title = `${projectName} - Project Graph`;
@@ -189,12 +187,12 @@ viz.style.width = window.innerWidth - 16 + "px";
 
 // Set up initial network events after network is fully ready
 network.once('afterDrawing', function() {
-    // Add a small delay to ensure network is completely ready
-    setTimeout(function() {
-        if (typeof setupNetworkEvents === 'function') {
-            setupNetworkEvents(network);
-        }
-    }, 100);
+	// Add a small delay to ensure network is completely ready
+	setTimeout(function() {
+		if (typeof setupNetworkEvents === 'function') {
+			setupNetworkEvents(network);
+		}
+	}, 100);
 });
 
 // --- Drag-to-link functionality moved to network-events.js ---

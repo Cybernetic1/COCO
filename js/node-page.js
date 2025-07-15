@@ -9,21 +9,32 @@ document.getElementById('node-id').textContent = 'Node ID: ' + nodeId;
 
 // Load node data from localStorage (if available)
 let nodeData = null;
-let map = null;
+let projectData = null;
+let projectId = null;
 try {
-    map = JSON.parse(localStorage.getItem('projectMapRoot'));
-    function findNode(node, id) {
-    if (!node) return null;
-    if (String(node.id) === String(id)) return node;
-    if (node.children) {
-        for (const child of node.children) {
-        const found = findNode(child, id);
-        if (found) return found;
+    projectData = JSON.parse(localStorage.getItem('projectData'));
+    if (projectData) {
+        projectId = projectData.projectId || 'defaultProject';
+        if (projectData.dataType === 'map') {
+            // Tree structure
+            function findNode(node, id) {
+                if (!node) return null;
+                if (String(node.id) === String(id)) return node;
+                if (node.children) {
+                    for (const child of node.children) {
+                        const found = findNode(child, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+            nodeData = findNode(projectData.data, nodeId);
+        } else if (projectData.dataType === 'graph') {
+            // Graph structure
+            const nodeArr = projectData.data.nodes || [];
+            nodeData = nodeArr.find(n => String(n.id) === String(nodeId));
         }
     }
-    return null;
-    }
-    nodeData = findNode(map, nodeId);
 } catch {}
 
 function setField(id, value) {
@@ -35,9 +46,7 @@ function setField(id, value) {
 // --- Voting: Load votes from backend after nodeData is loaded ---
 async function loadAndInitVotes() {
     if (!nodeData) return;
-    // Get projectId from map root
-    let projectId = (map && map.id) ? map.id : (window.map && window.map.id) ? window.map.id : localStorage.getItem('currentProjectId') || 'defaultProject';
-    // nodeId is already defined
+    // projectId is already set above
     if (typeof loadVotesFromBackend === 'function') {
         const votes = await loadVotesFromBackend(projectId, nodeId);
         if (votes && Array.isArray(votes)) {

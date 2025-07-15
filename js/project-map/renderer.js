@@ -251,7 +251,16 @@ class ProjectMapRenderer {
     openNodePage.onmouseout = () => openNodePage.style.background = '';
     openNodePage.onclick = () => {
       this.removeContextMenu(menu);
-      // Open node-page.html in a new tab with the node ID as a URL parameter
+      // Save current map data to localStorage as projectData before opening node-page
+      try {
+        const projectId = (typeof projectMapRoot.projectId !== 'undefined') ? projectMapRoot.projectId : (projectMapRoot.id || 'project-map');
+        const projectData = {
+          dataType: 'map',
+          projectId: projectId,
+          data: projectMapRoot
+        };
+        localStorage.setItem('projectData', JSON.stringify(projectData));
+      } catch (e) { console.error('Failed to save projectData before opening node-page:', e); }
       window.open(`node-page.html?id=${node.id}`, '_blank');
     };
     menu.appendChild(openNodePage);

@@ -65,11 +65,17 @@ function setNodeVotes(votesArray) {
 }
 
 // Helper to get projectId from map
+// Helper to get projectId from projectData (unified structure)
 function getProjectId() {
-    if (typeof map !== 'undefined' && map && map.id) return map.id;
-    if (window.map && window.map.id) return window.map.id;
-    // If not found, log error and return null
-    console.error('[Voting] No projectId found in map. Voting cannot be saved.');
+    if (typeof projectData !== 'undefined' && projectData && projectData.projectId) {
+        return projectData.projectId;
+    }
+    // Fallback: try to get from localStorage if not already loaded
+    try {
+        const pd = JSON.parse(localStorage.getItem('projectData'));
+        if (pd && pd.projectId) return pd.projectId;
+    } catch {}
+    console.error('[Voting] No projectId found in projectData. Voting cannot be saved.');
     return null;
 }
 

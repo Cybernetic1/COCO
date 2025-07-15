@@ -109,6 +109,19 @@ function changeEdgeTypeFromContextMenu(newType) {
 // Open node page for the context menu node
 function openNodePage() {
     if (contextMenuNodeId !== null) {
+        // Save current graph data to localStorage as projectData before opening node-page
+        const allNodes = data.nodes.get();
+        const allEdges = data.edges.get();
+        const projectId = typeof projectName !== 'undefined' ? projectName : (window.projectName || 'project-graph');
+        const projectData = {
+            dataType: 'graph',
+            projectId: projectId,
+            data: {
+                nodes: allNodes,
+                edges: allEdges
+            }
+        };
+        localStorage.setItem('projectData', JSON.stringify(projectData));
         // Open node-page.html in a new tab with the node ID as a URL parameter
         window.open(`node-page.html?id=${contextMenuNodeId}`, '_blank');
     }

@@ -119,6 +119,8 @@ class ProjectMapFileManager {
     
     // Store the project name in the root node's project-name property
     window.projectMapRoot["project-name"] = saveName;
+    // Enforce convention: add projectId property to root node
+    window.projectMapRoot.projectId = saveName;
     
     const fileName = `${saveName}.json`;
     console.log('Sanitized filename:', fileName);

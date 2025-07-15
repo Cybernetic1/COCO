@@ -10,9 +10,15 @@ function getNodeAuthors() {
     return currentAuthors;
     }
     
-    // Fall back to ROOT node's authors (map is the root node)
-    if (map && map.authors && Array.isArray(map.authors)) {
-    return map.authors;
+    // Fall back to ROOT node's authors (projectData.data is the root node for map, or nodes[0] for graph)
+    if (typeof projectData !== 'undefined' && projectData !== null) {
+        let rootAuthors = [];
+        if (projectData.dataType === 'map' && projectData.data && Array.isArray(projectData.data.authors)) {
+            rootAuthors = projectData.data.authors;
+        } else if (projectData.dataType === 'graph' && projectData.data && Array.isArray(projectData.data.nodes) && projectData.data.nodes.length > 0 && Array.isArray(projectData.data.nodes[0].authors)) {
+            rootAuthors = projectData.data.nodes[0].authors;
+        }
+        if (rootAuthors.length > 0) return rootAuthors;
     }
     
     // Return empty array if no authors found anywhere
@@ -283,8 +289,10 @@ document.getElementById('node-form').onsubmit = function(e) {
         nodeData.votes = [...window.votes];
     }
 
-    // Save back to localStorage
-    localStorage.setItem('projectMapRoot', JSON.stringify(map));
+    // Save back to localStorage (update projectData)
+    if (typeof projectData !== 'undefined') {
+        localStorage.setItem('projectData', JSON.stringify(projectData));
+    }
     alert('Node updated! (Note: changes are local until you save the map)');
 };
 

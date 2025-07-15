@@ -54,21 +54,21 @@
 // document.getElementById("SidePaneButton").click();
 
 function toggleSidePane() {
-	techClick2.play().catch(function (error) {
-		// console.log("cannot play sound without user click first");
-		});
-	viz.style.height = window.innerHeight -40 + "px";
-	viz.style.width = window.innerWidth -16 + "px";
+  techClick2.play().catch(function (error) {
+    // console.log("cannot play sound without user click first");
+    });
+  viz.style.height = window.innerHeight -40 + "px";
+  viz.style.width = window.innerWidth -16 + "px";
 
-	if (pane.style.display == "none") {
-		pane.style.display = "inline-block";
-		document.getElementById("SidePaneButton2").style.display = "none";
-		}
-	else {
-		pane.style.display = "none";
-		document.getElementById("SidePaneButton2").style.display = "inline-block";
-		}
-	}
+  if (pane.style.display == "none") {
+    pane.style.display = "inline-block";
+    document.getElementById("SidePaneButton2").style.display = "none";
+    }
+  else {
+    pane.style.display = "none";
+    document.getElementById("SidePaneButton2").style.display = "inline-block";
+    }
+  }
 
 // Make sure toggleSidePane is global
 window.toggleSidePane = toggleSidePane;
@@ -147,6 +147,19 @@ function updateChineseNameSectionVisibility(chineseValue) {
 
 function openNodePageFromSidePane() {
     if (selectedNodeId !== null) {
+        // Save current graph data to localStorage as projectData before opening node-page
+        const allNodes = nodes.get();
+        const allEdges = edges.get();
+        const projectId = typeof projectName !== 'undefined' ? projectName : (window.projectName || 'project-graph');
+        const projectData = {
+            dataType: 'graph',
+            projectId: projectId,
+            data: {
+                nodes: allNodes,
+                edges: allEdges
+            }
+        };
+        localStorage.setItem('projectData', JSON.stringify(projectData));
         // Open node-page.html in a new tab with the node ID as a URL parameter
         window.open(`node-page.html?id=${selectedNodeId}`, '_blank');
     } else {

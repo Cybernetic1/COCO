@@ -139,8 +139,7 @@ app.post('/saveJSON', (req, res) => {
     console.log('=== SAVE DEBUG ===');
     console.log('Filename from request:', filename);
     console.log('Sanitized filename:', sanitizedFilename);
-    console.log('Is in server subdir:', isInServerSubdir);
-    console.log('Maps directory:', mapsDir);
+    // Removed undefined isInServerSubdir and mapsDir
     console.log('Final file path:', filePath);
     console.log('Resolved file path:', path.resolve(filePath));
     console.log('Current working directory:', process.cwd());

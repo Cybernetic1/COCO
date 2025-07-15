@@ -15,26 +15,35 @@ let projectMapRoot = {
   ]
 };
 
-// Get URL parameter for project name (if any) for initial load
+
+// Get URL parameter for project id/name (projectName)
 const urlParams = new URLSearchParams(window.location.search);
-const projectNameParam = urlParams.get('projectName');
+const projectIdParam = urlParams.get('projectName');
 
 // Initialize project name variable
-let projectName = ProjectMapDataManager.getProjectName(projectMapRoot, projectNameParam);
+let projectName = ProjectMapDataManager.getProjectName(projectMapRoot, projectIdParam);
 
-// Try to load projectMapRoot from localStorage on page load
-const loadedData = ProjectMapDataManager.loadFromLocalStorage();
-if (loadedData && ProjectMapDataManager.validateProjectMapData(loadedData)) {
-  projectMapRoot = loadedData;
-  
-  // Determine project name using data manager
-  projectName = ProjectMapDataManager.getProjectName(projectMapRoot, projectNameParam);
-  
-  // If JSON doesn't have project-name but we got it from URL, store it
-  if (!projectMapRoot["project-name"] && projectNameParam) {
-    ProjectMapDataManager.setProjectName(projectMapRoot, projectNameParam);
+// Always enforce projectMapRoot.id = projectIdParam (or fallback)
+function enforceProjectMapRootId() {
+  if (projectIdParam) {
+    projectMapRoot.id = projectIdParam;
+  } else if (!projectMapRoot.id) {
+    projectMapRoot.id = 'project-map';
   }
-  
+}
+enforceProjectMapRootId();
+
+// Try to load projectData from localStorage on page load
+const loadedProjectData = JSON.parse(localStorage.getItem('projectData'));
+if (loadedProjectData && loadedProjectData.dataType === 'map' && loadedProjectData.data && ProjectMapDataManager.validateProjectMapData(loadedProjectData.data)) {
+  projectMapRoot = loadedProjectData.data;
+  enforceProjectMapRootId();
+  // Determine project name using data manager
+  projectName = ProjectMapDataManager.getProjectName(projectMapRoot, projectIdParam);
+  // If JSON doesn't have project-name but we got it from URL, store it
+  if (!projectMapRoot["project-name"] && projectIdParam) {
+    ProjectMapDataManager.setProjectName(projectMapRoot, projectIdParam);
+  }
   window.projectMapRoot = projectMapRoot; // update global for debugging
 }
 
@@ -155,7 +164,14 @@ function renderMap(node, depth = 0) {
 
 // Save the current projectMapRoot to localStorage whenever the map is updated
 function saveMapToLocalStorage() {
-  ProjectMapDataManager.saveToLocalStorage(projectMapRoot);
+  // Save as a unified projectData object
+  const projectId = projectMapRoot.projectId || projectMapRoot.id || projectName || 'project-map';
+  const projectData = {
+    dataType: 'map',
+    projectId: projectId,
+    data: projectMapRoot
+  };
+  localStorage.setItem('projectData', JSON.stringify(projectData));
 }
 
 // Initialize slider event listeners after map is rendered (use module)
@@ -319,29 +335,24 @@ document.addEventListener('DOMContentLoaded', function() {
           // Validate and load the JSON data
           if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
             projectMapRoot = json;
-            
+            enforceProjectMapRootId();
             // Determine project name with proper precedence:
             // 1. JSON's project-name property (highest precedence)
             // 2. URL/filename parameter
             // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
-            projectName = projectMapRoot["project-name"] || projectNameParam || 'project-map';
-            
+            projectName = projectMapRoot["project-name"] || projectIdParam || 'project-map';
             // If JSON doesn't have project-name but we got it from URL, store it
-            if (!projectMapRoot["project-name"] && projectNameParam) {
-              projectMapRoot["project-name"] = projectNameParam;
+            if (!projectMapRoot["project-name"] && projectIdParam) {
+              projectMapRoot["project-name"] = projectIdParam;
             }
-            
             window.projectMapRoot = projectMapRoot;
             selected_node = null;
-            
             // Update page title and header
             document.title = `${projectName} - Project Map`;
             updateSaveButtonState();
-            
             renderCurrentMap(); // Simple render - use whatever percentages are in the JSON
             saveMapToLocalStorage();
             console.log(`Auto-loaded project map: ${projectName}`);
-            
             // Play sound effect for successful auto-load
             techClick2.play().catch(() => {}); // Ignore audio errors
           } else {
