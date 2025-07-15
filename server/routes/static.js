@@ -12,6 +12,7 @@ async function reqHandler(req, res) {
   // **** load a JSON file
   if (fileName.startsWith("/loadJSON/")) {
     var fname = path.basename(url.parse(req.url).pathname);
+    var fullPath = path.join(process.cwd(), "project-graphs", fname);
 
     res.writeHead(200, {
       "Content-Type": "application/json",
@@ -19,13 +20,13 @@ async function reqHandler(req, res) {
       "Connection": "keep-alive"
     });
 
-    fs.readFile("project-graphs/" + fname, "utf-8", function (err, data) {
+    fs.readFile(fullPath, "utf-8", function (err, data) {
       if (err) {
         console.log(err);
         return err;
       }
       res.end(data, "utf-8");
-      console.log("Loaded JSON file:", fname);
+      console.log("Loaded JSON file:", fname, "from", fullPath);
     });
     return;
   }

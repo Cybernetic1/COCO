@@ -85,6 +85,31 @@ router.get('/joinable-projects', (req, res) => {
   });
 });
 
+// --- API: Join a project ---
+router.post('/join-project', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  if (!req.body || typeof req.body.projectId === 'undefined') {
+    return res.status(400).json({ error: 'Missing project ID in request body' });
+  }
+  const projectId = parseInt(req.body.projectId, 10);
+  const role = req.body.role || 'member'; // Default role is 'member'
+  if (!projectId) {
+    return res.status(400).json({ error: 'Missing or invalid project ID' });
+  }
+  db.run(
+    `INSERT INTO user_projects (userId, projectId, role) VALUES (?, ?, ?)`,
+    [req.user.id, projectId, role],
+    function(err) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
 // --- API: Get user's projects ---
 router.get('/user-projects', (req, res) => {
   if (!req.isAuthenticated() || !req.user) {
@@ -321,6 +346,56 @@ router.get('/percentages/all', (req, res) => {
     
     // Convert back to array
     res.json({ percentages: Object.values(percentages) });
+  });
+});
+
+// --- API: Save node votes ---
+router.post('/save-votes', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  const { projectId, nodeId, votes } = req.body;
+  const userId = req.user.id;
+  if (!projectId || !nodeId || !Array.isArray(votes)) {
+    return res.status(400).json({ error: 'Missing projectId, nodeId, or votes array' });
+  }
+  // Remove existing votes for this user/project/node
+  db.run('DELETE FROM node_votes WHERE userId = ? AND projectId = ? AND nodeId = ?', [userId, projectId, nodeId], function(err) {
+    if (err) {
+      console.error('Error deleting old votes:', err);
+      return res.status(500).json({ error: 'Database error (delete)' });
+    }
+    // Insert new votes
+    const stmt = db.prepare('INSERT INTO node_votes (userId, projectId, nodeId, voteIndex, value) VALUES (?, ?, ?, ?, ?)');
+    votes.forEach((value, idx) => {
+      stmt.run(userId, projectId, nodeId, idx, value);
+    });
+    stmt.finalize((err) => {
+      if (err) {
+        console.error('Error saving votes:', err);
+        return res.status(500).json({ error: 'Database error (insert)' });
+      }
+      res.json({ success: true });
+    });
+    return;
+  });
+});
+
+// --- API: Load node votes for current user ---
+router.get('/load-votes', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  const { projectId, nodeId } = req.query;
+  const userId = req.user.id;
+  if (!projectId || !nodeId) {
+    return res.status(400).json({ error: 'Missing projectId or nodeId' });
+  }
+  db.all('SELECT voteIndex, value FROM node_votes WHERE userId = ? AND projectId = ? AND nodeId = ? ORDER BY voteIndex ASC', [userId, projectId, nodeId], (err, rows) => {
+    if (err) {
+      console.error('Error loading votes:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    // Return as array, filling missing indices with 0
+    let votes = [];
+    rows.forEach(row => { votes[row.voteIndex] = row.value; });
+    res.json({ votes });
   });
 });
 

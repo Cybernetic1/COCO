@@ -22,28 +22,35 @@ function getNodeAuthors() {
 function displayAuthors() {
     const authorsList = document.getElementById('authors-list');
     authorsList.innerHTML = '';
-    
+
     const authorsToDisplay = getNodeAuthors();
-    
-    // Check if we're using inherited authors from ROOT (node authors are empty)
-    const isUsingInheritedAuthors = (!currentAuthors || currentAuthors.length === 0);
-    
+
+    // Debugging output
+    console.log('[displayAuthors] nodeId:', typeof nodeId !== 'undefined' ? nodeId : '(undefined)');
+    console.log('[displayAuthors] nodeData:', nodeData);
+    console.log('[displayAuthors] currentAuthors:', currentAuthors);
+    console.log('[displayAuthors] authorsToDisplay:', authorsToDisplay);
+    // Check if we're using inherited authors from ROOT (node authors are missing or empty)
+    const isUsingInheritedAuthors = !nodeData.authors || nodeData.authors.length === 0;
+    console.log('[displayAuthors] isUsingInheritedAuthors:', isUsingInheritedAuthors);
+
     // Show inheritance note whenever we're using ROOT authors
     if (isUsingInheritedAuthors) {
-    const inheritedNote = document.createElement('div');
-    inheritedNote.style.fontSize = '12px';
-    inheritedNote.style.color = '#666';
-    inheritedNote.style.fontStyle = 'italic';
-    inheritedNote.style.marginBottom = '5px';
-    
-    // Combine inheritance note with empty list message if no authors found
-    if (authorsToDisplay.length === 0) {
-        inheritedNote.textContent = '(Default authors from ROOT - empty list)';
-    } else {
-        inheritedNote.textContent = '(Default authors from ROOT)';
-    }
-    
-    authorsList.appendChild(inheritedNote);
+        const inheritedNote = document.createElement('span');
+        inheritedNote.style.fontSize = '12px';
+        inheritedNote.style.color = '#666';
+        inheritedNote.style.fontStyle = 'italic';
+        inheritedNote.style.marginBottom = '5px';
+        inheritedNote.style.marginRight = '6px';
+
+        // Combine inheritance note with empty list message if no authors found
+        if (authorsToDisplay.length === 0) {
+            inheritedNote.textContent = '(Default authors from ROOT - empty list)';
+        } else {
+            inheritedNote.textContent = '(Default authors from ROOT)';
+        }
+
+        authorsList.appendChild(inheritedNote);
     }
     
     if (authorsToDisplay.length === 0) {
@@ -271,8 +278,16 @@ document.getElementById('node-form').onsubmit = function(e) {
     // Save authors as array of objects
     nodeData.authors = currentAuthors;
     
+    // Save votes (array of numbers) for this node
+    if (typeof window.votes !== 'undefined') {
+        nodeData.votes = [...window.votes];
+    }
+
     // Save back to localStorage
     localStorage.setItem('projectMapRoot', JSON.stringify(map));
     alert('Node updated! (Note: changes are local until you save the map)');
 };
+
+// Load users immediately when this script is loaded
+loadUsers();
 

@@ -5,6 +5,18 @@ const db = new sqlite3.Database('coco.db');
 
 // Initialize database schema
 db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS node_votes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER NOT NULL,
+    projectId INTEGER NOT NULL,
+    nodeId TEXT NOT NULL,
+    voteIndex INTEGER NOT NULL,
+    value REAL NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(userId) REFERENCES users(id),
+    FOREIGN KEY(projectId) REFERENCES projects(id)
+  )`);
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     googleId TEXT,

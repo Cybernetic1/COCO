@@ -111,23 +111,29 @@ app.post('/saveJSON', (req, res) => {
     
     // Get filename and sanitize it
     const filename = req.body.filename;
-    
-    // Security: prevent directory traversal and validate filename
-    if (filename.includes('..') || path.isAbsolute(filename) || filename.includes('/') || filename.includes('\\')) {
+
+    // Security: prevent directory traversal and absolute paths, but allow subdirectories
+    if (filename.includes('..') || path.isAbsolute(filename)) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid filename - no path separators or traversal allowed'
+        error: 'Invalid filename - directory traversal or absolute paths not allowed'
       });
     }
-    
+
     // Ensure filename has .json extension
     const sanitizedFilename = filename.endsWith('.json') ? filename : `${filename}.json`;
-    
-    // Construct the full file path (save to project-maps directory)
-    // If we're running from server/ subdirectory, go up one level
-    const isInServerSubdir = process.cwd().endsWith('/server');
-    const mapsDir = isInServerSubdir ? '../project-maps' : 'project-maps';
-    const filePath = path.join(mapsDir, sanitizedFilename);
+
+    // Enforce that we are running from the project root directory
+    const cwd = process.cwd();
+    if (!cwd.endsWith('/COCO')) {
+      return res.status(500).json({
+        success: false,
+        error: 'Server must be started from the project root directory (COCO)'
+      });
+    }
+
+    // Save directly to the path specified by the client (relative to project root)
+    const filePath = path.join(cwd, sanitizedFilename);
     
     // Debug logging
     console.log('=== SAVE DEBUG ===');

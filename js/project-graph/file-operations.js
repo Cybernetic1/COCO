@@ -130,40 +130,40 @@ initializeAutoLoad();
 
 // Populate dropdown menu with JSON file found in directory
 function listJSONfiles() {
-	let dropDown = document.getElementById("JSONdropDown");
-	dropDown.replaceChildren();		// clear all options
+    let dropDown = document.getElementById("JSONdropDown");
+    dropDown.replaceChildren();		// clear all options
 
-	function addOption(value, text) {
-		const option = document.createElement("option");
-		option.value = value;
-		option.text = text;
-		dropDown.appendChild(option);
-		}
+    function addOption(value, text) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.text = text;
+        dropDown.appendChild(option);
+        }
 
-	addOption("none", "---");
-	$.ajax({
-		method: "GET",
-		url: "/fileList/",
-		success: function (files) {
-			// console.log(typeof(files), files);
-			files.forEach( file => {
-				if (!file.endsWith('.json'))
-					return;
-				file = file.slice(0,-5);
-				addOption(file, file);
-				} );
-			} });
-	}
+    addOption("none", "---");
+    $.ajax({
+        method: "GET",
+        url: "/fileList/",
+        success: function (files) {
+            // console.log(typeof(files), files);
+            files.forEach( file => {
+                if (!file.endsWith('.json'))
+                    return;
+                file = file.slice(0,-5);
+                addOption(file, file);
+                } );
+            } });
+    }
 
 // Check if user is local or remote
 function ifRemoteUser() {
-	if (location.hostname === "localhost" ||
-		location.hostname === "127.0.0.1")
-		return;
-	const div = document.getElementById("remote-user");
-	div.style.display = "block";
-	div.childNodes[1].innerText = "You're on machine: " + location.hostname;
-	}
+    if (location.hostname === "localhost" ||
+        location.hostname === "127.0.0.1")
+        return;
+    const div = document.getElementById("remote-user");
+    div.style.display = "block";
+    div.childNodes[1].innerText = "You're on machine: " + location.hostname;
+    }
 
 async function saveJSONgraph() {
     // For all nodes:
@@ -207,20 +207,29 @@ async function saveJSONgraph() {
         else
             name = name + tag + ".json";
         console.log("Saving file:", name);
-        $.ajax({
-            method: "POST",
-            url: "/saveJSON/project-graphs/" + name,
-            data: str,
-            contentType: "application/json",
-            success: function(resp) {
-                console.log("Save successful:", resp);
-                alert("File saved successfully!");
-            },
-            error: function(xhr, status, error) {
-                console.error("Save failed:", status, error, xhr.responseText);
-                alert("Save failed: " + error);
+        fetch('/saveJSON', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                filename: "project-graphs/" + name,
+                data: JSON.parse(str)
+            })
+        })
+        .then(r => {
+            if (r.ok) {
+                alert('File saved successfully!');
+                return r.json();
+            } else {
+                return r.text().then(t => { throw new Error(t); });
             }
-            });
+        })
+        .then(resp => {
+            console.log("Save successful:", resp);
+        })
+        .catch(error => {
+            console.error("Save failed:", error);
+            alert("Save failed: " + error);
+        });
 
         json_modal.style.display = "none";		// close window
         techClick2.play();
@@ -232,7 +241,7 @@ async function saveJSONgraph() {
             document.getElementById("json_modal_OK").click();
         }
     });
-	}
+    }
 
 async function loadJSONgraph() {
     // Open modal window and ask for filename
@@ -364,10 +373,13 @@ function saveJSONmap() {
     if (!filename) return;
     const jsonStr = JSON.stringify(treeData, null, 2);
 
-    fetch(`/saveJSON/project-maps/${encodeURIComponent(filename)}.json`, {
+    fetch('/saveJSON', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: jsonStr
+        body: JSON.stringify({
+            filename: `project-graphs/${filename}.json`,
+            data: JSON.parse(jsonStr)
+        })
     })
     .then(r => r.ok ? alert('Map saved to server in tree format!') : r.text().then(t => alert('Error: ' + t)))
     .catch(e => alert('Network error: ' + e));
@@ -375,50 +387,50 @@ function saveJSONmap() {
 
 
 async function saveGitDir() {
-	// Currently disallow remote users to write directly to global Git dir
-	if (!(location.hostname === "localhost" ||
-			 location.hostname === "127.0.0.1"))
-		return;
+    // Currently disallow remote users to write directly to global Git dir
+    if (!(location.hostname === "localhost" ||
+             location.hostname === "127.0.0.1"))
+        return;
 
-	// For all nodes:
-	var str = "{\"nodes\":[";
-	nodes.forEach(function(n) {
-		const nodeCopy = Object.assign({}, n);
-		delete nodeCopy['label'];		// only save labelEN and labelZH
-		str += JSON.stringify(nodeCopy);
-		str += ",";
-		});
-	str = str.slice(0,-1) + "],";
+    // For all nodes:
+    var str = "{\"nodes\":[";
+    nodes.forEach(function(n) {
+        const nodeCopy = Object.assign({}, n);
+        delete nodeCopy['label'];		// only save labelEN and labelZH
+        str += JSON.stringify(nodeCopy);
+        str += ",";
+        });
+    str = str.slice(0,-1) + "],";
 
-	// For all edges:
-	str += "\"edges\":[";
-	edges.forEach(function(e) {
-		const edgeCopy = Object.assign({}, e);
-		// Keep the edge ID and color information
-		str += JSON.stringify(edgeCopy);
-		str += ",";
-		});
-	str = str.slice(0,-1) + "]}";
-	console.log(str);
-	techClick2.play();
+    // For all edges:
+    str += "\"edges\":[";
+    edges.forEach(function(e) {
+        const edgeCopy = Object.assign({}, e);
+        // Keep the edge ID and color information
+        str += JSON.stringify(edgeCopy);
+        str += ",";
+        });
+    str = str.slice(0,-1) + "]}";
+    console.log(str);
+    techClick2.play();
 
-	// Open modal window and ask for filename
-	git_modal.style.display = "block";
-	document.getElementById("git_modal_OK").onclick = function() {
-		var name = document.getElementById("gitDropDown").value;
-		if (name == "none")
-			name = document.getElementById("gitFileName").value;
-		$.ajax({
-			method: "POST",
-			url: "/saveDir/" + name,
-			data: str,
-			success: function(resp) {}
-			});
+    // Open modal window and ask for filename
+    git_modal.style.display = "block";
+    document.getElementById("git_modal_OK").onclick = function() {
+        var name = document.getElementById("gitDropDown").value;
+        if (name == "none")
+            name = document.getElementById("gitFileName").value;
+        $.ajax({
+            method: "POST",
+            url: "/saveDir/" + name,
+            data: str,
+            success: function(resp) {}
+            });
 
-		git_modal.style.display = "none";		// close window
-		techClick2.play();
-		};
-	}
+        git_modal.style.display = "none";		// close window
+        techClick2.play();
+        };
+    }
 
 // **** read Project Graph from current Git directory
 async function loadGitDir() {
@@ -528,10 +540,13 @@ async function saveGraphToDatabase() {
     try {
         // Step 1: Save JSON file to project-graphs directory
         console.log('Saving JSON file:', filename);
-        const saveResponse = await fetch(`/saveJSON/project-graphs/${encodeURIComponent(filename)}`, {
+        const saveResponse = await fetch('/saveJSON', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: graphData
+            body: JSON.stringify({
+                filename: `project-graphs/${filename}`,
+                data: JSON.parse(graphData)
+            })
         });
         
         if (!saveResponse.ok) {

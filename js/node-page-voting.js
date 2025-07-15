@@ -1,36 +1,106 @@
+
+// --- Voting Backend Integration ---
+async function loadVotesFromBackend(projectId, nodeId) {
+    try {
+        // Use GET to match backend (not POST)
+        const params = new URLSearchParams({ projectId, nodeId });
+        const res = await fetch(`/api/load-votes?${params.toString()}`);
+        if (!res.ok) throw new Error('Failed to load votes');
+        const data = await res.json();
+        if (Array.isArray(data.votes) && data.votes.length > 0) {
+            setNodeVotes(data.votes);
+            return data.votes;
+        } else {
+            // No votes in backend: clear nodeData.votes to zeros
+            const authors = (typeof getNodeAuthors === 'function') ? getNodeAuthors() : [];
+            const zeros = new Array(authors.length).fill(0);
+            setNodeVotes(zeros);
+            return zeros;
+        }
+    } catch (e) {
+        console.error('Error loading votes from backend:', e);
+        // On error, also clear nodeData.votes to zeros
+        const authors = (typeof getNodeAuthors === 'function') ? getNodeAuthors() : [];
+        const zeros = new Array(authors.length).fill(0);
+        setNodeVotes(zeros);
+        return zeros;
+    }
+}
+
+async function saveVotesToBackend(projectId, nodeId, votes) {
+    try {
+        console.log('[saveVotesToBackend] Sending:', { projectId, nodeId, votes });
+        const res = await fetch('/api/save-votes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectId, nodeId, votes })
+        });
+        if (!res.ok) throw new Error('Failed to save votes');
+        const data = await res.json();
+        if (!data.success) {
+            console.warn('Backend did not accept votes:', data.error);
+        } else {
+            console.log('[saveVotesToBackend] Success:', data);
+        }
+    } catch (e) {
+        console.error('Error saving votes to backend:', e);
+    }
+}
+
 // Functions for dynamic voting sliders
+
+function getNodeVotes() {
+    if (nodeData && Array.isArray(nodeData.votes)) {
+        return [...nodeData.votes];
+    }
+    // If not present, initialize to zeros
+    const authors = getNodeAuthors();
+    return new Array(authors.length).fill(0);
+}
+
+function setNodeVotes(votesArray) {
+    if (nodeData) {
+        nodeData.votes = [...votesArray];
+    }
+}
+
+// Helper to get projectId from map
+function getProjectId() {
+    if (typeof map !== 'undefined' && map && map.id) return map.id;
+    if (window.map && window.map.id) return window.map.id;
+    // If not found, log error and return null
+    console.error('[Voting] No projectId found in map. Voting cannot be saved.');
+    return null;
+}
 
 function createVotingSliders() {
     const votingContainer = document.getElementById('voting-container');
     votingContainer.innerHTML = '';
     
     const authorsToDisplay = getNodeAuthors();
-    
     if (authorsToDisplay.length === 0) {
-    votingContainer.innerHTML = '<p style="color: #999; font-style: italic;">No authors available for voting</p>';
-    // Clear votes array when no authors
-    window.votes = [];
-    return;
+        votingContainer.innerHTML = '<p style="color: #999; font-style: italic;">No authors available for voting</p>';
+        setNodeVotes([]);
+        return;
     }
-    
-    // Reset votes array to match number of authors, all starting at 0
     const n = authorsToDisplay.length;
-    window.votes = new Array(n).fill(0);
-    
+    let votes = getNodeVotes();
+    if (votes.length !== n) {
+        votes = new Array(n).fill(0);
+        setNodeVotes(votes);
+    }
     // Create slider for each author
     authorsToDisplay.forEach((author, index) => {
-    const slideContainer = document.createElement('div');
-    slideContainer.className = 'slidecontainer';
-    
-    const authorName = author.name || author.email || 'Unknown User';
-    
-    slideContainer.innerHTML = `
-        <p class="name">${authorName}</p>
-        <pre class="score">0.00</pre>
-        <input type="range" min="0" max="1000" value="0" class="slider" data-author-index="${index}">
-    `;
-    
-    votingContainer.appendChild(slideContainer);
+        const slideContainer = document.createElement('div');
+        slideContainer.className = 'slidecontainer';
+        const authorName = author.name || author.email || 'Unknown User';
+        const voteValue = votes[index] || 0;
+        slideContainer.innerHTML = `
+            <p class="name">${authorName}</p>
+            <pre class="score">${(voteValue/10).toFixed(2)}</pre>
+            <input type="range" min="0" max="1000" value="${voteValue}" class="slider" data-author-index="${index}">
+        `;
+        votingContainer.appendChild(slideContainer);
     });
     
     // Add total display
@@ -51,72 +121,77 @@ function createVotingSliders() {
 }
 
 // Initialize voting sliders
-function initializeVoting() {
+async function initializeVoting() {
     const sliders = document.getElementsByClassName("slider");
     const outputs = document.getElementsByClassName("score");
-    
-    var scores = [];
+    let votes = getNodeVotes();
     const n = sliders.length;
-    
-    // Always create fresh votes array to match current number of sliders
-    window.votes = new Array(n).fill(0);
-    
-    // Initialize sliders and displays - ensure no NaN values
+    // Initialize sliders and displays
     for (let j = 0; j < n; ++j) {
-    scores[j] = window.votes[j] || 0; // Ensure it's never undefined/NaN
-    sliders[j].value = Math.round(scores[j]);
-    const displayValue = isNaN(scores[j]) ? 0 : scores[j] / 10.0;
-    outputs[j].innerHTML = displayValue.toFixed(2);
+        sliders[j].value = Math.round(votes[j] || 0);
+        const displayValue = isNaN(votes[j]) ? 0 : votes[j] / 10.0;
+        outputs[j].innerHTML = displayValue.toFixed(2);
     }
-    
     var total = 0.0;
-    for (const score of scores) {
-    total += (isNaN(score) ? 0 : score);
+    for (const score of votes) {
+        total += (isNaN(score) ? 0 : score);
     }
     const totalDisplay = document.getElementById("total");
     if (totalDisplay) {
-    totalDisplay.innerHTML = (total / 10.0).toFixed(2);
+        totalDisplay.innerHTML = (total / 10.0).toFixed(2);
     }
-    
-    // Add event listeners to sliders
+    // Add event listeners to sliders (no backend save here)
     [...sliders].forEach(function (slider, k) {
-    slider.addEventListener("input", function() {
-        const newValue = parseFloat(this.value);
-        scores[k] = window.votes[k] = isNaN(newValue) ? 0 : newValue;
-        
-        // Update the current slider's display
-        const displayValue = scores[k] / 10.0;
-        outputs[k].innerHTML = displayValue.toFixed(2);
-        
-        // Calculate surplus value
-        var subtotal = 0;
-        for (const score of scores) {
-        subtotal += (isNaN(score) ? 0 : score);
-        }
-        var surplus = 1000.0 - subtotal;
-        var adjustment = (n > 1) ? surplus / (n - 1) : 0;
-        
-        // Adjust other sliders proportionally
-        for (let j = 0; j < n; ++j) {
-        if (j != k) {
-            scores[j] = window.votes[j] = Math.max(0, (window.votes[j] || 0) + adjustment);
-            if (isNaN(scores[j])) scores[j] = window.votes[j] = 0;
-            sliders[j].value = Math.round(scores[j]);
-            const adjustedDisplayValue = scores[j] / 10.0;
-            outputs[j].innerHTML = adjustedDisplayValue.toFixed(2);
-        }
-        }
-        
-        // Update total
-        var newTotal = 0.0;
-        for (const score of scores) {
-        newTotal += (isNaN(score) ? 0 : score);
-        }
-        const totalDisplay = document.getElementById("total");
-        if (totalDisplay) {
-        totalDisplay.innerHTML = (newTotal / 10.0).toFixed(2);
-        }
+        slider.addEventListener("input", function() {
+            const newValue = parseFloat(this.value);
+            votes[k] = isNaN(newValue) ? 0 : newValue;
+            setNodeVotes(votes);
+            // Update the current slider's display
+            const displayValue = votes[k] / 10.0;
+            outputs[k].innerHTML = displayValue.toFixed(2);
+            // Calculate surplus value
+            var subtotal = 0;
+            for (const score of votes) {
+                subtotal += (isNaN(score) ? 0 : score);
+            }
+            var surplus = 1000.0 - subtotal;
+            var adjustment = (n > 1) ? surplus / (n - 1) : 0;
+            // Adjust other sliders proportionally
+            for (let j = 0; j < n; ++j) {
+                if (j != k) {
+                    votes[j] = Math.max(0, (votes[j] || 0) + adjustment);
+                    if (isNaN(votes[j])) votes[j] = 0;
+                    sliders[j].value = Math.round(votes[j]);
+                    const adjustedDisplayValue = votes[j] / 10.0;
+                    outputs[j].innerHTML = adjustedDisplayValue.toFixed(2);
+                }
+            }
+            // Update total
+            var newTotal = 0.0;
+            for (const score of votes) {
+                newTotal += (isNaN(score) ? 0 : score);
+            }
+            if (totalDisplay) {
+                totalDisplay.innerHTML = (newTotal / 10.0).toFixed(2);
+            }
+            setNodeVotes(votes);
+        });
     });
-    });
+
+    // Add event listener to Save button to persist votes to backend
+    const saveBtn = document.getElementById('save-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const projectId = getProjectId();
+            if (!projectId) {
+                alert('Cannot save votes: Project ID not found.');
+                return;
+            }
+            // Use latest votes from nodeData
+            const currentVotes = getNodeVotes();
+            await saveVotesToBackend(projectId, nodeId, currentVotes);
+        });
+    }
 }
 

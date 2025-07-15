@@ -31,8 +31,29 @@ function setField(id, value) {
     if (el) el.value = value || '';
 }
 
-// Load users on page load
-loadUsers();
+
+// --- Voting: Load votes from backend after nodeData is loaded ---
+async function loadAndInitVotes() {
+    if (!nodeData) return;
+    // Get projectId from map root
+    let projectId = (map && map.id) ? map.id : (window.map && window.map.id) ? window.map.id : localStorage.getItem('currentProjectId') || 'defaultProject';
+    // nodeId is already defined
+    if (typeof loadVotesFromBackend === 'function') {
+        const votes = await loadVotesFromBackend(projectId, nodeId);
+        if (votes && Array.isArray(votes)) {
+            nodeData.votes = [...votes];
+        }
+    }
+    // Now initialize voting UI
+    if (typeof createVotingSliders === 'function') {
+        createVotingSliders();
+    }
+}
+
+// Call after nodeData is loaded
+loadAndInitVotes();
+
+// (loadUsers is now called in node-page-authors.js)
 
 // In the script, after the form is loaded, move the Save button into the form for correct submission
 const form = document.getElementById('node-form');
