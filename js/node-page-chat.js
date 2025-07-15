@@ -1,16 +1,10 @@
 // --- Chat UI logic ---
 // Get projectId and nodeId for unique chat room key
-let projectId = null;
-if (map && map.id) {
-    projectId = map.id;
-} else if (map && map.projectId) {
-    projectId = map.projectId;
-} else {
-    // fallback: try to get from localStorage or URL
-    projectId = localStorage.getItem('currentProjectId') || 'defaultProject';
-}
-// nodeId is already defined
-const chatRoomKey = `${projectId}:${nodeId}`;
+// Use projectId and nodeId from global scope (set in node-page.js)
+// If not present, fallback to localStorage or default
+let chatProjectId = (typeof projectId !== 'undefined' && projectId) ? projectId : (window.map && window.map.id) ? window.map.id : (window.map && window.map.projectId) ? window.map.projectId : localStorage.getItem('currentProjectId') || 'defaultProject';
+let chatNodeId = (typeof nodeId !== 'undefined' && nodeId) ? nodeId : (window.nodeId) ? window.nodeId : null;
+const chatRoomKey = `${chatProjectId}:${chatNodeId}`;
 
 const chatContainer = document.getElementById('chat-container');
 const chatInput = document.getElementById('chat-input');
@@ -25,7 +19,11 @@ function escapeHTML(str) {
 }
 
 // Fetch and display chat messages
-let lastChatMessages = [];
+// Use a single global variable to avoid redeclaration errors if this script is loaded multiple times
+if (typeof window.lastChatMessages === 'undefined') {
+    window.lastChatMessages = [];
+}
+let lastChatMsgs = window.lastChatMessages;
 async function loadChatMessages() {
     try {
     const res = await fetch(`/api/chat?room=${encodeURIComponent(chatRoomKey)}`);
@@ -69,21 +67,51 @@ async function loadChatMessages() {
     if (startIdx === 0 || lastChatMessages.length === 0 || messages.length < lastChatMessages.length) {
         chatContainer.innerHTML = '';
         messages.forEach((msg, idx) => {
-        const div = document.createElement('div');
-        div.style.marginBottom = '6px';
-        div.innerHTML = `<b style='color:#06c;'>${escapeHTML(msg.user||'Anon')}</b>: <span>${escapeHTML(msg.text||'')}</span> <span style='color:#aaa; font-size:11px;'>${msg.time ? new Date(msg.time).toLocaleString() : ''}</span>`;
-        // Add delete button if this is my message
-        if (myName && msg.user === myName) {
+            const div = document.createElement('div');
+            div.style.marginBottom = '6px';
+            // Time (show only time, full date-time on hover)
+            const timeSpan = document.createElement('span');
+            timeSpan.style.color = '#aaa';
+            timeSpan.style.fontSize = '11px';
+            timeSpan.style.marginRight = '8px';
+            if (msg.time) {
+                const dt = new Date(msg.time);
+                timeSpan.textContent = dt.toLocaleTimeString();
+                timeSpan.title = dt.toLocaleString();
+            } else {
+                timeSpan.textContent = '';
+            }
+            div.appendChild(timeSpan);
+            // User name (show only part before '@', full on hover)
+            const userB = document.createElement('b');
+            userB.style.color = '#06c';
+            let displayName = msg.user || 'Anon';
+            if (displayName.includes('@')) {
+                userB.textContent = displayName.split('@')[0];
+                userB.title = displayName;
+            } else {
+                userB.textContent = displayName;
+                userB.title = '';
+            }
+            div.appendChild(userB);
+            div.appendChild(document.createTextNode(': '));
+            // Message text (strikethrough if deleted)
+            const textSpan = document.createElement('span');
+            textSpan.textContent = msg.text || '';
+            if (msg.deleted) {
+                textSpan.style.textDecoration = 'line-through';
+                textSpan.style.color = '#888';
+            }
+            div.appendChild(textSpan);
+            // Delete button
             const delBtn = document.createElement('button');
-            delBtn.textContent = 'Delete';
-            delBtn.style.marginLeft = '8px';
-            delBtn.style.fontSize = '11px';
-            delBtn.style.padding = '2px 8px';
+            delBtn.textContent = '☒';
+            // delBtn.className = 'chat-delete-debug-btn';
+            delBtn.setAttribute('style', `font-size:18px; color:#c00; border:0; background:none; cursor:pointer; z-index:9999;`);
             delBtn.onclick = function() { deleteChatMessage(msg, idx); };
             delBtn.title = 'Delete this message';
             div.appendChild(delBtn);
-        }
-        chatContainer.appendChild(div);
+            chatContainer.appendChild(div);
         });
     } else if (startIdx < messages.length) {
         // Only append new messages
@@ -91,17 +119,48 @@ async function loadChatMessages() {
         const msg = messages[i];
         const div = document.createElement('div');
         div.style.marginBottom = '6px';
-        div.innerHTML = `<b style='color:#06c;'>${escapeHTML(msg.user||'Anon')}</b>: <span>${escapeHTML(msg.text||'')}</span> <span style='color:#aaa; font-size:11px;'>${msg.time ? new Date(msg.time).toLocaleString() : ''}</span>`;
-        if ((myName && msg.user === myName) || (myEmail && msg.user === myEmail)) {
-            const delBtn = document.createElement('button');
-            delBtn.textContent = 'Delete';
-            delBtn.style.marginLeft = '8px';
-            delBtn.style.fontSize = '11px';
-            delBtn.style.padding = '2px 8px';
-            delBtn.onclick = function() { deleteChatMessage(msg, i); };
-            delBtn.title = 'Delete this message';
-            div.appendChild(delBtn);
+        // User name (show only part before '@', full on hover)
+        const userB = document.createElement('b');
+        userB.style.color = '#06c';
+        let displayName = msg.user || 'Anon';
+        if (displayName.includes('@')) {
+            userB.textContent = displayName.split('@')[0];
+            userB.title = displayName;
+        } else {
+            userB.textContent = displayName;
+            userB.title = '';
         }
+        div.appendChild(userB);
+        div.appendChild(document.createTextNode(': '));
+        // Message text (strikethrough if deleted)
+        const textSpan = document.createElement('span');
+        textSpan.textContent = msg.text || '';
+        if (msg.deleted) {
+            textSpan.style.textDecoration = 'line-through';
+            textSpan.style.color = '#888';
+        }
+        div.appendChild(textSpan);
+        // Time (show only time, full date-time on hover)
+        const timeSpan = document.createElement('span');
+        timeSpan.style.color = '#aaa';
+        timeSpan.style.fontSize = '11px';
+        timeSpan.style.marginLeft = '8px';
+        if (msg.time) {
+            const dt = new Date(msg.time);
+            timeSpan.textContent = dt.toLocaleTimeString();
+            timeSpan.title = dt.toLocaleString();
+        } else {
+            timeSpan.textContent = '';
+        }
+        div.appendChild(timeSpan);
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.className = 'chat-delete-debug-btn';
+        delBtn.setAttribute('style', `font-size:12px; color:#c00;`);
+        delBtn.onclick = function() { deleteChatMessage(msg, i); };
+        delBtn.title = 'Delete this message';
+        div.appendChild(delBtn);
         chatContainer.appendChild(div);
         }
     }
@@ -117,9 +176,22 @@ async function loadChatMessages() {
 // Delete chat message (frontend only, calls backend to actually delete)
 async function deleteChatMessage(msg, idx) {
     if (!confirm('Delete this message?')) return;
-    // TODO: implement server-side API, for now just log
-    // await fetch(`/api/chat/delete`, { method: 'POST', ... })
-    alert('Delete API not implemented yet. Please provide server-side instructions.');
+    try {
+        const res = await fetch('/api/chat/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                room: chatRoomKey,
+                time: msg.time,
+                user: msg.user,
+                text: msg.text
+            })
+        });
+        if (!res.ok) throw new Error('Failed to delete');
+        setTimeout(loadChatMessages, 300);
+    } catch (e) {
+        alert('Failed to delete message.');
+    }
 }
 // Send a chat message
 async function sendChatMessage() {

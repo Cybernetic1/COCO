@@ -28,7 +28,7 @@ router.get('/users', (req, res) => {
 router.get('/chat', (req, res) => {
   const room = req.query.room;
   if (!room) return res.status(400).json({ error: 'Missing room' });
-  db.all('SELECT user, text, time FROM chat_messages WHERE room = ? ORDER BY time ASC LIMIT 100', [room], (err, rows) => {
+  db.all('SELECT user, text, time, deleted FROM chat_messages WHERE room = ? ORDER BY time ASC LIMIT 100', [room], (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json({ messages: rows });
   });
@@ -41,10 +41,37 @@ router.post('/chat', (req, res) => {
   if (!room || !text) return res.status(400).json({ error: 'Missing room or text' });
   const user = req.user.name || req.user.email || 'User';
   const time = Date.now();
-  db.run('INSERT INTO chat_messages (room, user, text, time) VALUES (?, ?, ?, ?)', [room, user, text, time], function(err) {
+  db.run('INSERT INTO chat_messages (room, user, text, time, deleted) VALUES (?, ?, ?, ?, 0)', [room, user, text, time], function(err) {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json({ success: true });
   });
+});
+
+// --- API: Soft-delete a chat message (mark as deleted, do not remove) ---
+router.post('/chat/delete', (req, res) => {
+  if (!req.isAuthenticated() || !req.user) return res.status(401).json({ error: 'Not authenticated' });
+  const { room, time, user, text } = req.body;
+  console.log('[DEBUG] /chat/delete body:', req.body);
+  if (!room || !time || !user || !text) {
+    console.log('[DEBUG] /chat/delete missing fields:', { room, time, user, text });
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  db.run(
+    'UPDATE chat_messages SET deleted = 1 WHERE room = ? AND time = ? AND user = ? AND text = ?',
+    [room, time, user, text],
+    function(err) {
+      if (err) {
+        console.error('[DEBUG] /chat/delete DB error:', err);
+        return res.status(500).json({ error: 'DB error' });
+      }
+      console.log('[DEBUG] /chat/delete changes:', this.changes);
+      if (this.changes === 0) {
+        console.log('[DEBUG] /chat/delete message not found:', { room, time, user, text });
+        return res.status(404).json({ error: 'Message not found' });
+      }
+      res.json({ success: true });
+    }
+  );
 });
 
 // --- API: List joinable projects (not already joined by user) ---
@@ -244,10 +271,10 @@ router.get('/percentages', (req, res) => {
     const percentageMap = new Map();
     rows.forEach(row => {
       if (!percentageMap.has(row.childId)) {
-        percentageMap.set(row.childId, {
+        percentageMap.set(row.childId, ({
           childId: row.childId,
           percentage: row.percentage
-        });
+        }));
       }
     });
     
@@ -282,33 +309,18 @@ router.get('/percentages/all', (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     
-    // Group by nodeId and childId, taking the most recent for each
-    const nodeMap = new Map();
+    // Group by nodeId and childId, take the most recent for each
+    const percentages = {};
+    
     rows.forEach(row => {
-      if (!nodeMap.has(row.nodeId)) {
-        nodeMap.set(row.nodeId, new Map());
-      }
-      const childMap = nodeMap.get(row.nodeId);
-      if (!childMap.has(row.childId)) {
-        childMap.set(row.childId, {
-          childId: row.childId,
-          percentage: row.percentage
-        });
+      const key = `${row.nodeId}-${row.childId}`;
+      if (!percentages[key] || row.updatedAt > percentages[key].updatedAt) {
+        percentages[key] = row;
       }
     });
     
-    // Convert to the expected format
-    const percentages = [];
-    for (const [nodeId, childMap] of nodeMap) {
-      percentages.push({
-        nodeId: nodeId,
-        childPercentages: Array.from(childMap.values()),
-        graphVersion: rows.find(r => r.nodeId === nodeId)?.graphVersion,
-        updatedAt: rows.find(r => r.nodeId === nodeId)?.updatedAt
-      });
-    }
-    
-    res.json({ percentages });
+    // Convert back to array
+    res.json({ percentages: Object.values(percentages) });
   });
 });
 

@@ -1,3 +1,17 @@
+/* Debug: Make chat delete button extremely visible */
+.chat-delete-debug-btn {
+    background: yellow !important;
+    color: #c00 !important;
+    border: 3px solid red !important;
+    outline: 3px solid blue !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    padding: 4px 16px !important;
+    margin-left: 8px !important;
+    border-radius: 6px !important;
+    z-index: 9999 !important;
+    box-shadow: 0 0 8px 2px #00f !important;
+}
 :root {
     --in-progress: #FCC;
     --finished: #CFC;
