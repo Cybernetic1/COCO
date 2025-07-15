@@ -25,6 +25,9 @@ function getNodeAuthors() {
     return [];
 }
 
+// Make getNodeAuthors globally available
+window.getNodeAuthors = getNodeAuthors;
+
 function displayAuthors() {
     const authorsList = document.getElementById('authors-list');
     authorsList.innerHTML = '';
@@ -225,6 +228,17 @@ if (nodeData) {
     currentAuthors = getNodeAuthors();
     }
     
+    // Debug: log nodeData and nodeData.authors after nodeData is set
+    console.log('[Authors Init] nodeData:', nodeData);
+    console.log('[Authors Init] nodeData.authors:', nodeData ? nodeData.authors : undefined);
+
+    // Initialize currentAuthors from nodeData.authors if present
+    if (nodeData && nodeData.authors && Array.isArray(nodeData.authors)) {
+        currentAuthors = [...nodeData.authors];
+        console.log('[Authors Init] currentAuthors initialized:', currentAuthors);
+    }
+
+    // Then call displayAuthors()
     displayAuthors();
 } else {
     // Set default title when no node data found
@@ -243,58 +257,123 @@ if (nodeData) {
     displayAuthors();
 }
 
-// Handle form submission
-document.getElementById('node-form').onsubmit = function(e) {
+// Use saveBtn from node-page.js, do not redeclare here
+if (saveBtn) {
+  saveBtn.onclick = function(e) {
     e.preventDefault();
-    if (!nodeData) return;
-    
+    console.log('[Save Handler] Save button clicked');
+    if (!nodeData) {
+      console.warn('[Save Handler] nodeData is undefined or null');
+      alert('Error: nodeData is not loaded.');
+      return;
+    }
+    if (typeof projectData === 'undefined' || !projectData) {
+      console.warn('[Save Handler] projectData is undefined or null');
+      alert('Error: projectData is not loaded.');
+      return;
+    }
     // Update nodeData from form
     const checkedRadio = document.querySelector('input[name="status"]:checked');
     if (checkedRadio) nodeData.status = checkedRadio.value;
-    
     nodeData.labelEN = document.getElementById('labelEN').value;
     nodeData.label = nodeData.labelEN;
     nodeData.labelZH = document.getElementById('labelZH').value;
-    // nodeData.edgeLabel = document.getElementById('edgeLabel').value; // Removed edge label
-    // nodeData.details = document.getElementById('details').value; // Comments replaced by chat
-
     // Only save these properties if they have values
     const expTokens = document.getElementById('expTokens').value;
     const expTime = document.getElementById('expTime').value;
     const expWorkers = document.getElementById('expWorkers').value;
-    
     if (expTokens && expTokens.trim() !== '') {
-    nodeData.expTokens = expTokens;
+      nodeData.expTokens = expTokens;
     } else {
-    delete nodeData.expTokens;
+      delete nodeData.expTokens;
     }
-    
     if (expTime && expTime.trim() !== '') {
-    nodeData.expTime = expTime;
+      nodeData.expTime = expTime;
     } else {
-    delete nodeData.expTime;
+      delete nodeData.expTime;
     }
-    
     if (expWorkers && expWorkers.trim() !== '') {
-    nodeData.expWorkers = expWorkers;
+      nodeData.expWorkers = expWorkers;
     } else {
-    delete nodeData.expWorkers;
+      delete nodeData.expWorkers;
     }
-    
     // Save authors as array of objects
-    nodeData.authors = currentAuthors;
-    
-    // Save votes (array of numbers) for this node
-    if (typeof window.votes !== 'undefined') {
-        nodeData.votes = [...window.votes];
+    nodeData.authors = [...currentAuthors]; // ensure up-to-date
+
+    // --- Ensure the correct node in projectData is updated before saving ---
+    if (projectData && projectData.dataType === 'graph' && Array.isArray(projectData.data.nodes)) {
+      // Find the node by id and update its authors
+      const nodeArr = projectData.data.nodes;
+      const idx = nodeArr.findIndex(n => String(n.id) === String(nodeData.id));
+      if (idx !== -1) {
+        // Update only the authors property to avoid overwriting other changes
+        nodeArr[idx].authors = [...currentAuthors];
+        // Optionally update other fields from nodeData as needed
+        nodeArr[idx] = { ...nodeArr[idx], ...nodeData };
+        console.log('[Save Handler] Updated node in projectData:', nodeArr[idx]);
+      } else {
+        console.warn('[Save Handler] Node not found in projectData for update.');
+      }
+      // Debug: log the full node array
+      console.log('[Save Handler] All nodes after update:', nodeArr);
+    } else if (projectData && projectData.dataType === 'map' && projectData.data) {
+      // Recursively find and update the node in a tree
+      function updateNode(node, id, newData) {
+        if (!node) return false;
+        if (String(node.id) === String(id)) {
+          Object.assign(node, newData);
+          return true;
+        }
+        if (node.children) {
+          for (const child of node.children) {
+            if (updateNode(child, id, newData)) return true;
+          }
+        }
+        return false;
+      }
+      updateNode(projectData.data, nodeData.id, nodeData);
+      console.log('[Save Handler] Updated node in projectData (map).');
     }
+    // --- End update logic ---
+
+    // Update lastModified timestamp before saving
+    projectData.lastModified = Date.now();
 
     // Save back to localStorage (update projectData)
-    if (typeof projectData !== 'undefined') {
-        localStorage.setItem('projectData', JSON.stringify(projectData));
+    console.log('[Save Handler] projectData before saving to localStorage:', projectData);
+    localStorage.setItem('projectData', JSON.stringify(projectData));
+    // Also save to server
+    let dir = '';
+    if (projectData.dataType === 'map') {
+      dir = 'project-maps/';
+    } else if (projectData.dataType === 'graph') {
+      dir = 'project-graphs/';
+    } else {
+      dir = '';
     }
-    alert('Node updated! (Note: changes are local until you save the map)');
-};
+    let filename = dir + (projectData.projectId || 'defaultProject') + '.json';
+    console.log('[Save Handler] Saving to server:', filename, projectData);
+    fetch('/saveJSON', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename, data: projectData })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('[Save Handler] Server response:', data);
+      if (data.success) {
+        alert('Node and authors saved to server!');
+      } else {
+        alert('Failed to save to server: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error('[Save Handler] Error saving to server:', err);
+      alert('Error saving to server: ' + err);
+    });
+    // Removed outdated alert about local changes
+  };
+}
 
 // Load users immediately when this script is loaded
 loadUsers();

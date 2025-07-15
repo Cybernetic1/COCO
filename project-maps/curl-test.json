@@ -1,8 +1,12 @@
 {
-  "id": 0,
-  "labelEN": "Curl Test",
-  "labelZH": "Curl测试",
-  "project-name": "curl-test",
-  "percentage": 100,
-  "children": []
+  "dataType": "map",
+  "projectId": "curl-test",
+  "data": {
+    "id": 0,
+    "labelEN": "Curl Test",
+    "labelZH": "Curl\u6d4b\u8bd5",
+    "project-name": "curl-test",
+    "percentage": 100,
+    "children": []
+  }
 }

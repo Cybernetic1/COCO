@@ -51,9 +51,12 @@ function init_nodes() {
 	nodes.forEach((node) => {
 		node.label = get_label_in_lang(node);
 		node.color = ('status' in node) ? nodeColors[node.status] : nodeColors['in-progress'];
-		});
-	nodes.updateOnly({ id: 0, color: 'cyan' });
+	});
+	// Only update root node color if it exists
+	if (nodes.get(0)) {
+		nodes.updateOnly({ id: 0, color: 'cyan' });
 	}
+}
 init_nodes();
 
 // Returns a node's label in the language in 'lang' variable

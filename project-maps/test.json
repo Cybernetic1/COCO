@@ -1,5 +1,9 @@
 {
-  "id": 0,
-  "label": "Test",
-  "children": []
+  "dataType": "map",
+  "projectId": "test",
+  "data": {
+    "id": 0,
+    "label": "Test",
+    "children": []
+  }
 }

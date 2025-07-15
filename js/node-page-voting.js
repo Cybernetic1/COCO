@@ -1,4 +1,3 @@
-
 // --- Voting Backend Integration ---
 async function loadVotesFromBackend(projectId, nodeId) {
     try {
@@ -184,8 +183,7 @@ async function initializeVoting() {
         });
     });
 
-    // Add event listener to Save button to persist votes to backend
-    const saveBtn = document.getElementById('save-btn');
+    // Use saveBtn from node-page.js, do not redeclare here
     if (saveBtn) {
         saveBtn.addEventListener('click', async function(e) {
             e.preventDefault();

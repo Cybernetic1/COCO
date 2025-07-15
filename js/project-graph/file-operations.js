@@ -65,19 +65,16 @@ function autoLoadProjectGraph() {
             url: jsonFilePath,
             cache: false,
             success: function(data0) {
-                if (data0 && data0.nodes && data0.edges) {
-                    // Destroy existing network if it exists
+                // Always expect unified format
+                if (data0 && data0.data && data0.data.nodes && data0.data.edges) {
                     if (typeof network !== 'undefined' && network) {
                         network.destroy();
                     }
-                    
-                    // Load the new data
-                    nodes = new vis.DataSet(data0.nodes);
-                    edges = new vis.DataSet(data0.edges);
+                    nodes = new vis.DataSet(data0.data.nodes);
+                    edges = new vis.DataSet(data0.data.edges);
                     data.nodes = nodes;
                     data.edges = edges;
                     init_nodes();
-                    // No longer change root node id; only projectId property is set on save
                     network = new vis.Network(viz, data, options);
                     update_node_index();
                     network.once('afterDrawing', function() {
@@ -87,21 +84,19 @@ function autoLoadProjectGraph() {
                             }
                         }, 100);
                     });
-                    
-                    // Update project name and UI
                     projectName = projectNameParam;
                     document.title = `${projectName} - Project Graph`;
                     const h1Element = document.getElementsByTagName('h1')[0];
                     if (h1Element) {
                         h1Element.innerHTML = projectName;
                     }
-                    
                     console.log(`Auto-loaded project graph: ${projectNameParam}`);
+                } else {
+                    alert('Invalid project file format.');
                 }
             },
             error: function(xhr, status, error) {
                 console.warn(`Could not auto-load project graph for "${projectNameParam}":`, status, error);
-                // Fall back to default behavior - empty graph will be shown
             }
         });
     }
@@ -283,33 +278,36 @@ async function loadJSONgraph() {
             url: "/loadJSON/project-graphs/" + name,
             cache: false,
             success: function(data0) {
-                network.destroy();
-                nodes = new vis.DataSet(data0.nodes);
-                edges = new vis.DataSet(data0.edges);
-                data.nodes = nodes;
-                data.edges = edges;
-                init_nodes();
-                network = new vis.Network(viz, data, options);
-                update_node_index();
-                network.once('afterDrawing', function() {
-                    setTimeout(function() {
-                        if (typeof setupNetworkEvents === 'function') {
-                            setupNetworkEvents(network);
-                        }
-                    }, 100);
-                });
-
-                // Update project name from loaded filename
-                const filenameWithoutExt = name.replace(/\.[^/.]+$/, "").replace(/-[a-zA-Z0-9]+$/, ""); // Remove extension and user tag
-                projectName = filenameWithoutExt || 'project-graph';
-                document.title = `${projectName} - Project Graph`;
-                const h1Element = document.getElementsByTagName('h1')[0];
-                if (h1Element) {
-                  h1Element.innerHTML = projectName;
+                // Always expect unified format
+                if (data0 && data0.data && data0.data.nodes && data0.data.edges) {
+                    network.destroy();
+                    nodes = new vis.DataSet(data0.data.nodes);
+                    edges = new vis.DataSet(data0.data.edges);
+                    data.nodes = nodes;
+                    data.edges = edges;
+                    init_nodes();
+                    network = new vis.Network(viz, data, options);
+                    update_node_index();
+                    network.once('afterDrawing', function() {
+                        setTimeout(function() {
+                            if (typeof setupNetworkEvents === 'function') {
+                                setupNetworkEvents(network);
+                            }
+                        }, 100);
+                    });
+                    // Update project name from loaded filename
+                    const filenameWithoutExt = name.replace(/\.[^/.]+$/, "").replace(/-[a-zA-Z0-9]+$/, "");
+                    projectName = filenameWithoutExt || 'project-graph';
+                    document.title = `${projectName} - Project Graph`;
+                    const h1Element = document.getElementsByTagName('h1')[0];
+                    if (h1Element) {
+                      h1Element.innerHTML = projectName;
+                    }
+                    json_modal.style.display = "none";
+                    techClick2.play();
+                } else {
+                    alert('Invalid project file format.');
                 }
-
-                json_modal.style.display = "none";
-                techClick2.play();
             },
             error: function(xhr, status, error) {
                 console.error("Load failed:", status, error, xhr.responseText);

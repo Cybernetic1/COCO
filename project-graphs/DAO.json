@@ -1,656 +1,660 @@
 {
-  "nodes": [
-    {
-      "id": 0,
-      "labelEN": "ROOT",
-      "color": "cyan",
-      "font": {
-        "bold": true
+  "dataType": "graph",
+  "projectId": "DAO",
+  "data": {
+    "nodes": [
+      {
+        "id": 0,
+        "labelEN": "ROOT",
+        "color": "cyan",
+        "font": {
+          "bold": true
+        }
+      },
+      {
+        "id": 1,
+        "labelEN": "business plan",
+        "labelZH": "商业计划书",
+        "color": "#FCC"
+      },
+      {
+        "id": 2,
+        "labelEN": "technical white paper",
+        "labelZH": "技术白皮书",
+        "color": "#FCC"
+      },
+      {
+        "id": 3,
+        "labelEN": "web site",
+        "labelZH": "网站",
+        "color": "#FCC"
+      },
+      {
+        "id": 4,
+        "labelEN": "Git UI",
+        "labelZH": "Git 界面",
+        "color": "#FCC"
+      },
+      {
+        "id": 5,
+        "labelEN": "Project Graph",
+        "color": "#CFC",
+        "status": "finished"
+      },
+      {
+        "id": 6,
+        "labelEN": "chatroom interface",
+        "labelZH": "聊天室 界面",
+        "color": "#FCC"
+      },
+      {
+        "id": 7,
+        "labelEN": "DAO interface",
+        "labelZH": "DAO 界面",
+        "color": "#FCC"
+      },
+      {
+        "id": 8,
+        "labelEN": "Discord",
+        "color": "#FCC"
+      },
+      {
+        "id": 9,
+        "labelEN": "bot scripts",
+        "color": "#FCC"
+      },
+      {
+        "id": 10,
+        "labelEN": "extract WeChat logs",
+        "labelZH": "extract 微信 chat logs",
+        "color": "#FCC"
+      },
+      {
+        "id": 11,
+        "labelEN": "connect Aragon",
+        "color": "#CCC",
+        "status": "paused"
+      },
+      {
+        "id": 12,
+        "labelEN": "voting UI",
+        "status": "finished",
+        "color": "#CFC"
+      },
+      {
+        "id": 13,
+        "labelEN": "bug: total votes >100",
+        "status": "finished",
+        "details": "Solved by continuous slider",
+        "color": "#CFC"
+      },
+      {
+        "id": 14,
+        "labelEN": "tell 'Crossing the Snow' story",
+        "labelZH": "讲《渡过雪原》故事",
+        "color": "#CFC",
+        "status": "finished"
+      },
+      {
+        "id": 15,
+        "labelEN": "read Git repo",
+        "color": "#FCC"
+      },
+      {
+        "id": 16,
+        "labelEN": "extract authors",
+        "color": "#FCC"
+      },
+      {
+        "id": 17,
+        "labelEN": "Neo4j",
+        "status": "paused",
+        "color": "#CCC"
+      },
+      {
+        "id": 18,
+        "labelEN": "VisDCC interface",
+        "labelZH": "VisDCC 界面",
+        "details": "基本上已经可以使用了。\n\n各人可以储存自己的 json 档案，自行试验一下。 \n\n这部分有个 to-do 工作未完成： 查看成员的贡献值。 所以我开了一个 sub-task 在它的子叶。",
+        "color": "#CCC",
+        "status": "paused"
+      },
+      {
+        "id": 19,
+        "labelEN": "lookup authors",
+        "labelZH": "查看作者",
+        "color": "#FCC"
+      },
+      {
+        "id": 20,
+        "labelEN": "create Aragon DAO",
+        "status": "finished",
+        "details": "@YKY: @Alvin helped me to create an initial DAO blockchain on Aragon, with 1 million tokens.",
+        "color": "#CFC"
+      },
+      {
+        "id": 21,
+        "labelEN": "test Neo4j server",
+        "status": "finished",
+        "details": "@eatcosmos tested hosting the server.",
+        "color": "#CFC"
+      },
+      {
+        "id": 22,
+        "labelEN": "hello world",
+        "status": "finished",
+        "color": "#CFC"
+      },
+      {
+        "id": 23,
+        "labelEN": "transfer messages to WeChat",
+        "labelZH": "转发讯息到微信",
+        "color": "#FCC"
+      },
+      {
+        "id": 24,
+        "labelEN": "WeChat Enterprise version",
+        "labelZH": "企业微信",
+        "color": "#FCC"
+      },
+      {
+        "id": 25,
+        "labelEN": "send messages to Discord",
+        "labelZH": "转发讯息到 Discord",
+        "color": "#FCC"
+      },
+      {
+        "id": 26,
+        "labelEN": "per-Task voting",
+        "labelZH": "per task 投票",
+        "color": "#FCC"
+      },
+      {
+        "id": 27,
+        "labelEN": "send tokens",
+        "labelZH": "发 token",
+        "color": "#FCC"
+      },
+      {
+        "id": 30,
+        "labelEN": "Vis.js interface",
+        "labelZH": "Vis.js 界面",
+        "status": "in-progress",
+        "color": "#FCC"
+      },
+      {
+        "id": 31,
+        "labelEN": "bilingual",
+        "labelZH": "双语",
+        "status": "finished",
+        "color": "#CFC"
+      },
+      {
+        "id": 32,
+        "labelEN": "add \"research\" nodes",
+        "labelZH": "节点可以是 「研究范围」",
+        "status": "finished",
+        "color": "#CFC"
+      },
+      {
+        "id": 33,
+        "labelEN": "crypto coin",
+        "color": "#FCC",
+        "font": {
+          "bold": true
+        }
       }
-    },
-    {
-      "id": 1,
-      "labelEN": "business plan",
-      "labelZH": "商业计划书",
-      "color": "#FCC"
-    },
-    {
-      "id": 2,
-      "labelEN": "technical white paper",
-      "labelZH": "技术白皮书",
-      "color": "#FCC"
-    },
-    {
-      "id": 3,
-      "labelEN": "web site",
-      "labelZH": "网站",
-      "color": "#FCC"
-    },
-    {
-      "id": 4,
-      "labelEN": "Git UI",
-      "labelZH": "Git 界面",
-      "color": "#FCC"
-    },
-    {
-      "id": 5,
-      "labelEN": "Project Graph",
-      "color": "#CFC",
-      "status": "finished"
-    },
-    {
-      "id": 6,
-      "labelEN": "chatroom interface",
-      "labelZH": "聊天室 界面",
-      "color": "#FCC"
-    },
-    {
-      "id": 7,
-      "labelEN": "DAO interface",
-      "labelZH": "DAO 界面",
-      "color": "#FCC"
-    },
-    {
-      "id": 8,
-      "labelEN": "Discord",
-      "color": "#FCC"
-    },
-    {
-      "id": 9,
-      "labelEN": "bot scripts",
-      "color": "#FCC"
-    },
-    {
-      "id": 10,
-      "labelEN": "extract WeChat logs",
-      "labelZH": "extract 微信 chat logs",
-      "color": "#FCC"
-    },
-    {
-      "id": 11,
-      "labelEN": "connect Aragon",
-      "color": "#CCC",
-      "status": "paused"
-    },
-    {
-      "id": 12,
-      "labelEN": "voting UI",
-      "status": "finished",
-      "color": "#CFC"
-    },
-    {
-      "id": 13,
-      "labelEN": "bug: total votes >100",
-      "status": "finished",
-      "details": "Solved by continuous slider",
-      "color": "#CFC"
-    },
-    {
-      "id": 14,
-      "labelEN": "tell 'Crossing the Snow' story",
-      "labelZH": "讲《渡过雪原》故事",
-      "color": "#CFC",
-      "status": "finished"
-    },
-    {
-      "id": 15,
-      "labelEN": "read Git repo",
-      "color": "#FCC"
-    },
-    {
-      "id": 16,
-      "labelEN": "extract authors",
-      "color": "#FCC"
-    },
-    {
-      "id": 17,
-      "labelEN": "Neo4j",
-      "status": "paused",
-      "color": "#CCC"
-    },
-    {
-      "id": 18,
-      "labelEN": "VisDCC interface",
-      "labelZH": "VisDCC 界面",
-      "details": "基本上已经可以使用了。\n\n各人可以储存自己的 json 档案，自行试验一下。 \n\n这部分有个 to-do 工作未完成： 查看成员的贡献值。 所以我开了一个 sub-task 在它的子叶。",
-      "color": "#CCC",
-      "status": "paused"
-    },
-    {
-      "id": 19,
-      "labelEN": "lookup authors",
-      "labelZH": "查看作者",
-      "color": "#FCC"
-    },
-    {
-      "id": 20,
-      "labelEN": "create Aragon DAO",
-      "status": "finished",
-      "details": "@YKY: @Alvin helped me to create an initial DAO blockchain on Aragon, with 1 million tokens.",
-      "color": "#CFC"
-    },
-    {
-      "id": 21,
-      "labelEN": "test Neo4j server",
-      "status": "finished",
-      "details": "@eatcosmos tested hosting the server.",
-      "color": "#CFC"
-    },
-    {
-      "id": 22,
-      "labelEN": "hello world",
-      "status": "finished",
-      "color": "#CFC"
-    },
-    {
-      "id": 23,
-      "labelEN": "transfer messages to WeChat",
-      "labelZH": "转发讯息到微信",
-      "color": "#FCC"
-    },
-    {
-      "id": 24,
-      "labelEN": "WeChat Enterprise version",
-      "labelZH": "企业微信",
-      "color": "#FCC"
-    },
-    {
-      "id": 25,
-      "labelEN": "send messages to Discord",
-      "labelZH": "转发讯息到 Discord",
-      "color": "#FCC"
-    },
-    {
-      "id": 26,
-      "labelEN": "per-Task voting",
-      "labelZH": "per task 投票",
-      "color": "#FCC"
-    },
-    {
-      "id": 27,
-      "labelEN": "send tokens",
-      "labelZH": "发 token",
-      "color": "#FCC"
-    },
-    {
-      "id": 30,
-      "labelEN": "Vis.js interface",
-      "labelZH": "Vis.js 界面",
-      "status": "in-progress",
-      "color": "#FCC"
-    },
-    {
-      "id": 31,
-      "labelEN": "bilingual",
-      "labelZH": "双语",
-      "status": "finished",
-      "color": "#CFC"
-    },
-    {
-      "id": 32,
-      "labelEN": "add \"research\" nodes",
-      "labelZH": "节点可以是 「研究范围」",
-      "status": "finished",
-      "color": "#CFC"
-    },
-    {
-      "id": 33,
-      "labelEN": "crypto coin",
-      "color": "#FCC",
-      "font": {
-        "bold": true
+    ],
+    "edges": [
+      {
+        "from": 1,
+        "to": 0,
+        "id": "19363e13-0bed-4bc8-9164-cb26544f6ca1",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 2,
+        "to": 0,
+        "id": "2e8b6f3a-c2cf-41d1-bf21-6522b2495af8",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 3,
+        "to": 0,
+        "id": "f174f2f8-52f0-4e82-aee0-71f2513a9265",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 4,
+        "to": 0,
+        "id": "59bf255d-5bbf-4dae-8793-03158f0c01b5",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 5,
+        "to": 0,
+        "id": "11e33118-3ccd-4168-b121-048f7b18f0af",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 6,
+        "to": 0,
+        "id": "5820a4d5-f05a-4a8c-966c-7b7857b8e685",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 7,
+        "to": 0,
+        "id": "f560096f-bafb-42cc-b033-d0a543793c07",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 8,
+        "to": 6,
+        "id": "5f3a60e3-65db-4c41-a538-47acd7bbae32",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 6,
+        "to": 3,
+        "id": "e23d0bb8-886e-455a-b70d-6b78bf381e62",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": true
+      },
+      {
+        "from": 9,
+        "to": 8,
+        "id": "77369f06-ba57-47a3-a246-ad90ef404a87",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 11,
+        "to": 7,
+        "id": "b02b5501-939e-4935-b232-45d8eef08ecc",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 12,
+        "to": 7,
+        "id": "1b8dc56d-29bd-47d2-9f62-5bd720e8efad",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 13,
+        "to": 12,
+        "id": "ddb5ebc6-64fd-48e6-bc7f-256e3bfdb66a",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 14,
+        "to": 1,
+        "id": "cdaa95ef-f4ba-4d7e-8cff-5ece72669d34",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 15,
+        "to": 4,
+        "id": "e0fa3c33-d3e5-4b4f-8572-ca7fbc92c1ec",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 16,
+        "to": 15,
+        "id": "15e42e4e-8312-4ae1-ae32-486dc4631a79",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 17,
+        "to": 5,
+        "id": "98b442fc-9c05-4631-b33e-f84143ad03a0",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 18,
+        "to": 5,
+        "id": "898858ea-0cc5-4d7f-bbdb-e58f32f14fc4",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 16,
+        "to": 19,
+        "id": "99e82862-705b-4ba1-839a-b56e1e14897c",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": true
+      },
+      {
+        "from": 20,
+        "to": 11,
+        "id": "3a845cdf-80cb-44a6-94fa-8237f48111a7",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 21,
+        "to": 18,
+        "id": "0181afbc-ebd9-4577-ab41-3b323d3a99a0",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 22,
+        "to": 9,
+        "id": "a03b0088-7954-45be-b57e-14998931e771",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 23,
+        "to": 9,
+        "id": "22946a23-334e-4e51-b8b8-4c7548110c70",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 24,
+        "to": 6,
+        "id": "cc79e454-5221-45a8-926c-9faae5421740",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 10,
+        "to": 24,
+        "id": "5cd94b84-d0b2-48d4-8908-f6d494e115fe",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 25,
+        "to": 24,
+        "id": "1454098c-2b12-4f71-9a06-b9cd8ff22359",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 27,
+        "to": 26,
+        "id": "6b1e4883-160a-4f4c-b239-f561d494cc39",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": true
+      },
+      {
+        "from": 28,
+        "to": 1,
+        "id": "a641ad75-b57e-48a5-af14-f1e73af37e33",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 29,
+        "to": 5,
+        "id": "00cac0f0-51c9-4b39-af36-3c9045478b08",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": true
+      },
+      {
+        "from": 12,
+        "to": 29,
+        "id": "eba8f8ca-a210-447d-9f77-de094be9aed2",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": true
+      },
+      {
+        "from": 30,
+        "to": 5,
+        "id": "b6e758dd-91d5-404f-b65e-4337d95151ac",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 12,
+        "to": 30,
+        "id": "9f9f1e39-c11a-45ec-aeef-8daa45d919d5",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": true
+      },
+      {
+        "from": 26,
+        "to": 30,
+        "id": "41daf722-dd99-4097-9233-7830f746e874",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 19,
+        "to": 30,
+        "id": "2aa0105d-48d4-4438-af00-bc9b623ee6bd",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 31,
+        "to": 30,
+        "id": "b39b6d2c-a562-469a-a683-bbcc2bbeb8cd",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 32,
+        "to": 30,
+        "id": "0d3bbe32-1a26-4d68-9e4c-49e1cfe2cb86",
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        },
+        "dashes": false
+      },
+      {
+        "from": 33,
+        "to": 0,
+        "id": "3f946315-c62b-44e1-921e-396074e52693"
+      },
+      {
+        "from": 27,
+        "to": 33,
+        "id": "df10d4fe-2b3c-4ffd-947a-11bfe6e14a1b",
+        "dashes": false,
+        "color": {
+          "color": "#AAA",
+          "highlight": "#000",
+          "inherit": false,
+          "opacity": 1
+        }
       }
-    }
-  ],
-  "edges": [
-    {
-      "from": 1,
-      "to": 0,
-      "id": "19363e13-0bed-4bc8-9164-cb26544f6ca1",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 2,
-      "to": 0,
-      "id": "2e8b6f3a-c2cf-41d1-bf21-6522b2495af8",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 3,
-      "to": 0,
-      "id": "f174f2f8-52f0-4e82-aee0-71f2513a9265",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 4,
-      "to": 0,
-      "id": "59bf255d-5bbf-4dae-8793-03158f0c01b5",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 5,
-      "to": 0,
-      "id": "11e33118-3ccd-4168-b121-048f7b18f0af",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 6,
-      "to": 0,
-      "id": "5820a4d5-f05a-4a8c-966c-7b7857b8e685",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 7,
-      "to": 0,
-      "id": "f560096f-bafb-42cc-b033-d0a543793c07",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 8,
-      "to": 6,
-      "id": "5f3a60e3-65db-4c41-a538-47acd7bbae32",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 6,
-      "to": 3,
-      "id": "e23d0bb8-886e-455a-b70d-6b78bf381e62",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": true
-    },
-    {
-      "from": 9,
-      "to": 8,
-      "id": "77369f06-ba57-47a3-a246-ad90ef404a87",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 11,
-      "to": 7,
-      "id": "b02b5501-939e-4935-b232-45d8eef08ecc",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 12,
-      "to": 7,
-      "id": "1b8dc56d-29bd-47d2-9f62-5bd720e8efad",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 13,
-      "to": 12,
-      "id": "ddb5ebc6-64fd-48e6-bc7f-256e3bfdb66a",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 14,
-      "to": 1,
-      "id": "cdaa95ef-f4ba-4d7e-8cff-5ece72669d34",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 15,
-      "to": 4,
-      "id": "e0fa3c33-d3e5-4b4f-8572-ca7fbc92c1ec",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 16,
-      "to": 15,
-      "id": "15e42e4e-8312-4ae1-ae32-486dc4631a79",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 17,
-      "to": 5,
-      "id": "98b442fc-9c05-4631-b33e-f84143ad03a0",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 18,
-      "to": 5,
-      "id": "898858ea-0cc5-4d7f-bbdb-e58f32f14fc4",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 16,
-      "to": 19,
-      "id": "99e82862-705b-4ba1-839a-b56e1e14897c",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": true
-    },
-    {
-      "from": 20,
-      "to": 11,
-      "id": "3a845cdf-80cb-44a6-94fa-8237f48111a7",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 21,
-      "to": 18,
-      "id": "0181afbc-ebd9-4577-ab41-3b323d3a99a0",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 22,
-      "to": 9,
-      "id": "a03b0088-7954-45be-b57e-14998931e771",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 23,
-      "to": 9,
-      "id": "22946a23-334e-4e51-b8b8-4c7548110c70",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 24,
-      "to": 6,
-      "id": "cc79e454-5221-45a8-926c-9faae5421740",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 10,
-      "to": 24,
-      "id": "5cd94b84-d0b2-48d4-8908-f6d494e115fe",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 25,
-      "to": 24,
-      "id": "1454098c-2b12-4f71-9a06-b9cd8ff22359",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 27,
-      "to": 26,
-      "id": "6b1e4883-160a-4f4c-b239-f561d494cc39",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": true
-    },
-    {
-      "from": 28,
-      "to": 1,
-      "id": "a641ad75-b57e-48a5-af14-f1e73af37e33",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 29,
-      "to": 5,
-      "id": "00cac0f0-51c9-4b39-af36-3c9045478b08",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": true
-    },
-    {
-      "from": 12,
-      "to": 29,
-      "id": "eba8f8ca-a210-447d-9f77-de094be9aed2",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": true
-    },
-    {
-      "from": 30,
-      "to": 5,
-      "id": "b6e758dd-91d5-404f-b65e-4337d95151ac",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 12,
-      "to": 30,
-      "id": "9f9f1e39-c11a-45ec-aeef-8daa45d919d5",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": true
-    },
-    {
-      "from": 26,
-      "to": 30,
-      "id": "41daf722-dd99-4097-9233-7830f746e874",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 19,
-      "to": 30,
-      "id": "2aa0105d-48d4-4438-af00-bc9b623ee6bd",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 31,
-      "to": 30,
-      "id": "b39b6d2c-a562-469a-a683-bbcc2bbeb8cd",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 32,
-      "to": 30,
-      "id": "0d3bbe32-1a26-4d68-9e4c-49e1cfe2cb86",
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      },
-      "dashes": false
-    },
-    {
-      "from": 33,
-      "to": 0,
-      "id": "3f946315-c62b-44e1-921e-396074e52693"
-    },
-    {
-      "from": 27,
-      "to": 33,
-      "id": "df10d4fe-2b3c-4ffd-947a-11bfe6e14a1b",
-      "dashes": false,
-      "color": {
-        "color": "#AAA",
-        "highlight": "#000",
-        "inherit": false,
-        "opacity": 1
-      }
-    }
-  ]
+    ]
+  }
 }

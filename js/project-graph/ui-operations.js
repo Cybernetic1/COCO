@@ -151,7 +151,7 @@ function openNodePageFromSidePane() {
         const allNodes = nodes.get();
         const allEdges = edges.get();
         const projectId = typeof projectName !== 'undefined' ? projectName : (window.projectName || 'project-graph');
-        const projectData = {
+        const incoming = {
             dataType: 'graph',
             projectId: projectId,
             data: {
@@ -159,7 +159,13 @@ function openNodePageFromSidePane() {
                 edges: allEdges
             }
         };
-        localStorage.setItem('projectData', JSON.stringify(projectData));
+        // Add lastModified timestamp
+        incoming.lastModified = Date.now();
+        // Only overwrite if incoming is newer or local is missing
+        const local = JSON.parse(localStorage.getItem('projectData'));
+        if (!local || !local.lastModified || incoming.lastModified >= local.lastModified) {
+            localStorage.setItem('projectData', JSON.stringify(incoming));
+        }
         // Open node-page.html in a new tab with the node ID as a URL parameter
         window.open(`node-page.html?id=${selectedNodeId}`, '_blank');
     } else {

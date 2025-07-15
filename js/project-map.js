@@ -171,6 +171,8 @@ function saveMapToLocalStorage() {
     projectId: projectId,
     data: projectMapRoot
   };
+  // Add lastModified timestamp
+  projectData.lastModified = Date.now();
   localStorage.setItem('projectData', JSON.stringify(projectData));
 }
 
@@ -318,11 +320,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Note: Modal overlay click handler is now managed by modalManager
 
   // Auto-load project map from URL parameter
+  // Fix: use projectIdParam instead of undefined projectNameParam
   function autoLoadProjectMap() {
-    if (projectNameParam) {
+    if (projectIdParam) {
       // Construct the JSON file path
-      const jsonFilePath = `project-maps/${encodeURIComponent(projectNameParam)}.json`;
-      
+      const jsonFilePath = `project-maps/${encodeURIComponent(projectIdParam)}.json`;
       // Try to fetch and load the JSON file
       fetch(jsonFilePath)
         .then(response => {
@@ -332,38 +334,31 @@ document.addEventListener('DOMContentLoaded', function() {
           return response.json();
         })
         .then(json => {
-          // Validate and load the JSON data
-          if (typeof json === 'object' && json.id === 0 && Array.isArray(json.children)) {
-            projectMapRoot = json;
+          // Support unified format: if json.data exists, use it as root
+          let root = (json && json.data) ? json.data : json;
+          if (typeof root === 'object' && root.id === 0 && Array.isArray(root.children)) {
+            projectMapRoot = root;
             enforceProjectMapRootId();
             // Determine project name with proper precedence:
-            // 1. JSON's project-name property (highest precedence)
-            // 2. URL/filename parameter
-            // 3. Default fallback (skip root node's labelEN/label as they're usually just "ROOT")
             projectName = projectMapRoot["project-name"] || projectIdParam || 'project-map';
-            // If JSON doesn't have project-name but we got it from URL, store it
             if (!projectMapRoot["project-name"] && projectIdParam) {
               projectMapRoot["project-name"] = projectIdParam;
             }
             window.projectMapRoot = projectMapRoot;
             selected_node = null;
-            // Update page title and header
             document.title = `${projectName} - Project Map`;
             updateSaveButtonState();
-            renderCurrentMap(); // Simple render - use whatever percentages are in the JSON
+            renderCurrentMap();
             saveMapToLocalStorage();
             console.log(`Auto-loaded project map: ${projectName}`);
-            // Play sound effect for successful auto-load
-            techClick2.play().catch(() => {}); // Ignore audio errors
+            techClick2.play().catch(() => {});
           } else {
             throw new Error('Invalid JSON map format: root node must have id:0 and children array');
           }
         })
         .catch(error => {
-          console.warn(`Could not auto-load project map for "${projectNameParam}":`, error);
-          // Play failure sound for auto-load errors
-          techFail.play().catch(() => {}); // Ignore audio errors
-          // Fall back to default behavior - the existing projectMapRoot will be used
+          console.warn(`Could not auto-load project map for "${projectIdParam}":`, error);
+          techFail.play().catch(() => {});
         });
     }
   }
