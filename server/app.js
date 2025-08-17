@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
+const path = require('path');
 
 // Import our modules
 const db = require('./config/database');
@@ -208,6 +209,16 @@ app.post('/saveJSON', (req, res) => {
     }
   }
 });
+
+// History of Modern China route
+app.get('/history-china', (req, res) => {
+  const path = require('path');
+  const filePath = path.join(__dirname, '../history-of-modern-china/History of Modern China.html');
+  res.sendFile(filePath);
+});
+
+// Serve static files from the history directory for images
+app.use('/history-of-modern-china', express.static(path.join(__dirname, '../history-of-modern-china')));
 
 // Serve static files from parent directory
 app.use(express.static('../'));
