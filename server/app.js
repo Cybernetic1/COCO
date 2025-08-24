@@ -210,20 +210,6 @@ app.post('/saveJSON', (req, res) => {
   }
 });
 
-// History of Modern China route
-app.get('/history-of-modern-china', (req, res) => {
-  const path = require('path');
-  const filePath = path.join(__dirname, '../history-of-modern-china/History of Modern China.html');
-  res.sendFile(filePath);
-});
-
-// Cold War Dynamics route
-app.get('/cold-war', (req, res) => {
-  const path = require('path');
-  const filePath = path.join(__dirname, '../cold-war-dynamics/Cold War Dynamics.html');
-  res.sendFile(filePath);
-});
-
 // Serve static files from the history directory for images
 app.use('/history-of-modern-china', express.static(path.join(__dirname, '../history-of-modern-china')));
 
