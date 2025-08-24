@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cold War Dynamics</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            background: #fff;
+            counter-reset: plate-counter;
+        }
+        .image-container {
+            text-align: center;
+            max-width: 90vw;
+            margin-bottom: 60px;
+            counter-increment: plate-counter;
+        }
+        img {
+            max-width: 100%;
+            max-height: 80vh;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: block;
+            margin: 0 auto;
+        }    
+        p, .caption {
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            color: #000;
+            line-height: 1.4;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+        .caption::before {
+            content: "(" counter(plate-counter) ") ";
+            font-weight: bold;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Template for Cold War Dynamics content -->
+    <div class="image-container">
+        <p class="caption">The Rosenberg couple, Julius and Ethel, were convicted for passing atomic secrets to the Soviet Union and were <b>electrocuted</b> in 1953.</p>
+        <img src="Rosenbergs-1.avif" style="width: 300px; display: inline-block;" alt="The Rosenbergs">
+        <img src="Rosenbergs-2.webp" style="width: 300px; display: inline-block;" alt="The Rosenbergs">
+    </div>
+
+    <div class="image-container">
+        <p class="caption">Klaus Fuchs was a German-born physicist who was convicted, in 1950, for giving <b>atomic-bomb</b> secrets to the Soviet Union</p>
+        <img src="Klaus-Fuchs.jpg" style="width: 400px;" alt="Klaus Fuchs">
+    </div>
+
+    <div class="image-container">
+        <p class="caption">Jeffrey Sachs acted as a key economic advisor with his <b>"Shock Therapy"</b> during USSR's transition from communism to capitalism in the 1990s.</p>
+        <img src="Jeffrey-Sachs-2.jpg" style="width: 250px; display: inline-block;" alt="Jeffrey Sachs">
+        <img src="Jeffrey-Sachs.jpg" style="width: 250px; display: inline-block;" alt="Jeffrey Sachs">
+    </div>
+
+    <div class="image-container">
+        <p class="caption">"Putinism" is a mixture of often <b>contradictory</b> ideologies and tenets that include: imperialism, revanchism, Eurasianism, ethnocentrism, Slavophilism, Messianism, millenarianism, nationalism, militarism, tsarism, conservatism, authoritarianism, chauvinism, Bolshevism, anti-Westernism, and more.</p>
+        <img src="Putins-totalitarian-democracy.jpg" style="width: 400px; display: inline-block;" alt="Putin's Totalitarian Democracy">
+    </div>
+
+    <div class="image-container">
+        <p class="caption">The Haitian president Jovenel Moïse was assassinated in 2021.  Some speculate that the CIA under Joe Biden was behind it.</p>
+        <img src="Jovenel Moise.jpg" style="width: 500px; display: inline-block;" alt="Jovenel Moïse">
+    </div>
+
+    <!-- Add more sections as needed -->
+    <div class="image-container">
+        <p class="caption"></p>
+        <img src="placeholder-image.jpg" style="width: 300px; display: inline-block;" alt="">
+    </div>
+
+</body>
+</html>

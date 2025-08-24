@@ -217,8 +217,18 @@ app.get('/history-china', (req, res) => {
   res.sendFile(filePath);
 });
 
+// Cold War Dynamics route
+app.get('/cold-war', (req, res) => {
+  const path = require('path');
+  const filePath = path.join(__dirname, '../cold-war-dynamics/Cold War Dynamics.html');
+  res.sendFile(filePath);
+});
+
 // Serve static files from the history directory for images
 app.use('/history-of-modern-china', express.static(path.join(__dirname, '../history-of-modern-china')));
+
+// Serve static files from the cold war directory for images
+app.use('/cold-war-dynamics', express.static(path.join(__dirname, '../cold-war-dynamics')));
 
 // Serve static files from parent directory
 app.use(express.static('../'));
