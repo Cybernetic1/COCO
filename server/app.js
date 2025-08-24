@@ -211,7 +211,7 @@ app.post('/saveJSON', (req, res) => {
 });
 
 // History of Modern China route
-app.get('/history-china', (req, res) => {
+app.get('/history-of-modern-china', (req, res) => {
   const path = require('path');
   const filePath = path.join(__dirname, '../history-of-modern-china/History of Modern China.html');
   res.sendFile(filePath);
