@@ -1,6 +1,8 @@
 require('dotenv').config();
 
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 const session = require('express-session');
 const passport = require('passport');
 const path = require('path');
@@ -231,8 +233,30 @@ app.use(async (req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 8383;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
+
+// Try to start HTTPS server if SSL certificates exist
+const sslKeyPath = path.join(__dirname, '../ssl/key.pem');
+const sslCertPath = path.join(__dirname, '../ssl/cert.pem');
+
+if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
+  const httpsOptions = {
+    key: fs.readFileSync(sslKeyPath),
+    cert: fs.readFileSync(sslCertPath)
+  };
+  
+  https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
+    console.log(`Modular COCO server running on HTTPS port ${HTTPS_PORT}`);
+    console.log(`Access the application at https://localhost:${HTTPS_PORT}`);
+  });
+} else {
+  console.log('SSL certificates not found. HTTPS server not started.');
+  console.log(`Place key.pem and cert.pem in ${path.join(__dirname, '../ssl')} to enable HTTPS.`);
+}
+
+// Also keep HTTP server running
 app.listen(PORT, () => {
-  console.log(`Modular COCO server running on port ${PORT}`);
+  console.log(`Modular COCO server running on HTTP port ${PORT}`);
   console.log(`Access the application at http://localhost:${PORT}`);
 });
 
