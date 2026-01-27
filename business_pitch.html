@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genifer AI Project - Business Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.4em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        section {
+            padding: 50px 50px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        section:last-child {
+            border-bottom: none;
+        }
+        
+        h2 {
+            font-size: 2em;
+            margin-bottom: 25px;
+            color: #1e3c72;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            font-size: 1.4em;
+            margin: 25px 0 12px 0;
+            color: #2a5298;
+        }
+        
+        p {
+            margin-bottom: 18px;
+            font-size: 1.15em;
+            line-height: 1.8;
+        }
+        
+        ul {
+            margin-left: 30px;
+            margin-bottom: 25px;
+        }
+        
+        li {
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+        
+        .problem-solution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .problem-box, .solution-box {
+            padding: 30px;
+            border-radius: 10px;
+        }
+        
+        .problem-box {
+            background: #fff5f5;
+            border-left: 5px solid #e53e3e;
+        }
+        
+        .solution-box {
+            background: #f0fff4;
+            border-left: 5px solid #38a169;
+        }
+        
+        .problem-box h3 {
+            color: #e53e3e;
+        }
+        
+        .solution-box h3 {
+            color: #38a169;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 5px;
+            font-size: 1.15em;
+        }
+        
+        .comparison-graph {
+            text-align: center;
+            margin: 35px 0;
+        }
+        
+        .comparison-graph img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .advantage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .advantage-card {
+            background: white;
+            border: 2px solid #667eea40;
+            padding: 25px;
+            border-radius: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .advantage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .advantage-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .advantage-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 50px;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            color: white;
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        .cta p {
+            font-size: 1.25em;
+            margin-bottom: 15px;
+        }
+        
+        strong {
+            color: #1e3c72;
+        }
+        
+        .cta strong {
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            section {
+                padding: 35px 30px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            h2 {
+                font-size: 1.6em;
+            }
+            
+            .problem-solution {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid, .advantage-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Genifer AI</h1>
+            <p class="subtitle">AI That Shows Its Work</p>
+        </header>
+
+        <section>
+            <h2>The Problem</h2>
+            
+            <div class="problem-solution">
+                <div class="problem-box">
+                    <h3>❌ Current AI Systems</h3>
+                    <ul>
+                        <li><strong>Hallucinate facts</strong> with confidence</li>
+                        <li><strong>Black boxes</strong>—can't explain their reasoning</li>
+                        <li><strong>Require massive data</strong> and computing power</li>
+                        <li><strong>No accountability</strong>—impossible to verify outputs</li>
+                    </ul>
+                </div>
+                
+                <div class="solution-box">
+                    <h3>✓ Genifer AI</h3>
+                    <ul>
+                        <li><strong>Structured reasoning</strong> with logical rules</li>
+                        <li><strong>Transparent</strong>—every decision is traceable</li>
+                        <li><strong>Data efficient</strong>—learns from less</li>
+                        <li><strong>Verifiable</strong>—reasoning can be inspected</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <strong>The Core Innovation:</strong> We combine the learning power of modern AI with the reliability of traditional logic systems. Our AI doesn't just guess—it reasons.
+            </div>
+        </section>
+
+        <section>
+            <h2>What Makes Us Different</h2>
+            
+            <div class="advantage-grid">
+                <div class="advantage-card">
+                    <div class="advantage-icon">🔍</div>
+                    <div class="advantage-title">Explainable</div>
+                    <p>Every decision comes with a clear reasoning chain. No more mysterious black boxes.</p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">⚡</div>
+                    <div class="advantage-title">Efficient</div>
+                    <p>Up to 4006× smaller than comparable AI models. Lower hardware costs, faster deployment, easier maintenance.</p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">🎯</div>
+                    <div class="advantage-title">Accurate</div>
+                    <p>100% accuracy on tested reasoning tasks. Structured logic eliminates guesswork.</p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">🔧</div>
+                    <div class="advantage-title">Manageable</div>
+                    <p>Knowledge can be directly added, inspected, or removed—no retraining the entire system.</p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">📊</div>
+                    <div class="advantage-title">Scalable</div>
+                    <p>Performance improves with more data while maintaining transparency.</p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">🛡️</div>
+                    <div class="advantage-title">Safe</div>
+                    <p>Verifiable reasoning chains enable formal safety guarantees.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Proven Results</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Task Accuracy</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number">171×</div>
+                    <div class="stat-label">Data Efficiency</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number">4006×</div>
+                    <div class="stat-label">Parameter Compression</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number">~31K</div>
+                    <div class="stat-label">Params at Strong Level</div>
+                </div>
+            </div>
+            
+            <h3>Dramatic Size Advantage</h3>
+            <div class="comparison-graph">
+                <img src="compression_comparison.png" alt="Model size comparison: Genifer vs standard AI">
+            </div>
+            
+            <p style="text-align: center; font-style: italic; color: #666;"><strong>At comparable capability levels, Genifer uses 79-4006× fewer parameters than standard Transformer models.</strong> This means dramatically lower costs, faster deployment, and easier verification.</p>
+        </section>
+
+        <section>
+            <h2>Market Opportunity</h2>
+            
+            <h3>High-Stakes Applications</h3>
+            <p>Industries where AI errors have serious consequences need explainable, verifiable AI:</p>
+            
+            <ul>
+                <li><strong>Healthcare:</strong> Medical diagnosis requiring traceable reasoning</li>
+                <li><strong>Finance:</strong> Trading and risk assessment with audit trails</li>
+                <li><strong>Legal:</strong> Contract analysis and case research with citations</li>
+                <li><strong>Government:</strong> Policy analysis and decision support systems</li>
+                <li><strong>Critical Infrastructure:</strong> Systems requiring formal verification</li>
+                <li><strong>Education:</strong> AI tutors that can explain their teaching approach</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <strong>Market Timing:</strong> As AI regulations tighten globally (EU AI Act, US Executive Orders), demand for explainable AI systems is accelerating. Our 4006× parameter efficiency also means dramatically lower operational costs—a critical advantage as compute costs rise.
+            </div>
+        </section>
+
+        <section>
+            <h2>Development Roadmap</h2>
+            
+            <h3>Phase 1: Foundation (Completed)</h3>
+            <ul>
+                <li>✓ Core technology proven on reasoning tasks</li>
+                <li>✓ 100% accuracy demonstrated</li>
+                <li>✓ Scaling properties validated</li>
+            </ul>
+            
+            <h3>Phase 2: Enhancement (6-12 months)</h3>
+            <ul>
+                <li>Complex multi-step reasoning</li>
+                <li>Natural language understanding expansion</li>
+                <li>Industry-specific knowledge modules</li>
+            </ul>
+            
+            <h3>Phase 3: Commercialization (12-18 months)</h3>
+            <ul>
+                <li>Pilot deployments in target industries</li>
+                <li>API and platform development</li>
+                <li>Regulatory compliance and certifications</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Track Record</h2>
+            
+            <ul>
+                <li><strong>20+ years</strong> of research in AI and logic systems</li>
+                <li><strong>Proven compression:</strong> Up to 4006× smaller than comparable models</li>
+                <li><strong>Recent validation:</strong> 100% accuracy on complex reasoning tasks</li>
+                <li><strong>Scalable architecture:</strong> Performance improves with data while maintaining efficiency</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p>From initial concept in 2004 to working prototypes in 2025, our team has systematically solved the core challenges of combining learning with logic.</p>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Investment Opportunity</h2>
+            <p><strong>The global AI market is projected to reach $1.8 trillion by 2030.</strong></p>
+            <p>Explainable AI is the next critical frontier—required by regulators and demanded by high-stakes industries.</p>
+            <p style="margin-top: 30px; font-size: 1.15em;">We're seeking <strong>strategic partners and funding</strong> to accelerate development and bring verifiable AI to market.</p>
+            <p style="margin-top: 25px;">Contact us to discuss collaboration opportunities.</p>
+        </section>
+    </div>
+</body>
+</html>
