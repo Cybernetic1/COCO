@@ -1,0 +1,18 @@
+**** Open port 443
+log into Microsoft Azure, Porwalveer1@gmail.com
+need password and code from his email.
+Then go to virtual machine cocovm
+Under "Networking", "Networking Settings", create in-bound port rule
+port 443, protocol HTTPS
+save rule.
+
+ssh -p 22 coco@20.171.31.113
+password = Coco........
+
+**** allow node server to have root privilege (so it can use ports > 100)
+sudo setcap 'cap_net_bind_service=+ep' $(which node)
+
+export HTTPS_PORT=443
+rm nohup.out
+nohup server/app.js &
+
